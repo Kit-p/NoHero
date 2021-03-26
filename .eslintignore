@@ -1,0 +1,17 @@
+# Config files
+.*rc.js
+*.config.js
+settings.json
+
+# webpack config files
+webpack/
+
+# Dist output files
+dist/
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# asset files
+assets/
