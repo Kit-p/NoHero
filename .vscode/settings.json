@@ -25,5 +25,8 @@
     "prettier.ignorePath": ".prettierignore",
     "prettier.requireConfig": true,
     "prettier.singleQuote": true,
-    "prettier.tabWidth": 4
+    "prettier.tabWidth": 4,
+    "cSpell.words": [
+        "anims"
+    ]
 }
