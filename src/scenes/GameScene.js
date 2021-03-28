@@ -1,8 +1,16 @@
 import Phaser from 'phaser';
 
-export default class Game extends Phaser.Scene {
+export default class GameScene extends Phaser.Scene {
     constructor() {
-        super('game');
+        super({
+            key: 'scene_game',
+            active: true,
+            visible: true,
+        });
+    }
+
+    init() {
+        console.log(this);
     }
 
     preload() {

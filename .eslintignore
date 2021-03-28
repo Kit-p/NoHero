@@ -1,6 +1,6 @@
 # Config files
-.*rc.js
-*.config.js
+.*rc.js*
+*config.js*
 settings.json
 
 # webpack config files

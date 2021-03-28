@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import Game from './scenes/Game';
+import GameScene from './scenes/GameScene';
 
 export default new Phaser.Game({
     title: 'No Hero',
@@ -29,5 +29,5 @@ export default new Phaser.Game({
     render: {
         pixelArt: true,
     },
-    scene: [Game],
+    scene: [GameScene],
 });

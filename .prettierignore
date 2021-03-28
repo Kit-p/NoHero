@@ -124,14 +124,9 @@ Thumbs.db
 *.sublime-workspace
 
 # Config files
-.*rc.js*
-*.config.js*
 settings.json
 package.json
 package-lock.json
-
-# webpack config files
-webpack/
 
 # zip files
 *.zip
