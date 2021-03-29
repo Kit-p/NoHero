@@ -17,7 +17,7 @@ export default class GameScene extends Phaser.Scene {
 
     preload() {
         this.load.image('tile_all-in-one-2', 'assets/tiles/all-in-one/2.png');
-        this.load.tilemapTiledJSON('map_trial-01', 'assets/maps/trial-01.json');
+        this.load.tilemapTiledJSON('map_trial-1', 'assets/maps/trial-1.json');
         this.load.atlas(
             'atlas_all-in-one-2',
             'assets/tiles/all-in-one/2.png',
@@ -26,7 +26,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
-        let map = this.add.tilemap('map_trial-01');
+        let map = this.add.tilemap('map_trial-1');
         map.addTilesetImage('tile_all-in-one-2');
         this.scale.setGameSize(map.widthInPixels, map.heightInPixels);
         let groundLayer = map.createLayer('Ground', 'tile_all-in-one-2', 0, -6);
@@ -54,6 +54,6 @@ export default class GameScene extends Phaser.Scene {
         );
         this.cameras.main.startFollow(player, true, 0.1, 0.1);
         console.log(player);
-        player.getBody().setVelocityX(15);
+        player.getBody().setVelocityY(50);
     }
 }
