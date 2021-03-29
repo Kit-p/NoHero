@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 
+import PlayerCharacter from '../characters/PlayerCharacter';
+
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super({
@@ -30,18 +32,14 @@ export default class GameScene extends Phaser.Scene {
         map.createLayer('Wall', 'tile_all-in-one-2', 0, -6);
         map.setCollisionByProperty({ collides: true });
         this.scale.setGameSize(map.widthInPixels, map.heightInPixels);
-        let elf_m = this.add.sprite(24, 32, 'atlas_all-in-one-2', 0);
-        this.anims.create({
-            key: 'elf_m_idle_anim',
-            frameRate: 4,
-            repeat: -1,
-            frames: this.anims.generateFrameNames('atlas_all-in-one-2', {
-                prefix: 'elf_m_idle_anim_f',
-                start: 0,
-                end: 3,
-                zeroPad: 1,
-            }),
-        });
-        elf_m.play('elf_m_idle_anim');
+        let player = new PlayerCharacter(
+            this,
+            24,
+            32,
+            'elf_m',
+            'atlas_all-in-one-2',
+            'elf_m_idle_anim_f0'
+        );
+        player.animate('idle');
     }
 }
