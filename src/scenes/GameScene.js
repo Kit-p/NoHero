@@ -28,18 +28,32 @@ export default class GameScene extends Phaser.Scene {
     create() {
         let map = this.add.tilemap('map_trial-01');
         map.addTilesetImage('tile_all-in-one-2');
-        map.createLayer('Ground', 'tile_all-in-one-2', 0, -6);
-        map.createLayer('Wall', 'tile_all-in-one-2', 0, -6);
-        map.setCollisionByProperty({ collides: true });
         this.scale.setGameSize(map.widthInPixels, map.heightInPixels);
+        let groundLayer = map.createLayer('Ground', 'tile_all-in-one-2', 0, -6);
+        map.setCollisionByProperty({ collides: true });
         let player = new PlayerCharacter(
             this,
             24,
             32,
-            'elf_m',
             'atlas_all-in-one-2',
-            'elf_m_idle_anim_f0'
+            'elf_m_idle_anim_f0',
+            'elf_m'
         );
-        player.animate('idle');
+        player.play('idle');
+        let wallLayer = map.createLayer('Wall', 'tile_all-in-one-2', 0, -6);
+        map.setCollisionByProperty({ collides: true });
+        this.physics.world.bounds.width = map.widthInPixels;
+        this.physics.world.bounds.height = map.heightInPixels;
+        this.physics.add.collider(player, groundLayer);
+        this.physics.add.collider(player, wallLayer);
+        this.cameras.main.setBounds(
+            0,
+            0,
+            map.widthInPixels,
+            map.heightInPixels
+        );
+        this.cameras.main.startFollow(player, true, 0.1, 0.1);
+        console.log(player);
+        player.getBody().setVelocityX(15);
     }
 }
