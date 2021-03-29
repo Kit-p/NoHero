@@ -5,7 +5,6 @@ import GameScene from './scenes/GameScene';
 export default new Phaser.Game({
     title: 'No Hero',
     type: Phaser.AUTO,
-    backgroundColor: '#000000',
     scale: {
         parent: 'game',
         mode: Phaser.Scale.FIT,
