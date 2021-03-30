@@ -80,4 +80,22 @@ export default class PlayerCharacter extends Character {
             }
         }
     }
+
+    update() {
+        // parent class handles basic movements
+        super.update();
+
+        // update animation
+        if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
+            this.anims.play('idle', true);
+        } else {
+            this.anims.play(
+                {
+                    key: 'run',
+                    frameRate: (this._movementSpeed / 32) * 4, // * subject to change
+                },
+                true
+            );
+        }
+    }
 }

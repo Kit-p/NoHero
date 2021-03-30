@@ -141,7 +141,7 @@ export default class Character extends Phaser.GameObjects.Sprite {
     _createAnimations() {}
 
     /**
-     * Handles basic movements only, must override for finer controls.
+     * Handle basic movements only, must extend or override for finer controls including playing animation.
      */
     update() {
         // handle conflicting key presses by memorizing the key press sequence
@@ -210,17 +210,6 @@ export default class Character extends Phaser.GameObjects.Sprite {
             this.setFlipX(true);
         }
 
-        // update animation
-        if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
-            this.anims.play('idle', true);
-        } else {
-            this.anims.play(
-                {
-                    key: 'run',
-                    frameRate: (this._movementSpeed / 32) * 4, // * subject to change
-                },
-                true
-            );
-        }
+        // * subclasses should extend to update animation if needed
     }
 }
