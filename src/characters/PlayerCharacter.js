@@ -9,6 +9,7 @@ export default class PlayerCharacter extends Character {
      * @param {number} y The initial y-coordinate of the character.
      * @param {string | Phaser.Textures.Texture} texture The key, or instance of the Texture this character will use to render with, as stored in the Texture Manager.
      * @param {string | number} frame An optional frame from the Texture this character is rendering with.
+     * @param {boolean} isHumanControlled Whether this character is initially controlled by human.
      * @param {string} name The name of the character.
      * @param {number} movementSpeed The default movement speed of this character in pixels per second.
      * @param {Types.InputControl[]} controls An array of controls to be associated with this character.
@@ -21,11 +22,23 @@ export default class PlayerCharacter extends Character {
         texture,
         frame,
         name = 'elf_m',
+        isHumanControlled = true,
         movementSpeed = 64,
         controls = Character.DefaultControls,
         type = 'player'
     ) {
-        super(scene, x, y, texture, frame, name, movementSpeed, controls, type);
+        super(
+            scene,
+            x,
+            y,
+            texture,
+            frame,
+            name,
+            isHumanControlled,
+            movementSpeed,
+            controls,
+            type
+        );
     }
 
     _createAnimations() {

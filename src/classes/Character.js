@@ -45,7 +45,7 @@ export default class Character extends Phaser.GameObjects.Sprite {
     }
 
     /** @type {boolean} Whether this character is currently controlled by human */
-    isHumanControlled = false;
+    isHumanControlled;
 
     /** @type {number} Pixels per second */
     _movementSpeed;
@@ -63,6 +63,7 @@ export default class Character extends Phaser.GameObjects.Sprite {
      * @param {string | Phaser.Textures.Texture} texture The key, or instance of the Texture this character will use to render with, as stored in the Texture Manager.
      * @param {string | number} frame An optional frame from the Texture this character is rendering with.
      * @param {string} name The name of the character.
+     * @param {boolean} isHumanControlled Whether this character is initially controlled by human.
      * @param {number} movementSpeed The default movement speed of this character in pixels per second.
      * @param {Types.InputControl[]} controls An array of controls to be associated with this character.
      * @param {string} type A textual representation of the type of sprite, i.e. character.
@@ -74,12 +75,14 @@ export default class Character extends Phaser.GameObjects.Sprite {
         texture,
         frame,
         name = '',
+        isHumanControlled = false,
         movementSpeed = 64,
         controls = Character.DefaultControls,
         type = 'character'
     ) {
         super(scene, x, y, texture, frame);
         this.name = name;
+        this.isHumanControlled = isHumanControlled;
         this._movementSpeed = movementSpeed;
         this.type = type;
 
@@ -144,70 +147,78 @@ export default class Character extends Phaser.GameObjects.Sprite {
      * Handle basic movements only, must extend or override for finer controls including playing animation.
      */
     update() {
-        // handle conflicting key presses by memorizing the key press sequence
-        for (const direction of ['UP', 'DOWN', 'LEFT', 'RIGHT']) {
-            if (
-                this.controls[direction] &&
-                this.controls[direction].key instanceof
-                    Phaser.Input.Keyboard.Key
-            ) {
-                /** @type {Phaser.Input.Keyboard.Key} */
-                // @ts-ignore - Reason: type checked
-                const key = this.controls[direction].key;
-                const keyEqChk = (/** @type {Phaser.Input.Keyboard.Key} */ k) =>
-                    k.keyCode === key.keyCode;
-                let index = this._keyPressSequence.findIndex(keyEqChk);
-                if (key.isDown && index === -1) {
-                    this._keyPressSequence.push(key);
-                } else if (key.isUp && index !== -1) {
-                    // clean up ended key presses
-                    do {
-                        this._keyPressSequence.splice(index, 1);
-                        index = this._keyPressSequence.findIndex(keyEqChk);
-                    } while (index !== -1);
-                }
-            }
-        }
-
-        // update velocity
-        this.body.setVelocity(0, 0);
-        for (const keyPress of this._keyPressSequence) {
-            const direction = Object.keys(this.controls).find((direction) => {
+        if (this.isHumanControlled) {
+            // handle conflicting key presses by memorizing the key press sequence
+            for (const direction of ['UP', 'DOWN', 'LEFT', 'RIGHT']) {
                 if (
+                    this.controls[direction] &&
                     this.controls[direction].key instanceof
-                    Phaser.Input.Keyboard.Key
+                        Phaser.Input.Keyboard.Key
                 ) {
                     /** @type {Phaser.Input.Keyboard.Key} */
                     // @ts-ignore - Reason: type checked
                     const key = this.controls[direction].key;
-                    return key.keyCode === keyPress.keyCode;
-                } else {
-                    return false;
-                }
-            });
-            if (direction !== undefined) {
-                switch (direction) {
-                    case 'UP':
-                        this.body.setVelocityY(-this.movementSpeed);
-                        break;
-                    case 'DOWN':
-                        this.body.setVelocityY(this.movementSpeed);
-                        break;
-                    case 'LEFT':
-                        this.body.setVelocityX(-this.movementSpeed);
-                        break;
-                    case 'RIGHT':
-                        this.body.setVelocityX(this.movementSpeed);
-                        break;
+                    const keyEqChk = (
+                        /** @type {Phaser.Input.Keyboard.Key} */ k
+                    ) => k.keyCode === key.keyCode;
+                    let index = this._keyPressSequence.findIndex(keyEqChk);
+                    if (key.isDown && index === -1) {
+                        this._keyPressSequence.push(key);
+                    } else if (key.isUp && index !== -1) {
+                        // clean up ended key presses
+                        do {
+                            this._keyPressSequence.splice(index, 1);
+                            index = this._keyPressSequence.findIndex(keyEqChk);
+                        } while (index !== -1);
+                    }
                 }
             }
-        }
 
-        // update facing direction
-        if (this.body.velocity.x > 0) {
-            this.setFlipX(false);
-        } else if (this.body.velocity.x < 0) {
-            this.setFlipX(true);
+            // reset velocity
+            this.body.setVelocity(0, 0);
+            // determine movement direction
+            for (const keyPress of this._keyPressSequence) {
+                const direction = Object.keys(this.controls).find(
+                    (direction) => {
+                        if (
+                            this.controls[direction].key instanceof
+                            Phaser.Input.Keyboard.Key
+                        ) {
+                            /** @type {Phaser.Input.Keyboard.Key} */
+                            // @ts-ignore - Reason: type checked
+                            const key = this.controls[direction].key;
+                            return key.keyCode === keyPress.keyCode;
+                        } else {
+                            return false;
+                        }
+                    }
+                );
+                if (direction !== undefined) {
+                    switch (direction) {
+                        case 'UP':
+                            this.body.setVelocityY(-1);
+                            break;
+                        case 'DOWN':
+                            this.body.setVelocityY(1);
+                            break;
+                        case 'LEFT':
+                            this.body.setVelocityX(-1);
+                            break;
+                        case 'RIGHT':
+                            this.body.setVelocityX(1);
+                            break;
+                    }
+                }
+            }
+            // normalize and scale velocity for having uniform speed along all directions
+            this.body.velocity.normalize().scale(this.movementSpeed);
+
+            // update facing direction
+            if (this.body.velocity.x > 0) {
+                this.setFlipX(false);
+            } else if (this.body.velocity.x < 0) {
+                this.setFlipX(true);
+            }
         }
 
         // * subclasses should extend to update animation if needed

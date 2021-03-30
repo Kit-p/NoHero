@@ -37,7 +37,7 @@ export default class GameScene extends Phaser.Scene {
         let player = new PlayerCharacter(
             this,
             24,
-            32,
+            40,
             'atlas_all-in-one-2',
             'elf_m_idle_anim_f0',
             'elf_m'
