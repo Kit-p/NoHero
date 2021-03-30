@@ -3,6 +3,9 @@ import Phaser from 'phaser';
 import PlayerCharacter from '../characters/PlayerCharacter';
 
 export default class GameScene extends Phaser.Scene {
+    /** @type {Phaser.GameObjects.GameObject[]} */
+    gameObjects = [];
+
     constructor() {
         super({
             key: 'scene_game',
@@ -30,7 +33,7 @@ export default class GameScene extends Phaser.Scene {
         map.addTilesetImage('tile_all-in-one-2');
         this.scale.setGameSize(map.widthInPixels, map.heightInPixels);
         let groundLayer = map.createLayer('Ground', 'tile_all-in-one-2', 0, -6);
-        map.setCollisionByProperty({ collides: true });
+        groundLayer.setCollisionByProperty({ collides: true });
         let player = new PlayerCharacter(
             this,
             24,
@@ -39,9 +42,8 @@ export default class GameScene extends Phaser.Scene {
             'elf_m_idle_anim_f0',
             'elf_m'
         );
-        player.play('idle');
         let wallLayer = map.createLayer('Wall', 'tile_all-in-one-2', 0, -6);
-        map.setCollisionByProperty({ collides: true });
+        wallLayer.setCollisionByProperty({ collides: true });
         this.physics.world.bounds.width = map.widthInPixels;
         this.physics.world.bounds.height = map.heightInPixels;
         this.physics.add.collider(player, groundLayer);
@@ -53,7 +55,13 @@ export default class GameScene extends Phaser.Scene {
             map.heightInPixels
         );
         this.cameras.main.startFollow(player, true, 0.1, 0.1);
+        this.gameObjects.push(player);
         console.log(player);
-        player.getBody().setVelocityY(50);
+    }
+
+    update() {
+        for (const gameObject of this.gameObjects) {
+            gameObject.update();
+        }
     }
 }

@@ -10,10 +10,22 @@ export default class PlayerCharacter extends Character {
      * @param {string | Phaser.Textures.Texture} texture The key, or instance of the Texture this character will use to render with, as stored in the Texture Manager.
      * @param {string | number} frame An optional frame from the Texture this character is rendering with.
      * @param {string} name The name of the character.
+     * @param {number} movementSpeed The default movement speed of this character in pixels per second.
+     * @param {Types.InputControl[]} controls An array of controls to be associated with this character.
      * @param {string} type A textual representation of the type of character, i.e. player.
      */
-    constructor(scene, x, y, texture, frame, name = 'elf_m', type = 'player') {
-        super(scene, x, y, texture, frame, name, type);
+    constructor(
+        scene,
+        x,
+        y,
+        texture,
+        frame,
+        name = 'elf_m',
+        movementSpeed = 64,
+        controls = Character.DefaultControls,
+        type = 'player'
+    ) {
+        super(scene, x, y, texture, frame, name, movementSpeed, controls, type);
     }
 
     _createAnimations() {
