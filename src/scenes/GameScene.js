@@ -30,23 +30,47 @@ export default class GameScene extends Phaser.Scene {
         this.load.atlas(
             'atlas_all-in-one-2',
             'assets/tiles/all-in-one/2.png',
-            'assets/tiles/atlases/all-in-one-2.json'
+            'assets/tiles/atlases/tile_all-in-one-2.json'
         );
     }
 
     create() {
         const player = new PlayerCharacter(
             this,
-            24,
-            40,
+            0,
+            0,
             'atlas_all-in-one-2',
-            'elf_m_idle_anim_f0',
-            'elf_m'
+            'big_demon_idle_anim_f0',
+            'big_demon',
+            true
         );
         this.gameObjects.push(player);
 
+        const enemy = new PlayerCharacter(
+            this,
+            0,
+            0,
+            'atlas_all-in-one-2',
+            'knight_m_idle_anim_f0',
+            'knight_m',
+            false
+        );
+        this.gameObjects.push(enemy);
+
+        this.physics.add.collider(this.gameObjects, this.gameObjects);
+
         // create the map for this scene
         this._createMap('map_trial-1', 'tile_all-in-one-2', 0, -6);
+
+        // place the player at the top center of the map
+        player.setX(this.map.tilemap.widthInPixels / 2);
+        player.setY(this.map.tilemap.heightInPixels / 4 - player.height / 2);
+
+        // place the enemy at the bottom center of the map
+        enemy.setX(this.map.tilemap.widthInPixels / 2);
+        enemy.setY(
+            (this.map.tilemap.heightInPixels * 3) / 4 + enemy.height / 2
+        );
     }
 
     update() {
