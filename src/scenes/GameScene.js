@@ -9,8 +9,11 @@ export default class GameScene extends Phaser.Scene {
         layers: [],
     };
 
-    /** @type {Phaser.GameObjects.GameObject[]} */
-    gameObjects = [];
+    /** @type {Phaser.GameObjects.GameObject[]} Game objects with physics. */
+    physicsObjects = [];
+
+    /** @type {Phaser.GameObjects.GameObject[]} Game objects for UI, no physics involved. */
+    uiObjects = [];
 
     constructor() {
         super({
@@ -41,10 +44,13 @@ export default class GameScene extends Phaser.Scene {
             0,
             'atlas_all-in-one-2',
             'big_demon_idle_anim_f0',
-            'big_demon',
-            true
+            {
+                name: 'big_demon',
+                isHumanControlled: true,
+                type: 'player',
+            }
         );
-        this.gameObjects.push(player);
+        this.physicsObjects.push(player);
 
         const enemy = new PlayerCharacter(
             this,
@@ -52,12 +58,22 @@ export default class GameScene extends Phaser.Scene {
             0,
             'atlas_all-in-one-2',
             'knight_m_idle_anim_f0',
-            'knight_m',
-            false
+            {
+                name: 'knight_m',
+                isHumanControlled: false,
+                type: 'enemy',
+            }
         );
-        this.gameObjects.push(enemy);
+        this.physicsObjects.push(enemy);
 
-        this.physics.add.collider(this.gameObjects, this.gameObjects);
+        // make each of the game objects collide with each other
+        this.physics.add.collider(
+            this.physicsObjects,
+            this.physicsObjects,
+            this._physicsObjectCollideCallback,
+            undefined,
+            this
+        );
 
         // create the map for this scene
         this._createMap('map_trial-1', 'tile_all-in-one-2', 0, -6);
@@ -74,8 +90,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update() {
-        for (const gameObject of this.gameObjects) {
-            gameObject.update();
+        for (const physicsObject of this.physicsObjects) {
+            physicsObject.update();
+        }
+        for (const uiObject of this.uiObjects) {
+            uiObject.update();
         }
     }
 
@@ -107,18 +126,35 @@ export default class GameScene extends Phaser.Scene {
             layer.setDepth(layerDepth);
             layerDepth += 10;
             // allow game objects to collide with layer
-            for (const gameObject of this.gameObjects) {
-                this.physics.add.collider(gameObject, layer);
+            for (const physicsObject of this.physicsObjects) {
+                this.physics.add.collider(physicsObject, layer);
             }
             this.map.layers.push(layer);
         }
         // ensure all sprites are at least on top of the lowest layer
-        for (const gameObject of this.gameObjects) {
-            if (gameObject instanceof Phaser.GameObjects.Sprite) {
-                gameObject.setDepth(this.map.layers[0].depth + 1);
+        for (const physicsObject of this.physicsObjects) {
+            if (physicsObject instanceof Phaser.GameObjects.Sprite) {
+                physicsObject.setDepth(this.map.layers[0].depth + 1);
             }
         }
         this.map.tilemap = map;
         return map;
+    }
+
+    /**
+     * A callback function used as ArcadePhysicsCallback.
+     * Check the type of the colliding objects and call corresponding methods if necessary.
+     * @type {ArcadePhysicsCallback}
+     */
+    _physicsObjectCollideCallback(object1, object2) {
+        if (
+            (object1.type === 'player' && object2.type === 'enemy') ||
+            (object1.type === 'enemy' && object2.type === 'player')
+        ) {
+            // TODO: player attacks enemy: play slash animation + damage
+            console.log('attack!');
+        } else {
+            console.log('not interesting...');
+        }
     }
 }
