@@ -56,6 +56,12 @@ export default class Character extends Phaser.GameObjects.Sprite {
     /** @type {Phaser.Input.Keyboard.Key[]} For internal use only, handling conflicting key presses. */
     _keyPressSequence = [];
 
+    /** @type {number} Cooldown for collision with a particular physics object (in milleseconds). */
+    _physicsObjectCollisionCooldown = 3000;
+
+    /** @type {Phaser.Types.Physics.Arcade.GameObjectWithBody[]} A list of collided physics object, will be removed upon reaching cooldown. */
+    _collidedPhysicsObjects = [];
+
     /**
      * @param {Phaser.Scene} scene The Scene to which this character belongs.
      * @param {number} x The initial x-coordinate of the character.
@@ -220,5 +226,33 @@ export default class Character extends Phaser.GameObjects.Sprite {
         }
 
         // * subclasses should extend to update animation if needed
+    }
+
+    /**
+     * Remembers collision with other physics objects by adding them to the `_collidedPhysicsObjects` array.
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object The object collided with.
+     */
+    collidesWith(object) {
+        // prevent adding duplicated objects within cooldown
+        if (this._collidedPhysicsObjects.includes(object)) {
+            return;
+        }
+        // add the collided object to the array
+        this._collidedPhysicsObjects.push(object);
+        // add a delayed callback to remove the collided object from the array after cooldown
+        this.scene.time.delayedCall(
+            this._physicsObjectCollisionCooldown,
+            (
+                /** @type {Phaser.Types.Physics.Arcade.GameObjectWithBody} */ object
+            ) => {
+                let index = this._collidedPhysicsObjects.indexOf(object);
+                while (index !== -1) {
+                    this._collidedPhysicsObjects.splice(index, 1);
+                    index = this._collidedPhysicsObjects.indexOf(object);
+                }
+            },
+            [object],
+            this
+        );
     }
 }

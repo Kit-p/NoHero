@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import PlayerCharacter from '../characters/PlayerCharacter';
+import Character from '../classes/Character';
 
 export default class GameScene extends Phaser.Scene {
     /** @type {{tilemap: Phaser.Tilemaps.Tilemap, layers: Phaser.Tilemaps.TilemapLayer[]}} */
@@ -145,16 +146,30 @@ export default class GameScene extends Phaser.Scene {
      * A callback function used as ArcadePhysicsCallback.
      * Check the type of the colliding objects and call corresponding methods if necessary.
      * @type {ArcadePhysicsCallback}
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
      */
     _physicsObjectCollideCallback(object1, object2) {
+        if (object1 instanceof Character) {
+            object1.collidesWith(object2);
+        }
+        if (object2 instanceof Character) {
+            object2.collidesWith(object1);
+        }
         if (
-            (object1.type === 'player' && object2.type === 'enemy') ||
-            (object1.type === 'enemy' && object2.type === 'player')
+            object1 instanceof PlayerCharacter &&
+            object2 instanceof PlayerCharacter &&
+            object1.type !== object2.type
         ) {
+            let [player, enemy] = [object1, object2];
+            if (player.type !== 'player') {
+                [player, enemy] = [object2, object1];
+            }
+            // prevent repeated attack during collision cooldown
+            if (player._collidedPhysicsObjects.includes(enemy)) {
+                return;
+            }
             // TODO: player attacks enemy: play slash animation + damage
-            console.log('attack!');
-        } else {
-            console.log('not interesting...');
         }
     }
 }
