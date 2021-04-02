@@ -10,7 +10,7 @@ export default class GameScene extends Phaser.Scene {
         layers: [],
     };
 
-    /** @type {Phaser.GameObjects.GameObject[]} Game objects with physics. */
+    /** @type {Phaser.Types.Physics.Arcade.GameObjectWithBody[]} Game objects with physics. */
     physicsObjects = [];
 
     /** @type {Phaser.GameObjects.GameObject[]} Game objects for UI, no physics involved. */
@@ -166,7 +166,7 @@ export default class GameScene extends Phaser.Scene {
                 [player, enemy] = [object2, object1];
             }
             // prevent repeated attack during collision cooldown
-            if (player._collidedPhysicsObjects.includes(enemy)) {
+            if (player.collidedPhysicsObjects.includes(enemy)) {
                 return;
             }
             // TODO: player attacks enemy: play slash animation + damage

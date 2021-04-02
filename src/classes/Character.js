@@ -142,6 +142,10 @@ export default class Character extends Phaser.GameObjects.Sprite {
         return this._controls;
     }
 
+    get collidedPhysicsObjects() {
+        return this._collidedPhysicsObjects;
+    }
+
     /**
      * Must override this function to create the animations.
      */
@@ -234,21 +238,21 @@ export default class Character extends Phaser.GameObjects.Sprite {
      */
     collidesWith(object) {
         // prevent adding duplicated objects within cooldown
-        if (this._collidedPhysicsObjects.includes(object)) {
+        if (this.collidedPhysicsObjects.includes(object)) {
             return;
         }
         // add the collided object to the array
-        this._collidedPhysicsObjects.push(object);
+        this.collidedPhysicsObjects.push(object);
         // add a delayed callback to remove the collided object from the array after cooldown
         this.scene.time.delayedCall(
             this._physicsObjectCollisionCooldown,
             (
                 /** @type {Phaser.Types.Physics.Arcade.GameObjectWithBody} */ object
             ) => {
-                let index = this._collidedPhysicsObjects.indexOf(object);
+                let index = this.collidedPhysicsObjects.indexOf(object);
                 while (index !== -1) {
-                    this._collidedPhysicsObjects.splice(index, 1);
-                    index = this._collidedPhysicsObjects.indexOf(object);
+                    this.collidedPhysicsObjects.splice(index, 1);
+                    index = this.collidedPhysicsObjects.indexOf(object);
                 }
             },
             [object],
