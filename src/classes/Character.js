@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 
+import Utils from '../classes/Utils';
+
 export default class Character extends Phaser.GameObjects.Sprite {
     /**
      * @returns {Types.InputControl[]}
@@ -150,6 +152,19 @@ export default class Character extends Phaser.GameObjects.Sprite {
      * Must override this function to create the animations.
      */
     _createAnimations() {}
+
+    /**
+     * Override the destroy function to add fade out effect.
+     * @param {number} [duration] The duration of fade out effect in milleseconds.
+     */
+    destroy(duration) {
+        // if this character is not active, destroy immediately, otherwise show fade out effect
+        if (this.active) {
+            Utils.fadeOutDestroy(this, duration);
+        } else {
+            super.destroy();
+        }
+    }
 
     /**
      * Handle basic movements only, must extend or override for finer controls including playing animation.

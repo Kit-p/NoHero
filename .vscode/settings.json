@@ -27,6 +27,8 @@
     "prettier.singleQuote": true,
     "prettier.tabWidth": 4,
     "cSpell.words": [
-        "anims"
+        "anims",
+        "tweens",
+        "yoyo"
     ]
 }

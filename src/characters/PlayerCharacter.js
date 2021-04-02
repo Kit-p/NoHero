@@ -190,7 +190,8 @@ export default class PlayerCharacter extends Character {
      * Destroy the sprite and automatically perform garbage cleaning.
      */
     die() {
-        this.destroy();
+        // fade out for 0.5s and destroy this character
+        this.destroy(500);
     }
 
     /**
@@ -200,11 +201,21 @@ export default class PlayerCharacter extends Character {
     //  * param {} attacker The attacker object.
      */
     takeHit(damage) {
-        // play hit animation for 0.5s
+        // set flash and animation duration to 0.1s
+        const hitAnimationDuration = 100;
+        // flash the character to white
+        this.setTintFill(0xffffff);
+        this.scene.time.delayedCall(
+            hitAnimationDuration,
+            () => this.clearTint(),
+            [],
+            this
+        );
+        // play hit animation
         this.anims.play(
             {
                 key: 'hit',
-                duration: 500,
+                duration: hitAnimationDuration,
             },
             false
         );
