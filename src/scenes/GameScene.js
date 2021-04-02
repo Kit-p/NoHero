@@ -10,8 +10,8 @@ export default class GameScene extends Phaser.Scene {
         layers: [],
     };
 
-    /** @type {Phaser.Types.Physics.Arcade.GameObjectWithBody[]} Game objects with physics. */
-    physicsObjects = [];
+    /** @type {Phaser.Physics.Arcade.Group} A group of game objects with physics. */
+    physicsGroup;
 
     /** @type {Phaser.GameObjects.GameObject[]} Game objects for UI, no physics involved. */
     uiObjects = [];
@@ -25,6 +25,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     init() {
+        this.physicsGroup = this.physics.add.group();
         console.log(this);
     }
 
@@ -51,7 +52,7 @@ export default class GameScene extends Phaser.Scene {
                 type: 'player',
             }
         );
-        this.physicsObjects.push(player);
+        this.physicsGroup.add(player);
 
         const enemy = new PlayerCharacter(
             this,
@@ -65,12 +66,12 @@ export default class GameScene extends Phaser.Scene {
                 type: 'enemy',
             }
         );
-        this.physicsObjects.push(enemy);
+        this.physicsGroup.add(enemy);
 
         // make each of the game objects collide with each other
         this.physics.add.collider(
-            this.physicsObjects,
-            this.physicsObjects,
+            this.physicsGroup,
+            this.physicsGroup,
             this._physicsObjectCollideCallback,
             undefined,
             this
@@ -91,11 +92,17 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update() {
-        for (const physicsObject of this.physicsObjects) {
+        // update game objects with physics
+        for (const physicsObject of this.physicsGroup.getChildren()) {
             physicsObject.update();
         }
-        for (const uiObject of this.uiObjects) {
-            uiObject.update();
+        // update ui objects if they are active, remove from array otherwise
+        for (let i = this.uiObjects.length - 1; i >= 0; --i) {
+            if (this.uiObjects[i].active) {
+                this.uiObjects[i].update();
+            } else {
+                this.uiObjects.splice(i, 1);
+            }
         }
     }
 
@@ -127,15 +134,22 @@ export default class GameScene extends Phaser.Scene {
             layer.setDepth(layerDepth);
             layerDepth += 10;
             // allow game objects to collide with layer
-            for (const physicsObject of this.physicsObjects) {
+            for (const physicsObject of this.physicsGroup.getChildren()) {
                 this.physics.add.collider(physicsObject, layer);
             }
             this.map.layers.push(layer);
         }
         // ensure all sprites are at least on top of the lowest layer
-        for (const physicsObject of this.physicsObjects) {
+        for (const physicsObject of this.physicsGroup.getChildren()) {
             if (physicsObject instanceof Phaser.GameObjects.Sprite) {
                 physicsObject.setDepth(this.map.layers[0].depth + 1);
+            }
+        }
+
+        // ensure all ui objects are on top of all layers
+        for (const uiObject of this.uiObjects) {
+            if (uiObject instanceof Phaser.GameObjects.Sprite) {
+                uiObject.setDepth(layerDepth + 1);
             }
         }
         this.map.tilemap = map;
@@ -150,26 +164,26 @@ export default class GameScene extends Phaser.Scene {
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
      */
     _physicsObjectCollideCallback(object1, object2) {
-        if (object1 instanceof Character) {
-            object1.collidesWith(object2);
-        }
-        if (object2 instanceof Character) {
-            object2.collidesWith(object1);
-        }
         if (
             object1 instanceof PlayerCharacter &&
             object2 instanceof PlayerCharacter &&
             object1.type !== object2.type
         ) {
+            if (object1.type !== 'player' && object2.type !== 'player') {
+                // no player involved
+                return;
+            }
             let [player, enemy] = [object1, object2];
             if (player.type !== 'player') {
                 [player, enemy] = [object2, object1];
             }
-            // prevent repeated attack during collision cooldown
-            if (player.collidedPhysicsObjects.includes(enemy)) {
-                return;
-            }
-            // TODO: player attacks enemy: play slash animation + damage
+            player.collideAttacks(enemy);
+        }
+        if (object1 instanceof Character && object1.active) {
+            object1.collidesWith(object2);
+        }
+        if (object2 instanceof Character && object2.active) {
+            object2.collidesWith(object1);
         }
     }
 }
