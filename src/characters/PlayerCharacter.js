@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import Character from '../classes/Character';
+import Utils from '../classes/Utils';
 
 export default class PlayerCharacter extends Character {
     // * Important Note: heart-to-health/damage ratio is 1:2. E.g. 1 heart = 2 health/damage
@@ -13,6 +14,12 @@ export default class PlayerCharacter extends Character {
 
     /** @type {number} The damage applied for collide attack. */
     _collideAttackDamage;
+
+    /** @type {number} The duration of hit animation in milleseconds. */
+    _hitAnimationDuration = 100;
+
+    /** @type {boolean} Whether the loader has completed loading all resources. */
+    _safeToUseResources = false;
 
     /**
      * @param {Phaser.Scene} scene The Scene to which this character belongs.
@@ -49,6 +56,20 @@ export default class PlayerCharacter extends Character {
         this._maxHealth = maxHealth;
         this._health = health;
         this._collideAttackDamage = collideAttackDamage;
+        this.scene.load
+            .atlas(
+                'atlas_effect_attack-1',
+                'assets/tiles/effects/attack-1.png',
+                'assets/tiles/atlases/effect_attack-1.json'
+            )
+            .start();
+        this.scene.load.once(
+            Phaser.Loader.Events.COMPLETE,
+            () => {
+                this._safeToUseResources = true;
+            },
+            this
+        );
     }
 
     get maxHealth() {
@@ -166,6 +187,18 @@ export default class PlayerCharacter extends Character {
                 );
             }
         }
+
+        // add delay for the transition from hit to idle/run
+        this.anims.animationManager.addMix(
+            'hit',
+            'idle',
+            this._hitAnimationDuration
+        );
+        this.anims.animationManager.addMix(
+            'hit',
+            'run',
+            this._hitAnimationDuration
+        );
     }
 
     update() {
@@ -201,12 +234,10 @@ export default class PlayerCharacter extends Character {
     //  * param {} attacker The attacker object.
      */
     takeHit(damage) {
-        // set flash and animation duration to 0.1s
-        const hitAnimationDuration = 100;
         // flash the character to white
         this.setTintFill(0xffffff);
         this.scene.time.delayedCall(
-            hitAnimationDuration,
+            this._hitAnimationDuration,
             () => this.clearTint(),
             [],
             this
@@ -215,7 +246,7 @@ export default class PlayerCharacter extends Character {
         this.anims.play(
             {
                 key: 'hit',
-                duration: hitAnimationDuration,
+                duration: this._hitAnimationDuration,
             },
             false
         );
@@ -232,7 +263,40 @@ export default class PlayerCharacter extends Character {
         if (this.collidedPhysicsObjects.includes(enemy)) {
             return;
         }
-        // TODO: play slash animation
+        const { x, y } = Utils.midPointOf(this, enemy);
+        // play slash animation at mid point with correct rotation
+        const spawnSlashEffect = () => {
+            Utils.spawnVisualEffect(
+                this.scene,
+                x,
+                y,
+                'atlas_effect_attack-1',
+                {
+                    key: 'normal_slash_white',
+                    duration: 100,
+                    repeat: 0,
+                    frames: this.anims.animationManager.generateFrameNames(
+                        'atlas_effect_attack-1',
+                        {
+                            prefix: 'normal_slash_white_anim_f',
+                            start: 1,
+                            end: 5,
+                        }
+                    ),
+                },
+                Utils.inclinationOf(enemy, this)
+            );
+        };
+        // make sure resource is safe to use, otherwise listen to the complete event
+        if (!this._safeToUseResources) {
+            this.scene.load.once(
+                'filecomplete-atlas-atlas_effect_attack-1',
+                spawnSlashEffect,
+                this
+            );
+        } else {
+            spawnSlashEffect();
+        }
         enemy.takeHit(this.collideAttackDamage);
     }
 }

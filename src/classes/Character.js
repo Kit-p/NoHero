@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import Utils from '../classes/Utils';
+import Utils from './Utils';
 
 export default class Character extends Phaser.GameObjects.Sprite {
     /**
