@@ -59,6 +59,20 @@ export default class Utils {
     }
 
     /**
+     * Tint the object with the specified color for the specified duration.
+     * @param {Phaser.Scene} scene The scene the object belongs to.
+     * @param {Phaser.GameObjects.Components.Tint} object The object to be tinted.
+     * @param {number} duration The amount of time to be tinted for in milleseconds.
+     * @param {number} color The color to be tinted with.
+     */
+    static tintFill(scene, object, duration, color) {
+        object.setTintFill(color);
+        if (duration > 0) {
+            scene.time.delayedCall(duration, () => object.clearTint());
+        }
+    }
+
+    /**
      * Create a sprite at the given coordinates, play the specified animation and destroy it.
      * @param {Phaser.Scene} scene The scene to spawn the visual effect.
      * @param {number} x The x-coordinate of the visual effect.

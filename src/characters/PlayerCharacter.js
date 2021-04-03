@@ -235,13 +235,7 @@ export default class PlayerCharacter extends Character {
      */
     takeHit(damage) {
         // flash the character to white
-        this.setTintFill(0xffffff);
-        this.scene.time.delayedCall(
-            this._hitAnimationDuration,
-            () => this.clearTint(),
-            [],
-            this
-        );
+        Utils.tintFill(this.scene, this, this._hitAnimationDuration, 0xffffff);
         // play hit animation
         this.anims.play(
             {

@@ -13,15 +13,11 @@ export default class GameScene extends Phaser.Scene {
     /** @type {Phaser.Physics.Arcade.Group} A group of game objects with physics. */
     physicsGroup;
 
-    /** @type {Phaser.GameObjects.GameObject[]} Game objects for UI, no physics involved. */
-    uiObjects = [];
+    /** @type {PlayerCharacter} The current human controlled character. */
+    currentHumanControlledCharacter;
 
     constructor() {
-        super({
-            key: 'scene_game',
-            active: true,
-            visible: true,
-        });
+        super({ key: 'scene_game' });
     }
 
     init() {
@@ -53,6 +49,7 @@ export default class GameScene extends Phaser.Scene {
             }
         );
         this.physicsGroup.add(player);
+        this.currentHumanControlledCharacter = player;
 
         const enemy = new PlayerCharacter(
             this,
@@ -89,20 +86,15 @@ export default class GameScene extends Phaser.Scene {
         enemy.setY(
             (this.map.tilemap.heightInPixels * 3) / 4 + enemy.height / 2
         );
+
+        // launch the UI scene to both scenes run in parallel
+        this.scene.launch('scene_game-ui', { gameScene: this });
     }
 
     update() {
         // update game objects with physics
         for (const physicsObject of this.physicsGroup.getChildren()) {
             physicsObject.update();
-        }
-        // update ui objects if they are active, remove from array otherwise
-        for (let i = this.uiObjects.length - 1; i >= 0; --i) {
-            if (this.uiObjects[i].active) {
-                this.uiObjects[i].update();
-            } else {
-                this.uiObjects.splice(i, 1);
-            }
         }
     }
 
@@ -143,13 +135,6 @@ export default class GameScene extends Phaser.Scene {
         for (const physicsObject of this.physicsGroup.getChildren()) {
             if (physicsObject instanceof Phaser.GameObjects.Sprite) {
                 physicsObject.setDepth(this.map.layers[0].depth + 1);
-            }
-        }
-
-        // ensure all ui objects are on top of all layers
-        for (const uiObject of this.uiObjects) {
-            if (uiObject instanceof Phaser.GameObjects.Sprite) {
-                uiObject.setDepth(layerDepth + 1);
             }
         }
         this.map.tilemap = map;
