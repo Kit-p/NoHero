@@ -209,6 +209,8 @@ export default class PlayerCharacter extends Character {
     die() {
         // fade out for 0.5s and destroy this character
         this.destroy(500);
+        // disable the physics body to ensure no collision leftover
+        this.body.setEnable(false);
     }
 
     /**
