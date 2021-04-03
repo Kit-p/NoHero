@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import Constants from '../classes/Constants';
 import PlayerCharacter from '../characters/PlayerCharacter';
 import Character from '../classes/Character';
 
@@ -17,7 +18,7 @@ export default class GameScene extends Phaser.Scene {
     currentHumanControlledCharacter;
 
     constructor() {
-        super({ key: 'scene_game' });
+        super({ key: Constants.SCENE.GAME });
     }
 
     init() {
@@ -25,22 +26,12 @@ export default class GameScene extends Phaser.Scene {
         console.log(this);
     }
 
-    preload() {
-        this.load.image('tile_all-in-one-2', 'assets/tiles/all-in-one/2.png');
-        this.load.tilemapTiledJSON('map_trial-1', 'assets/maps/trial-1.json');
-        this.load.atlas(
-            'atlas_all-in-one-2',
-            'assets/tiles/all-in-one/2.png',
-            'assets/tiles/atlases/tile_all-in-one-2.json'
-        );
-    }
-
     create() {
         const player = new PlayerCharacter(
             this,
             0,
             0,
-            'atlas_all-in-one-2',
+            Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
             'big_demon_idle_anim_f0',
             {
                 name: 'big_demon',
@@ -55,7 +46,7 @@ export default class GameScene extends Phaser.Scene {
             this,
             0,
             0,
-            'atlas_all-in-one-2',
+            Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
             'knight_m_idle_anim_f0',
             {
                 name: 'knight_m',
@@ -75,7 +66,12 @@ export default class GameScene extends Phaser.Scene {
         );
 
         // create the map for this scene
-        this._createMap('map_trial-1', 'tile_all-in-one-2', 0, -6);
+        this._createMap(
+            Constants.RESOURCE.TILEMAP.TRIAL_1,
+            Constants.RESOURCE.IMAGE.ALL_IN_ONE_2,
+            0,
+            -6
+        );
 
         // place the player at the top center of the map
         player.setX(this.map.tilemap.widthInPixels / 2);
@@ -88,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
         );
 
         // launch the UI scene to both scenes run in parallel
-        this.scene.launch('scene_game-ui', { gameScene: this });
+        this.scene.launch(Constants.SCENE.GAME_UI, { gameScene: this });
     }
 
     update() {

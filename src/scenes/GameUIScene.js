@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 
+import Constants from '../classes/Constants';
+import Utils from '../classes/Utils';
 import GameScene from './GameScene';
 import PlayerCharacter from '../characters/PlayerCharacter';
-import Utils from '../classes/Utils';
 
 export default class GameUIScene extends Phaser.Scene {
     /** @type {{FULL: string, HALF: string, EMPTY: string}} The enum for predefined frame names of heart frames. */
@@ -10,12 +11,6 @@ export default class GameUIScene extends Phaser.Scene {
         FULL: 'ui_heart_full',
         HALF: 'ui_heart_half',
         EMPTY: 'ui_heart_empty',
-    };
-
-    /** @type {Object.<string, number>} The enum for predefined color (in hex) for UI effects. */
-    static _Colors = {
-        TINT_HEAL: 0x6bea2a,
-        TINT_HIT: 0xffffff,
     };
 
     /** @type {GameScene} The game scene this UI scene belongs to. */
@@ -28,7 +23,7 @@ export default class GameUIScene extends Phaser.Scene {
     _displayPlayer;
 
     constructor() {
-        super({ key: 'scene_game-ui' });
+        super({ key: Constants.SCENE.GAME_UI });
     }
 
     /**
@@ -40,21 +35,15 @@ export default class GameUIScene extends Phaser.Scene {
         if (!(this._gameScene instanceof GameScene)) {
             console.error('GameUIScene: invalid property "gameScene"!');
             this.scene.stop();
+            return;
         }
         this._heartGroup = this.add.group();
         this._displayPlayer = this._gameScene.currentHumanControlledCharacter;
         if (!(this._displayPlayer instanceof PlayerCharacter)) {
             console.error('GameUIScene: invalid player character to display!');
             this.scene.stop();
+            return;
         }
-    }
-
-    preload() {
-        this.load.atlas(
-            'atlas_all-in-one-2',
-            'assets/tiles/all-in-one/2.png',
-            'assets/tiles/atlases/tile_all-in-one-2.json'
-        );
     }
 
     create() {
@@ -66,6 +55,7 @@ export default class GameUIScene extends Phaser.Scene {
         if (!(this._displayPlayer instanceof PlayerCharacter)) {
             console.error('GameUIScene: invalid player character to display!');
             this.scene.stop();
+            return;
         }
         this._updateHearts();
     }
@@ -74,7 +64,7 @@ export default class GameUIScene extends Phaser.Scene {
         this._heartGroup.clear();
         this._heartGroup.createMultiple({
             classType: Phaser.GameObjects.Image,
-            key: 'atlas_all-in-one-2',
+            key: Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
             frame: GameUIScene._HeartFrames.FULL,
             quantity: Math.ceil(this._displayPlayer.maxHealth / 2),
             setXY: {
@@ -106,50 +96,30 @@ export default class GameUIScene extends Phaser.Scene {
                 if (health + 1 < currentPlayerHealth) {
                     // flash green for 0.1s indicating received healing
                     if (heart.frame.name !== GameUIScene._HeartFrames.FULL) {
-                        Utils.tintFill(
-                            this,
-                            heart,
-                            100,
-                            GameUIScene._Colors.TINT_HEAL
-                        );
+                        Utils.tintFill(this, heart, 100, Constants.COLOR.HEAL);
                     }
                     // draw a full heart
                     heart.setFrame(GameUIScene._HeartFrames.FULL);
                 } else {
                     if (heart.frame.name === GameUIScene._HeartFrames.EMPTY) {
                         // flash green for 0.1s indicating received healing
-                        Utils.tintFill(
-                            this,
-                            heart,
-                            100,
-                            GameUIScene._Colors.TINT_HEAL
-                        );
+                        Utils.tintFill(this, heart, 100, Constants.COLOR.HIT);
                     } else if (
                         heart.frame.name === GameUIScene._HeartFrames.FULL
                     ) {
                         // flash white for 0.1s indicating received damage
-                        Utils.tintFill(
-                            this,
-                            heart,
-                            100,
-                            GameUIScene._Colors.TINT_HIT
-                        );
+                        Utils.tintFill(this, heart, 100, Constants.COLOR.HIT);
                     }
                     // draw a half heart
-                    heart.setFrame('ui_heart_half');
+                    heart.setFrame(GameUIScene._HeartFrames.HALF);
                 }
             } else {
                 if (heart.frame.name !== GameUIScene._HeartFrames.EMPTY) {
                     // flash white for 0.1s indicating received damage
-                    Utils.tintFill(
-                        this,
-                        heart,
-                        100,
-                        GameUIScene._Colors.TINT_HIT
-                    );
+                    Utils.tintFill(this, heart, 100, Constants.COLOR.HIT);
                 }
                 // draw an empty heart
-                heart.setFrame('ui_heart_empty');
+                heart.setFrame(GameUIScene._HeartFrames.EMPTY);
             }
         }
     }

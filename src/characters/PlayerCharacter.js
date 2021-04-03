@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 
-import Character from '../classes/Character';
 import Utils from '../classes/Utils';
+import Constants from '../classes/Constants';
+import Character from '../classes/Character';
 
 export default class PlayerCharacter extends Character {
     // * Important Note: heart-to-health/damage ratio is 1:2. E.g. 1 heart = 2 health/damage
@@ -17,9 +18,6 @@ export default class PlayerCharacter extends Character {
 
     /** @type {number} The duration of hit animation in milleseconds. */
     _hitAnimationDuration = 100;
-
-    /** @type {boolean} Whether the loader has completed loading all resources. */
-    _safeToUseResources = false;
 
     /**
      * @param {Phaser.Scene} scene The Scene to which this character belongs.
@@ -56,20 +54,6 @@ export default class PlayerCharacter extends Character {
         this._maxHealth = maxHealth;
         this._health = health;
         this._collideAttackDamage = collideAttackDamage;
-        this.scene.load
-            .atlas(
-                'atlas_effect_attack-1',
-                'assets/tiles/effects/attack-1.png',
-                'assets/tiles/atlases/effect_attack-1.json'
-            )
-            .start();
-        this.scene.load.once(
-            Phaser.Loader.Events.COMPLETE,
-            () => {
-                this._safeToUseResources = true;
-            },
-            this
-        );
     }
 
     get maxHealth() {
@@ -140,7 +124,7 @@ export default class PlayerCharacter extends Character {
         if (this.texture === null) {
             return;
         }
-        let atlasKey = 'atlas_all-in-one-2';
+        let atlasKey = Constants.RESOURCE.ATLAS.ALL_IN_ONE_2;
         if (typeof this.texture === 'string') {
             atlasKey = this.texture;
         } else if (this.texture instanceof Phaser.Textures.Texture) {
@@ -235,7 +219,12 @@ export default class PlayerCharacter extends Character {
      */
     takeHit(damage) {
         // flash the character to white
-        Utils.tintFill(this.scene, this, this._hitAnimationDuration, 0xffffff);
+        Utils.tintFill(
+            this.scene,
+            this,
+            this._hitAnimationDuration,
+            Constants.COLOR.HIT
+        );
         // play hit animation
         this.anims.play(
             {
@@ -259,38 +248,26 @@ export default class PlayerCharacter extends Character {
         }
         const { x, y } = Utils.midPointOf(this, enemy);
         // play slash animation at mid point with correct rotation
-        const spawnSlashEffect = () => {
-            Utils.spawnVisualEffect(
-                this.scene,
-                x,
-                y,
-                'atlas_effect_attack-1',
-                {
-                    key: 'normal_slash_white',
-                    duration: 100,
-                    repeat: 0,
-                    frames: this.anims.animationManager.generateFrameNames(
-                        'atlas_effect_attack-1',
-                        {
-                            prefix: 'normal_slash_white_anim_f',
-                            start: 1,
-                            end: 5,
-                        }
-                    ),
-                },
-                Utils.inclinationOf(enemy, this)
-            );
-        };
-        // make sure resource is safe to use, otherwise listen to the complete event
-        if (!this._safeToUseResources) {
-            this.scene.load.once(
-                'filecomplete-atlas-atlas_effect_attack-1',
-                spawnSlashEffect,
-                this
-            );
-        } else {
-            spawnSlashEffect();
-        }
+        Utils.spawnVisualEffect(
+            this.scene,
+            x,
+            y,
+            Constants.RESOURCE.ATLAS.EFFECT_ATTACK_1,
+            {
+                key: 'normal_slash_white',
+                duration: 100,
+                repeat: 0,
+                frames: this.anims.animationManager.generateFrameNames(
+                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_1,
+                    {
+                        prefix: 'normal_slash_white_anim_f',
+                        start: 1,
+                        end: 5,
+                    }
+                ),
+            },
+            Utils.inclinationOf(enemy, this)
+        );
         enemy.takeHit(this.collideAttackDamage);
     }
 }

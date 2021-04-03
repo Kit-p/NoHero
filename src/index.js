@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import PreloaderScene from './scenes/PreloaderScene';
 import GameScene from './scenes/GameScene';
 import GameUIScene from './scenes/GameUIScene';
 
@@ -29,5 +30,5 @@ export default new Phaser.Game({
     render: {
         pixelArt: true,
     },
-    scene: [GameScene, GameUIScene],
+    scene: [PreloaderScene, GameScene, GameUIScene],
 });
