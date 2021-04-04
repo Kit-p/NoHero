@@ -14,6 +14,7 @@ export default {
     },
     SCENE: {
         PRELOADER: 'scene_preloader',
+        TITLE: 'scene_title',
         GAME: 'scene_game',
         GAME_UI: 'scene_game-ui',
     },

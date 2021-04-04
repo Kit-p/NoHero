@@ -94,4 +94,58 @@ export default class Utils {
             sprite.destroy();
         });
     }
+
+    /**
+     * A utility method to create a text button with on-hover(-end) and on-click callback.
+     * @param {Phaser.Scene} scene The scene to create the button in.
+     * @param {number} x The x-coordinate to create the button.
+     * @param {number} y The y-coordinate to create the button.
+     * @param {string} text The button text.
+     * @param {Phaser.Types.GameObjects.Text.TextStyle} [style] The style of the button text.
+     * @param {Phaser.Types.Input.InputConfiguration} [config] The button input configuration object.
+     * @param {Types.PointerEventCallback} [onHover] The on-hover callback of the button.
+     * @param {Types.PointerEventCallback} [onHoverEnd] The on-hover-end callback of the button.
+     * @param {Types.PointerEventCallback} [onClick] The on-click callback of the button.
+     * @returns {Phaser.GameObjects.Text} The text button created.
+     */
+    static createTextButton(
+        scene,
+        x,
+        y,
+        text,
+        style,
+        config,
+        onHover,
+        onHoverEnd,
+        onClick
+    ) {
+        const button = scene.add.text(x, y, text, style);
+        button.setInteractive(config);
+        button.on('pointerover', onHover);
+        button.on('pointerout', onHoverEnd);
+        button.on('pointerdown', onClick);
+        return button;
+    }
+
+    /**
+     * A utility method to center game objects in the scene.
+     * @param {Phaser.Scene} scene The scene the game objects belong to.
+     * @param {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[]} objects The game objects to be centered.
+     * @param {boolean} centerHorizontally Whether to center horizontally, i.e., on the x-axis.
+     * @param {boolean} centerVertically Whether to center vertically, i.e., on the y-axis.
+     */
+    static centerInScene(scene, objects, centerHorizontally, centerVertically) {
+        const center = {
+            x: scene.game.canvas.width / 2,
+            y: scene.game.canvas.height / 2,
+        };
+        for (const object of objects) {
+            if (centerHorizontally === true) {
+                object.setX(Math.round(center.x - object.displayWidth / 2));
+            }
+            if (centerVertically === true) {
+                object.setY(Math.round(center.y - object.displayHeight / 2));
+            }
+        }
+    }
 }
