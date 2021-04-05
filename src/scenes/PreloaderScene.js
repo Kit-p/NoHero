@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 import Constants from '../classes/Constants';
 
-export default class PreloaderScene extends Phaser.Scene {
+export class PreloaderScene extends Phaser.Scene {
     // * This class loads all needed resources for the game for efficiency.
 
     constructor() {

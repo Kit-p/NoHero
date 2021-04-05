@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 import Constants from '../classes/Constants';
 import Utils from '../classes/Utils';
 
-export default class GameEndScene extends Phaser.Scene {
+export class GameEndScene extends Phaser.Scene {
     /** @type {boolean} Whether the player has victory. */
     _isVictory;
 

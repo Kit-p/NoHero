@@ -1,9 +1,4 @@
 /**
- * @typedef {import ('../classes/Character').default} Character
- * @typedef {import ('../classes/CharacterControlState').default} CharacterControlState
- */
-
-/**
  * @typedef {object} Types.CharacterConfig
  *
  * @property {string} [name] The name of the character.

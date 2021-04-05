@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 
 import Utils from './Utils';
-import CharacterControlState from './CharacterControlState';
+import { CharacterControlState } from './CharacterControlState';
 
-export default class Character extends Phaser.GameObjects.Sprite {
+export class Character extends Phaser.GameObjects.Sprite {
     /**
      * @returns {Types.InputControl[]}
      */

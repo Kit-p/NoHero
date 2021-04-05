@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 
 import Constants from '../classes/Constants';
-import Character from '../classes/Character';
-import PlayerCharacter from '../characters/PlayerCharacter';
-import HumanControlState from '../states/HumanControlState';
+import { Character } from '../classes/Character';
+import { PlayerCharacter } from '../characters/PlayerCharacter';
+import { HumanControlState } from '../states/HumanControlState';
 
-export default class GameScene extends Phaser.Scene {
+export class GameScene extends Phaser.Scene {
     /** @type {{tilemap: Phaser.Tilemaps.Tilemap, layers: Phaser.Tilemaps.TilemapLayer[]}} */
     map = {
         tilemap: null,

@@ -2,10 +2,10 @@ import Phaser from 'phaser';
 
 import Constants from '../classes/Constants';
 import Utils from '../classes/Utils';
-import GameScene from './GameScene';
-import PlayerCharacter from '../characters/PlayerCharacter';
+import { GameScene } from './GameScene';
+import { PlayerCharacter } from '../characters/PlayerCharacter';
 
-export default class GameUIScene extends Phaser.Scene {
+export class GameUIScene extends Phaser.Scene {
     /** @type {{FULL: string, HALF: string, EMPTY: string}} The enum for predefined frame names of heart frames. */
     static _HeartFrames = {
         FULL: 'ui_heart_full',

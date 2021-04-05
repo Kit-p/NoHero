@@ -2,12 +2,12 @@ import Phaser from 'phaser';
 
 import Utils from '../classes/Utils';
 import Constants from '../classes/Constants';
-import Character from '../classes/Character';
+import { Character } from '../classes/Character';
 
 /**
  * @extends Character
  */
-export default class PlayerCharacter extends Character {
+export class PlayerCharacter extends Character {
     // * Important Note: heart-to-health/damage ratio is 1:2. E.g. 1 heart = 2 health/damage
 
     /** @protected @type {number} The current health of the player. */

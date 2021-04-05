@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 
-import PreloaderScene from './scenes/PreloaderScene';
-import TitleScene from './scenes/TitleScene';
-import GameScene from './scenes/GameScene';
-import GameUIScene from './scenes/GameUIScene';
-import GameEndScene from './scenes/GameEndScene';
+import { PreloaderScene } from './scenes/PreloaderScene';
+import { TitleScene } from './scenes/TitleScene';
+import { GameScene } from './scenes/GameScene';
+import { GameUIScene } from './scenes/GameUIScene';
+import { GameEndScene } from './scenes/GameEndScene';
 
 export default new Phaser.Game({
     title: 'No Hero',

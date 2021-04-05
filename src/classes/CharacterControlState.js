@@ -1,6 +1,6 @@
-import Character from './Character';
+import { Character } from './Character';
 
-export default class CharacterControlState {
+export class CharacterControlState {
     /** @protected @type {Character} The character to control. */
     _character;
 

@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 import Constants from '../classes/Constants';
 import Utils from '../classes/Utils';
 
-export default class TitleScene extends Phaser.Scene {
+export class TitleScene extends Phaser.Scene {
     constructor() {
         super({ key: Constants.SCENE.TITLE });
     }

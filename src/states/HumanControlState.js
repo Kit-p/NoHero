@@ -1,12 +1,11 @@
 import Phaser from 'phaser';
 
-import CharacterControlState from '../classes/CharacterControlState';
-import Character from '../classes/Character';
+import { CharacterControlState } from '../classes/CharacterControlState';
 
 /**
  * @extends CharacterControlState
  */
-export default class HumanControlState extends CharacterControlState {
+export class HumanControlState extends CharacterControlState {
     /**
      * @returns {Types.InputControl[]}
      */
@@ -62,9 +61,6 @@ export default class HumanControlState extends CharacterControlState {
      */
     constructor(character, controls = HumanControlState.DefaultControls) {
         super(character);
-        if (!(character instanceof Character)) {
-            throw new Error('HumanControlState: can only control Character!');
-        }
         // add controls to the scene for taking keyboard input
         for (const control of controls) {
             this._controls[control.id] = control;
