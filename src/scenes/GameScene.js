@@ -40,6 +40,12 @@ export class GameScene extends Phaser.Scene {
                 type: 'player',
             }
         );
+        // manually adjust the collision body size and offset
+        player.body.setSize(player.width * 0.7, player.height * 0.8, true);
+        player.body.setOffset(
+            player.body.width * 0.25,
+            player.body.height * 0.25
+        );
         this.physicsGroup.add(player);
         this.currentHumanControlledCharacter = player;
 
@@ -55,6 +61,9 @@ export class GameScene extends Phaser.Scene {
                 type: 'enemy',
             }
         );
+        // manually adjust the collision body size and offset
+        enemy.body.setSize(enemy.width * 0.75, enemy.height * 0.65, true);
+        enemy.body.setOffset(enemy.body.width * 0.15, enemy.body.height * 0.5);
         this.physicsGroup.add(enemy);
 
         // make each of the game objects collide with each other
@@ -86,6 +95,8 @@ export class GameScene extends Phaser.Scene {
 
         // launch the UI scene to both scenes run in parallel
         this.scene.launch(Constants.SCENE.GAME_UI, { gameScene: this });
+
+        this._debug();
     }
 
     update() {
@@ -119,6 +130,7 @@ export class GameScene extends Phaser.Scene {
 
     /**
      * A utility method to create a map and the layers, also handles adding collisions with game objects.
+     * @protected
      * @param {string} tilemap The key of the tilemap.
      * @param {string} tileset The key of the tileset image for the tilemap.
      * @param {number} offsetX The x offset of each layer.
@@ -163,6 +175,7 @@ export class GameScene extends Phaser.Scene {
     /**
      * A callback function used as ArcadePhysicsCallback.
      * Check the type of the colliding objects and call corresponding methods if necessary.
+     * @protected
      * @type {ArcadePhysicsCallback}
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
@@ -188,6 +201,31 @@ export class GameScene extends Phaser.Scene {
         }
         if (object2 instanceof Character && object2.active) {
             object2.collidesWith(object1);
+        }
+    }
+
+    /**
+     * Render debug graphics
+     * @protected
+     */
+    _debug() {
+        const debugGraphics = this.add.graphics().setAlpha(0.5);
+        for (const [i, layer] of this.map.layers.entries()) {
+            layer.renderDebug(debugGraphics, {
+                tileColor: null,
+                collidingTileColor: new Phaser.Display.Color(
+                    (Math.random() * 255 * i) % 255,
+                    (Math.random() * 255 * i) % 255,
+                    (Math.random() * 255 * i) % 255,
+                    255
+                ),
+                faceColor: new Phaser.Display.Color(
+                    (Math.random() * 255 * i) % 255,
+                    (Math.random() * 255 * i) % 255,
+                    (Math.random() * 255 * i) % 255,
+                    255
+                ),
+            });
         }
     }
 }

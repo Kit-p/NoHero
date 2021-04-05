@@ -5,6 +5,7 @@ import { CharacterControlState } from './CharacterControlState';
 
 export class Character extends Phaser.GameObjects.Sprite {
     /**
+     * @static
      * @returns {Types.InputControl[]}
      */
     static get DefaultControls() {
@@ -129,6 +130,7 @@ export class Character extends Phaser.GameObjects.Sprite {
 
     /**
      * Must override this function to create the animations.
+     * @protected
      */
     _createAnimations() {}
 

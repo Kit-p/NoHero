@@ -6,20 +6,20 @@ import { GameScene } from './GameScene';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
 
 export class GameUIScene extends Phaser.Scene {
-    /** @type {{FULL: string, HALF: string, EMPTY: string}} The enum for predefined frame names of heart frames. */
+    /** @static @protected @type {{FULL: string, HALF: string, EMPTY: string}} The enum for predefined frame names of heart frames. */
     static _HeartFrames = {
         FULL: 'ui_heart_full',
         HALF: 'ui_heart_half',
         EMPTY: 'ui_heart_empty',
     };
 
-    /** @type {GameScene} The game scene this UI scene belongs to. */
+    /** @protected @type {GameScene} The game scene this UI scene belongs to. */
     _gameScene;
 
-    /** @type {Phaser.GameObjects.Group} The group for creating hearts. */
+    /** @protected @type {Phaser.GameObjects.Group} The group for creating hearts. */
     _heartGroup;
 
-    /** @type {PlayerCharacter} The player whose information to be displayed. */
+    /** @protected @type {PlayerCharacter} The player whose information to be displayed. */
     _displayPlayer;
 
     constructor() {
@@ -60,6 +60,10 @@ export class GameUIScene extends Phaser.Scene {
         this._updateHearts();
     }
 
+    /**
+     * Create the hearts displaying on the UI.
+     * @protected
+     */
     _createHearts() {
         this._heartGroup.clear();
         this._heartGroup.createMultiple({
@@ -75,6 +79,10 @@ export class GameUIScene extends Phaser.Scene {
         });
     }
 
+    /**
+     * Update the hearts to display correct frames.
+     * @protected
+     */
     _updateHearts() {
         const hearts = this._heartGroup.getChildren();
         const numHearts = hearts.length;

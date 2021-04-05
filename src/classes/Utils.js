@@ -4,6 +4,7 @@ export default class Utils {
     /**
      * Replacement method for `Phaser.GameObjects.GameObject.destroy()`.
      * Add a duration of fade out before destroying the object.
+     * @static
      * @param {Phaser.GameObjects.GameObject} gameObject The game object to be destroyed.
      * @param {number} [duration] The duration of fade out in milleseconds.
      */
@@ -33,6 +34,7 @@ export default class Utils {
 
     /**
      * Returns the mid point of two objects, relative to their center coordinates.
+     * @static
      * @param {Phaser.GameObjects.Components.GetBounds} object1 The first object.
      * @param {Phaser.GameObjects.Components.GetBounds} object2 The second object.
      * @returns {Phaser.Math.Vector2} The Vector2 object containing the mid point coordinates.
@@ -48,6 +50,7 @@ export default class Utils {
 
     /**
      * Returns the inclination (in radian) of object2 from object1, relative to their center coordinates.
+     * @static
      * @param {Phaser.GameObjects.Components.GetBounds} object1 The first object.
      * @param {Phaser.GameObjects.Components.GetBounds} object2 The second object.
      * @returns {number} The inclination (in radian).
@@ -60,6 +63,7 @@ export default class Utils {
 
     /**
      * Tint the object with the specified color for the specified duration.
+     * @static
      * @param {Phaser.Scene} scene The scene the object belongs to.
      * @param {Phaser.GameObjects.Components.Tint} object The object to be tinted.
      * @param {number} duration The amount of time to be tinted for in milleseconds.
@@ -74,6 +78,7 @@ export default class Utils {
 
     /**
      * Create a sprite at the given coordinates, play the specified animation and destroy it.
+     * @static
      * @param {Phaser.Scene} scene The scene to spawn the visual effect.
      * @param {number} x The x-coordinate of the visual effect.
      * @param {number} y The y-coordinate of the visual effect.
@@ -97,6 +102,7 @@ export default class Utils {
 
     /**
      * A utility method to create a text button with on-hover(-end) and on-click callback.
+     * @static
      * @param {Phaser.Scene} scene The scene to create the button in.
      * @param {number} x The x-coordinate to create the button.
      * @param {number} y The y-coordinate to create the button.
@@ -129,6 +135,7 @@ export default class Utils {
 
     /**
      * A utility method to determine whether two objects are on the same level, horizontal or vertical or both.
+     * @static
      * @param {Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform} object1 The first object to compare.
      * @param {Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform} object2 The second object to compare.
      * @param {boolean} horizontally Whether to compare horizontal level.
@@ -157,6 +164,7 @@ export default class Utils {
 
     /**
      * A utility method to calculate the offset for centering all objects in the array on a specified axis.
+     * @static
      * @param {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} center The center coordinates.
      * @param {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[]} objects The objects for determing the offset from and for.
      * @param {boolean} horizontally Whether to calculate the offset on horizontal axis, if false then on vertical axis.
@@ -202,6 +210,7 @@ export default class Utils {
 
     /**
      * A utility method to group game objects by their level on the specified axis.
+     * @static
      * @param {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[]} objects The array of objects to be grouped.
      * @param {boolean} horizontally Whether to calculate the offset on horizontal axis, if false then on vertical axis.
      * @returns {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[][]} The groups.
@@ -241,6 +250,7 @@ export default class Utils {
 
     /**
      * A utility method to center game objects in the scene.
+     * @static
      * @param {Phaser.Scene} scene The scene the game objects belong to.
      * @param {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[]} objects The game objects to be centered.
      * @param {boolean} horizontally Whether to center horizontally, i.e., on the x-axis.

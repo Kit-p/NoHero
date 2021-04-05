@@ -4,7 +4,7 @@ import Constants from '../classes/Constants';
 import Utils from '../classes/Utils';
 
 export class GameEndScene extends Phaser.Scene {
-    /** @type {boolean} Whether the player has victory. */
+    /** @protected @type {boolean} Whether the player has victory. */
     _isVictory;
 
     constructor() {
@@ -17,6 +17,7 @@ export class GameEndScene extends Phaser.Scene {
      */
     init(data) {
         this._isVictory = data.isVictory === true ? true : false;
+        this.scale.setGameSize(800, 600);
     }
 
     create() {
@@ -37,7 +38,7 @@ export class GameEndScene extends Phaser.Scene {
             0,
             this._isVictory ? strings.win.title : strings.lose.title,
             {
-                fontSize: '48px',
+                fontSize: '96px',
                 fontStyle: 'bold',
                 fontFamily: 'Arial',
                 align: 'center',
@@ -47,12 +48,12 @@ export class GameEndScene extends Phaser.Scene {
         // create the (funny?) description with corresponding text
         const description = this.add.text(
             0,
-            title.y + title.displayHeight + 25,
+            title.y + title.displayHeight + 50,
             this._isVictory
                 ? strings.win.description
                 : strings.lose.description,
             {
-                fontSize: '12px',
+                fontSize: '24px',
                 fontStyle: 'normal',
                 fontFamily: 'Arial',
                 align: 'center',

@@ -7,6 +7,7 @@ import { CharacterControlState } from '../classes/CharacterControlState';
  */
 export class HumanControlState extends CharacterControlState {
     /**
+     * @static
      * @returns {Types.InputControl[]}
      */
     static get DefaultControls() {

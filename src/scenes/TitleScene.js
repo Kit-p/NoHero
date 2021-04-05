@@ -8,6 +8,10 @@ export class TitleScene extends Phaser.Scene {
         super({ key: Constants.SCENE.TITLE });
     }
 
+    init() {
+        this.scale.setGameSize(800, 600);
+    }
+
     create() {
         // create game title
         const title = this.add.text(0, 25, 'NO HERO', {
@@ -43,6 +47,6 @@ export class TitleScene extends Phaser.Scene {
         );
 
         // center all objects horizontally in the scene
-        Utils.centerInScene(this, [title, playButton], true, false);
+        Utils.centerInScene(this, [title, playButton], true, true);
     }
 }
