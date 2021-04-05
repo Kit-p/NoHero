@@ -138,6 +138,9 @@ export class GameScene extends Phaser.Scene {
      * @returns {Phaser.Tilemaps.Tilemap} The created map.
      */
     _createMap(tilemap, tileset, offsetX = 0, offsetY = 0) {
+        // reset variables
+        this.map.tilemap = null;
+        this.map.layers = [];
         const map = this.add.tilemap(tilemap);
         map.addTilesetImage(tileset);
         this.scale.setGameSize(map.widthInPixels, map.heightInPixels);
@@ -209,7 +212,7 @@ export class GameScene extends Phaser.Scene {
      * @protected
      */
     _debug() {
-        const debugGraphics = this.add.graphics().setAlpha(0.5);
+        const debugGraphics = this.add.graphics().setAlpha(0.5).setDepth(999);
         for (const [i, layer] of this.map.layers.entries()) {
             layer.renderDebug(debugGraphics, {
                 tileColor: null,

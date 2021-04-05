@@ -61,7 +61,37 @@ export class GameEndScene extends Phaser.Scene {
             }
         );
 
+        // create the restart button
+        const restartButton = Utils.createTextButton(
+            this,
+            0,
+            description.y + description.displayHeight + 100,
+            'Restart',
+            {
+                fontSize: '48px',
+                fontStyle: 'bold',
+                fontFamily: 'Arial',
+                align: 'center',
+                color: '#ffffff',
+            },
+            { useHandCursor: true },
+            /** @this restartButton */
+            function () {
+                this.setStyle({ color: '#ff0000' });
+            },
+            /** @this restartButton */
+            function () {
+                this.setStyle({ color: '#ffffff' });
+            },
+            () => this.scene.start(Constants.SCENE.GAME)
+        );
+
         // center all objects horizontally and vertically in the scene
-        Utils.centerInScene(this, [title, description], true, true);
+        Utils.centerInScene(
+            this,
+            [title, description, restartButton],
+            true,
+            true
+        );
     }
 }
