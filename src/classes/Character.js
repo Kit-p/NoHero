@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import Utils from './Utils';
+import CharacterControlState from './CharacterControlState';
 
 export default class Character extends Phaser.GameObjects.Sprite {
     /**
@@ -46,22 +47,16 @@ export default class Character extends Phaser.GameObjects.Sprite {
         ];
     }
 
-    /** @type {boolean} Whether this character is currently controlled by human */
-    isHumanControlled;
+    /** @type {CharacterControlState} */
+    controlState;
 
-    /** @type {number} Pixels per second */
+    /** @protected @type {number} Pixels per second */
     _movementSpeed;
 
-    /** @type {Object.<string, Types.InputControl>} Controls associated with this character. */
-    _controls = {};
-
-    /** @type {Phaser.Input.Keyboard.Key[]} For internal use only, handling conflicting key presses. */
-    _keyPressSequence = [];
-
-    /** @type {number} Cooldown for collision with a particular physics object (in milleseconds). */
+    /** @protected @type {number} Cooldown for collision with a particular physics object (in milleseconds). */
     _physicsObjectCollisionCooldown = 3000;
 
-    /** @type {Phaser.Types.Physics.Arcade.GameObjectWithBody[]} A list of collided physics object, will be removed upon reaching cooldown. */
+    /** @protected @type {Phaser.Types.Physics.Arcade.GameObjectWithBody[]} A list of collided physics object, will be removed upon reaching cooldown. */
     _collidedPhysicsObjects = [];
 
     /**
@@ -80,15 +75,13 @@ export default class Character extends Phaser.GameObjects.Sprite {
         frame,
         {
             name = '',
-            isHumanControlled = false,
             movementSpeed = 64,
-            controls = Character.DefaultControls,
+            controlState = undefined,
             type = 'character',
         } = {}
     ) {
         super(scene, x, y, texture, frame);
         this.name = name;
-        this.isHumanControlled = isHumanControlled;
         this._movementSpeed = movementSpeed;
         this.type = type;
 
@@ -103,21 +96,11 @@ export default class Character extends Phaser.GameObjects.Sprite {
             );
         }
 
-        // add controls to the scene for taking keyboard input
-        for (const control of controls) {
-            this._controls[control.id] = control;
-            if (control.type === 'KEYBOARD') {
-                if (!control.key || control.key === null) {
-                    console.error(`Missing key for control ${control.id}!`);
-                    continue;
-                }
-                control.key = this.scene.input.keyboard.addKey(
-                    control.key,
-                    control.enableCapture === false ? false : true,
-                    control.emitOnRepeat === true ? true : false
-                );
+        if (typeof controlState === 'function') {
+            this.controlState = new controlState(this);
+            if (!(this.controlState instanceof CharacterControlState)) {
+                throw new Error('Character: invalid control state!');
             }
-            this._controls[control.id].key = control.key;
         }
 
         // creating the animations
@@ -138,10 +121,6 @@ export default class Character extends Phaser.GameObjects.Sprite {
             value = 255;
         }
         this._movementSpeed = value;
-    }
-
-    get controls() {
-        return this._controls;
     }
 
     get collidedPhysicsObjects() {
@@ -170,80 +149,10 @@ export default class Character extends Phaser.GameObjects.Sprite {
      * Handle basic movements only, must extend or override for finer controls including playing animation.
      */
     update() {
-        if (this.isHumanControlled) {
-            // handle conflicting key presses by memorizing the key press sequence
-            for (const direction of ['UP', 'DOWN', 'LEFT', 'RIGHT']) {
-                if (
-                    this.controls[direction] &&
-                    this.controls[direction].key instanceof
-                        Phaser.Input.Keyboard.Key
-                ) {
-                    /** @type {Phaser.Input.Keyboard.Key} */
-                    // @ts-ignore - Reason: type checked
-                    const key = this.controls[direction].key;
-                    const keyEqChk = (
-                        /** @type {Phaser.Input.Keyboard.Key} */ k
-                    ) => k.keyCode === key.keyCode;
-                    let index = this._keyPressSequence.findIndex(keyEqChk);
-                    if (key.isDown && index === -1) {
-                        this._keyPressSequence.push(key);
-                    } else if (key.isUp && index !== -1) {
-                        // clean up ended key presses
-                        do {
-                            this._keyPressSequence.splice(index, 1);
-                            index = this._keyPressSequence.findIndex(keyEqChk);
-                        } while (index !== -1);
-                    }
-                }
-            }
-
-            // reset velocity
-            this.body.setVelocity(0, 0);
-            // determine movement direction
-            for (const keyPress of this._keyPressSequence) {
-                const direction = Object.keys(this.controls).find(
-                    (direction) => {
-                        if (
-                            this.controls[direction].key instanceof
-                            Phaser.Input.Keyboard.Key
-                        ) {
-                            /** @type {Phaser.Input.Keyboard.Key} */
-                            // @ts-ignore - Reason: type checked
-                            const key = this.controls[direction].key;
-                            return key.keyCode === keyPress.keyCode;
-                        } else {
-                            return false;
-                        }
-                    }
-                );
-                if (direction !== undefined) {
-                    switch (direction) {
-                        case 'UP':
-                            this.body.setVelocityY(-1);
-                            break;
-                        case 'DOWN':
-                            this.body.setVelocityY(1);
-                            break;
-                        case 'LEFT':
-                            this.body.setVelocityX(-1);
-                            break;
-                        case 'RIGHT':
-                            this.body.setVelocityX(1);
-                            break;
-                    }
-                }
-            }
-            // normalize and scale velocity for having uniform speed along all directions
-            this.body.velocity.normalize().scale(this.movementSpeed);
-
-            // update facing direction
-            if (this.body.velocity.x > 0) {
-                this.setFlipX(false);
-            } else if (this.body.velocity.x < 0) {
-                this.setFlipX(true);
-            }
+        if (!(this.controlState instanceof CharacterControlState)) {
+            return;
         }
-
+        this.controlState.update();
         // * subclasses should extend to update animation if needed
     }
 

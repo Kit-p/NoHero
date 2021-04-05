@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 
 import Constants from '../classes/Constants';
-import PlayerCharacter from '../characters/PlayerCharacter';
 import Character from '../classes/Character';
+import PlayerCharacter from '../characters/PlayerCharacter';
+import HumanControlState from '../states/HumanControlState';
 
 export default class GameScene extends Phaser.Scene {
     /** @type {{tilemap: Phaser.Tilemaps.Tilemap, layers: Phaser.Tilemaps.TilemapLayer[]}} */
@@ -35,7 +36,7 @@ export default class GameScene extends Phaser.Scene {
             'big_demon_idle_anim_f0',
             {
                 name: 'big_demon',
-                isHumanControlled: true,
+                controlState: HumanControlState,
                 type: 'player',
             }
         );
@@ -50,7 +51,7 @@ export default class GameScene extends Phaser.Scene {
             'knight_m_idle_anim_f0',
             {
                 name: 'knight_m',
-                isHumanControlled: false,
+                controlState: undefined, // StrongAIControlState, // TODO: implement
                 type: 'enemy',
             }
         );

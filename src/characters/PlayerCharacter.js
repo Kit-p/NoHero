@@ -4,19 +4,22 @@ import Utils from '../classes/Utils';
 import Constants from '../classes/Constants';
 import Character from '../classes/Character';
 
+/**
+ * @extends Character
+ */
 export default class PlayerCharacter extends Character {
     // * Important Note: heart-to-health/damage ratio is 1:2. E.g. 1 heart = 2 health/damage
 
-    /** @type {number} The current health of the player. */
+    /** @protected @type {number} The current health of the player. */
     _health;
 
-    /** @type {number} The maximum health of the player. */
+    /** @protected @type {number} The maximum health of the player. */
     _maxHealth;
 
-    /** @type {number} The damage applied for collide attack. */
+    /** @protected @type {number} The damage applied for collide attack. */
     _collideAttackDamage;
 
-    /** @type {number} The duration of hit animation in milleseconds. */
+    /** @protected @type {number} The duration of hit animation in milleseconds. */
     _hitAnimationDuration = 100;
 
     /**
@@ -35,20 +38,18 @@ export default class PlayerCharacter extends Character {
         frame,
         {
             name = 'elf_m',
-            isHumanControlled = true,
             movementSpeed = 64,
             maxHealth = 6,
             health = maxHealth,
             collideAttackDamage = 2,
-            controls = Character.DefaultControls,
+            controlState = undefined,
             type = 'player',
         } = {}
     ) {
         super(scene, x, y, texture, frame, {
             name,
-            isHumanControlled,
             movementSpeed,
-            controls,
+            controlState,
             type,
         });
         this._maxHealth = maxHealth;
@@ -120,6 +121,9 @@ export default class PlayerCharacter extends Character {
         this._collideAttackDamage = value;
     }
 
+    /**
+     * @override
+     */
     _createAnimations() {
         if (this.texture === null) {
             return;
@@ -185,6 +189,9 @@ export default class PlayerCharacter extends Character {
         );
     }
 
+    /**
+     * @override
+     */
     update() {
         // parent class handles basic movements
         super.update();
