@@ -246,35 +246,54 @@ export default class Utils {
      * @param {boolean} horizontally Whether to center horizontally, i.e., on the x-axis.
      * @param {boolean} vertically Whether to center vertically, i.e., on the y-axis.
      * @param {boolean} [groupCentering] Whether to center in groups with relative coordinates.
+     * @param {boolean} [verticallyFirst] Whether to center vertically first then horizontally, only have effect when `horizontally`, `vertically`, and `groupCentering` are all true.
      */
     static centerInScene(
         scene,
         objects,
         horizontally,
         vertically,
-        groupCentering = true
+        groupCentering = true,
+        verticallyFirst = false
     ) {
         const center = {
             x: scene.game.canvas.width / 2,
             y: scene.game.canvas.height / 2,
         };
         if (groupCentering === true) {
-            if (horizontally === true) {
-                for (const group of Utils.groupObjectsByLevel(objects, true)) {
-                    // center the group horizontally
-                    const offset = Utils.offsetToCenter(center, group, true);
+            const groupCenter = (/** @type {boolean} */ horizontally) => {
+                for (const group of Utils.groupObjectsByLevel(
+                    objects,
+                    horizontally
+                )) {
+                    // center the group
+                    const offset = Utils.offsetToCenter(
+                        center,
+                        group,
+                        horizontally
+                    );
                     for (const object of group) {
-                        object.setX(Math.round(object.x + offset));
+                        if (horizontally) {
+                            object.setX(Math.round(object.x + offset));
+                        } else {
+                            object.setY(Math.round(object.y + offset));
+                        }
                     }
                 }
-            }
-            if (vertically === true) {
-                for (const group of Utils.groupObjectsByLevel(objects, false)) {
-                    // center the group vertically
-                    const offset = Utils.offsetToCenter(center, group, false);
-                    for (const object of group) {
-                        object.setY(Math.round(object.y + offset));
-                    }
+            };
+            if (
+                horizontally === true &&
+                vertically === true &&
+                verticallyFirst === true
+            ) {
+                groupCenter(false);
+                groupCenter(true);
+            } else {
+                if (horizontally === true) {
+                    groupCenter(true);
+                }
+                if (vertically === true) {
+                    groupCenter(false);
                 }
             }
         } else {
