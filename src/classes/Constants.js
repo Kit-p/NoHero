@@ -17,6 +17,7 @@ export default {
         TITLE: 'scene_title',
         GAME: 'scene_game',
         GAME_UI: 'scene_game-ui',
+        GAME_END: 'scene_game-end',
     },
     COLOR: {
         HEAL: 0x6bea2a,

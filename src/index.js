@@ -4,6 +4,7 @@ import PreloaderScene from './scenes/PreloaderScene';
 import TitleScene from './scenes/TitleScene';
 import GameScene from './scenes/GameScene';
 import GameUIScene from './scenes/GameUIScene';
+import GameEndScene from './scenes/GameEndScene';
 
 export default new Phaser.Game({
     title: 'No Hero',
@@ -31,5 +32,5 @@ export default new Phaser.Game({
     render: {
         pixelArt: true,
     },
-    scene: [PreloaderScene, TitleScene, GameScene, GameUIScene],
+    scene: [PreloaderScene, TitleScene, GameScene, GameUIScene, GameEndScene],
 });

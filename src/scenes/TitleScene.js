@@ -14,6 +14,7 @@ export default class TitleScene extends Phaser.Scene {
             fontSize: '96px',
             fontStyle: 'bold',
             fontFamily: 'Arial',
+            align: 'center',
             color: '#ffffff',
         });
         // create play button
@@ -26,6 +27,7 @@ export default class TitleScene extends Phaser.Scene {
                 fontSize: '48px',
                 fontStyle: 'bold',
                 fontFamily: 'Arial',
+                align: 'center',
                 color: '#ffffff',
             },
             { useHandCursor: true },

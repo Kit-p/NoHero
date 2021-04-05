@@ -128,23 +128,165 @@ export default class Utils {
     }
 
     /**
+     * A utility method to determine whether two objects are on the same level, horizontal or vertical or both.
+     * @param {Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform} object1 The first object to compare.
+     * @param {Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform} object2 The second object to compare.
+     * @param {boolean} horizontally Whether to compare horizontal level.
+     * @param {boolean} vertically Whether to compare vertical level.
+     * @returns {boolean} Wether the two objects on the same level, for the specified axis.
+     */
+    static onSameLevel(object1, object2, horizontally, vertically) {
+        // set the flags by checking y/x coordinates overlapping
+        const flags = {
+            horizontal:
+                object1.y + object1.displayHeight >= object2.y &&
+                object2.y + object2.displayHeight >= object1.y,
+            vertical:
+                object1.x + object1.displayWidth >= object2.x &&
+                object2.x + object2.displayWidth >= object1.x,
+        };
+        if (horizontally === true && vertically === true) {
+            return flags.horizontal && flags.vertical;
+        } else {
+            return (
+                (horizontally === true && flags.horizontal) ||
+                (vertically === true && flags.vertical)
+            );
+        }
+    }
+
+    /**
+     * A utility method to calculate the offset for centering all objects in the array on a specified axis.
+     * @param {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} center The center coordinates.
+     * @param {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[]} objects The objects for determing the offset from and for.
+     * @param {boolean} horizontally Whether to calculate the offset on horizontal axis, if false then on vertical axis.
+     * @returns {number} The offset.
+     */
+    static offsetToCenter(center, objects, horizontally) {
+        const stats = {
+            minX: Number.MAX_VALUE,
+            maxX: Number.MIN_VALUE,
+            width: -1,
+            minY: Number.MAX_VALUE,
+            maxY: Number.MIN_VALUE,
+            height: -1,
+        };
+        // populate statistics about the objects
+        for (const object of objects) {
+            if (object.x < stats.minX) {
+                stats.minX = object.x;
+            }
+            if (object.y < stats.minY) {
+                stats.minY = object.y;
+            }
+            const objectMaxX = object.x + object.displayWidth;
+            const objectMaxY = object.y + object.displayHeight;
+            if (objectMaxX > stats.maxX) {
+                stats.maxX = objectMaxX;
+            }
+            if (objectMaxY > stats.maxY) {
+                stats.maxY = objectMaxY;
+            }
+        }
+        stats.width = stats.maxX - stats.minX;
+        stats.height = stats.maxY - stats.minY;
+        // calculate offset to center
+        if (horizontally === true) {
+            const startX = center.x - stats.width / 2;
+            return startX - stats.minX;
+        } else {
+            const startY = center.y - stats.height / 2;
+            return startY - stats.minY;
+        }
+    }
+
+    /**
+     * A utility method to group game objects by their level on the specified axis.
+     * @param {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[]} objects The array of objects to be grouped.
+     * @param {boolean} horizontally Whether to calculate the offset on horizontal axis, if false then on vertical axis.
+     * @returns {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[][]} The groups.
+     */
+    static groupObjectsByLevel(objects, horizontally) {
+        /** @type {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[][]} Groups of objects on the same horizontal axis. */
+        const groups = [];
+        for (const object of objects) {
+            // classify group of object by the specified level
+            let classified = false;
+            for (const group of groups) {
+                for (const refObj of group) {
+                    if (
+                        Utils.onSameLevel(
+                            refObj,
+                            object,
+                            horizontally,
+                            !horizontally
+                        )
+                    ) {
+                        group.push(object);
+                        classified = true;
+                        break;
+                    }
+                }
+                if (classified) {
+                    break;
+                }
+            }
+            if (!classified) {
+                groups.push([object]);
+                classified = true;
+            }
+        }
+        return groups;
+    }
+
+    /**
      * A utility method to center game objects in the scene.
      * @param {Phaser.Scene} scene The scene the game objects belong to.
      * @param {(Phaser.GameObjects.Components.ComputedSize & Phaser.GameObjects.Components.Transform)[]} objects The game objects to be centered.
-     * @param {boolean} centerHorizontally Whether to center horizontally, i.e., on the x-axis.
-     * @param {boolean} centerVertically Whether to center vertically, i.e., on the y-axis.
+     * @param {boolean} horizontally Whether to center horizontally, i.e., on the x-axis.
+     * @param {boolean} vertically Whether to center vertically, i.e., on the y-axis.
+     * @param {boolean} [groupCentering] Whether to center in groups with relative coordinates.
      */
-    static centerInScene(scene, objects, centerHorizontally, centerVertically) {
+    static centerInScene(
+        scene,
+        objects,
+        horizontally,
+        vertically,
+        groupCentering = true
+    ) {
         const center = {
             x: scene.game.canvas.width / 2,
             y: scene.game.canvas.height / 2,
         };
-        for (const object of objects) {
-            if (centerHorizontally === true) {
-                object.setX(Math.round(center.x - object.displayWidth / 2));
+        if (groupCentering === true) {
+            if (horizontally === true) {
+                for (const group of Utils.groupObjectsByLevel(objects, true)) {
+                    // center the group horizontally
+                    const offset = Utils.offsetToCenter(center, group, true);
+                    for (const object of group) {
+                        object.setX(Math.round(object.x + offset));
+                    }
+                }
             }
-            if (centerVertically === true) {
-                object.setY(Math.round(center.y - object.displayHeight / 2));
+            if (vertically === true) {
+                for (const group of Utils.groupObjectsByLevel(objects, false)) {
+                    // center the group vertically
+                    const offset = Utils.offsetToCenter(center, group, false);
+                    for (const object of group) {
+                        object.setY(Math.round(object.y + offset));
+                    }
+                }
+            }
+        } else {
+            for (const object of objects) {
+                if (horizontally === true) {
+                    object.setX(Math.round(center.x - object.displayWidth / 2));
+                }
+                if (vertically === true) {
+                    object.setY(
+                        Math.round(center.y - object.displayHeight / 2)
+                    );
+                }
             }
         }
     }

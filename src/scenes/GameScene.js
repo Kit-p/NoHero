@@ -88,9 +88,31 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update() {
+        const count = {
+            player: 0,
+            enemy: 0,
+        };
         // update game objects with physics
         for (const physicsObject of this.physicsGroup.getChildren()) {
             physicsObject.update();
+            // count active game objects for determing end-game situations
+            if (
+                physicsObject.active &&
+                physicsObject instanceof PlayerCharacter
+            ) {
+                if (typeof count[physicsObject.type] !== 'number') {
+                    count[physicsObject.type] = 0;
+                }
+                ++count[physicsObject.type];
+            }
+        }
+        // check end-game situations and transition to game end scene if ended
+        if (count.player === 0 || count.enemy === 0) {
+            // ? potentially use launch(), but need to pause current scenes
+            this.scene.get(Constants.SCENE.GAME_UI).scene.stop();
+            this.scene.start(Constants.SCENE.GAME_END, {
+                isVictory: count.enemy === 0,
+            });
         }
     }
 
