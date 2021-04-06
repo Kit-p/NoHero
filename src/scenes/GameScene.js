@@ -46,8 +46,6 @@ export class GameScene extends Phaser.Scene {
             player.body.width * 0.25,
             player.body.height * 0.25
         );
-        this.physicsGroup.add(player);
-        this.currentHumanControlledCharacter = player;
 
         const enemy = new PlayerCharacter(
             this,
@@ -64,7 +62,9 @@ export class GameScene extends Phaser.Scene {
         // manually adjust the collision body size and offset
         enemy.body.setSize(enemy.width * 0.75, enemy.height * 0.65, true);
         enemy.body.setOffset(enemy.body.width * 0.15, enemy.body.height * 0.5);
-        this.physicsGroup.add(enemy);
+
+        // set reference for GameUIScene to display health
+        this.currentHumanControlledCharacter = player;
 
         // make each of the game objects collide with each other
         this.physics.add.collider(
@@ -84,14 +84,14 @@ export class GameScene extends Phaser.Scene {
         );
 
         // place the player at the top center of the map
-        player.setX(this.map.tilemap.widthInPixels / 2);
-        player.setY(this.map.tilemap.heightInPixels / 4 - player.height / 2);
+        player.setX(this.map.tilemap.widthInPixels * 0.5);
+        player.setY(
+            this.map.tilemap.heightInPixels * 0.25 - player.height * 0.5
+        );
 
         // place the enemy at the bottom center of the map
-        enemy.setX(this.map.tilemap.widthInPixels / 2);
-        enemy.setY(
-            (this.map.tilemap.heightInPixels * 3) / 4 + enemy.height / 2
-        );
+        enemy.setX(this.map.tilemap.widthInPixels * 0.5);
+        enemy.setY(this.map.tilemap.heightInPixels * 0.5 + enemy.height * 0.5);
 
         // launch the UI scene to both scenes run in parallel
         this.scene.launch(Constants.SCENE.GAME_UI, { gameScene: this });

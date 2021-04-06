@@ -20,7 +20,7 @@ export class PlayerCharacter extends Character {
     _collideAttackDamage;
 
     /** @protected @type {number} The duration of hit animation in milleseconds. */
-    _hitAnimationDuration = 100;
+    _hitAnimationDuration = 200;
 
     /**
      * @param {Phaser.Scene} scene The Scene to which this character belongs.
@@ -193,6 +193,14 @@ export class PlayerCharacter extends Character {
      * @override
      */
     update() {
+        // disable control when hit animation is still playing
+        if (
+            this.anims.currentAnim !== null &&
+            this.anims.currentAnim.key === 'hit'
+        ) {
+            return;
+        }
+
         // parent class handles basic movements
         super.update();
 
@@ -224,15 +232,27 @@ export class PlayerCharacter extends Character {
      * Take hit from an attacker, play hit animation if exist.
      * Decrease health by setting health as the decreased health.
      * @param {number} damage Amount of damage to be taken.
-    //  * param {} attacker The attacker object.
+     * @param {Phaser.Physics.Arcade.Body} attacker The attacker physics body.
      */
-    takeHit(damage) {
+    takeHit(damage, attacker) {
         // flash the character to white
         Utils.tintFill(
             this.scene,
             this,
             this._hitAnimationDuration,
             Constants.COLOR.HIT
+        );
+        // bounce the player
+        let vec = new Phaser.Math.Vector2(
+            this.body.x - attacker.x,
+            this.body.y - attacker.y
+        )
+            .normalize()
+            .scale(150);
+        this.body.setVelocity(vec.x, vec.y);
+        // reset velocity so this player does not bounce indefinitely
+        this.scene.time.delayedCall(this._hitAnimationDuration, () =>
+            this.body.setVelocity(0, 0)
         );
         // play hit animation
         this.anims.play(
@@ -242,6 +262,8 @@ export class PlayerCharacter extends Character {
             },
             false
         );
+        // ensure the animation stops after the duration
+        this.anims.playAfterDelay('idle', this._hitAnimationDuration);
         // decrease health with setter so no checking needed
         this.health -= damage;
     }
@@ -277,6 +299,6 @@ export class PlayerCharacter extends Character {
             },
             Utils.inclinationOf(enemy, this)
         );
-        enemy.takeHit(this.collideAttackDamage);
+        enemy.takeHit(this.collideAttackDamage, this.body);
     }
 }

@@ -70,7 +70,7 @@ export class HumanControlState extends CharacterControlState {
                     console.error(`Missing key for control ${control.id}!`);
                     continue;
                 }
-                control.key = this._character.scene.input.keyboard.addKey(
+                control.key = this._scene.input.keyboard.addKey(
                     control.key,
                     control.enableCapture === false ? false : true,
                     control.emitOnRepeat === true ? true : false

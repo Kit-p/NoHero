@@ -1,6 +1,10 @@
 import { Character } from './Character';
+import { GameScene } from '../scenes/GameScene';
 
 export class CharacterControlState {
+    /** @protected @type {GameScene} The scene the character belongs to. */
+    _scene;
+
     /** @protected @type {Character} The character to control. */
     _character;
 
@@ -13,7 +17,13 @@ export class CharacterControlState {
                 'CharacterControlState: can only control Character!'
             );
         }
+        if (!(character.scene instanceof GameScene)) {
+            throw new Error(
+                'CharacterControlState: can only control Character belonging to GameScene!'
+            );
+        }
         this._character = character;
+        this._scene = character.scene;
     }
 
     /**

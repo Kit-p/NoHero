@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import Utils from './Utils';
+import { GameScene } from '../scenes/GameScene';
 import { CharacterControlState } from './CharacterControlState';
 
 export class Character extends Phaser.GameObjects.Sprite {
@@ -82,13 +83,15 @@ export class Character extends Phaser.GameObjects.Sprite {
         } = {}
     ) {
         super(scene, x, y, texture, frame);
+        if (!(this.scene instanceof GameScene)) {
+            throw new Error('Character: must be owned by a GameScene!');
+        }
         this.name = name;
         this._movementSpeed = movementSpeed;
         this.type = type;
 
         // add this character to the scene and the physics plugin
-        this.scene.add.existing(this);
-        this.scene.physics.add.existing(this);
+        this.scene.physicsGroup.add(this, true);
         if (!(this.body instanceof Phaser.Physics.Arcade.Body)) {
             /** @type {Phaser.Physics.Arcade.Body} */
             this.body = new Phaser.Physics.Arcade.Body(
