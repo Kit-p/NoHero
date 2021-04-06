@@ -49,7 +49,7 @@ export class Character extends Phaser.GameObjects.Sprite {
         ];
     }
 
-    /** @protected @type {GameScene} To enforce type checking. */
+    /** @type {GameScene} To enforce type checking. */
     _scene;
 
     /** @type {CharacterControlState} */

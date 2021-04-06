@@ -55,6 +55,9 @@ export class PlayerCharacter extends Character {
         this._maxHealth = maxHealth;
         this._health = health;
         this._collideAttackDamage = collideAttackDamage;
+        if (this.type === 'player') {
+            this.body.pushable = false;
+        }
     }
 
     get maxHealth() {
@@ -169,7 +172,7 @@ export class PlayerCharacter extends Character {
         ];
 
         for (const config of animationConfigs) {
-            if (!this.anims.create(config)) {
+            if (config.frames.length <= 0 || !this.anims.create(config)) {
                 console.error(
                     `Animation creation failed for ${this.name}:${config.key}!`
                 );
@@ -246,14 +249,16 @@ export class PlayerCharacter extends Character {
         this.scene.time.delayedCall(this._hitAnimationDuration, () =>
             this.body.setVelocity(0, 0)
         );
-        // play hit animation
-        this.anims.play(
-            {
-                key: 'hit',
-                duration: this._hitAnimationDuration,
-            },
-            false
-        );
+        // play hit animation if exists
+        if (this.anims.exists('hit')) {
+            this.anims.play(
+                {
+                    key: 'hit',
+                    duration: this._hitAnimationDuration,
+                },
+                false
+            );
+        }
         // ensure the animation stops after the duration
         this.anims.playAfterDelay('idle', this._hitAnimationDuration);
         // decrease health with setter so no checking needed

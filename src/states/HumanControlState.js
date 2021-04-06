@@ -58,7 +58,7 @@ export class HumanControlState extends CharacterControlState {
     _keyPressSequence = [];
 
     /**
-     * @param {Character} character The character to control.
+     * @param {PlayerCharacter} character The character to control.
      * @param {Types.InputControl[]} [controls] An array of controls to be associated with this character.
      */
     constructor(character, controls = HumanControlState.DefaultControls) {

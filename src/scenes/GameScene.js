@@ -4,6 +4,7 @@ import Constants from '../classes/Constants';
 import { Character } from '../classes/Character';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
 import { HumanControlState } from '../states/HumanControlState';
+import { StrongAIControlState } from '../states/StrongAIControlState';
 
 export class GameScene extends Phaser.Scene {
     /** @type {{tilemap: Phaser.Tilemaps.Tilemap, layers: Phaser.Tilemaps.TilemapLayer[]}} */
@@ -55,7 +56,8 @@ export class GameScene extends Phaser.Scene {
             'knight_m_idle_anim_f0',
             {
                 name: 'knight_m',
-                controlState: undefined, // StrongAIControlState, // TODO: implement
+                controlState: StrongAIControlState,
+                collideAttackDamage: 1,
                 type: 'enemy',
             }
         );
@@ -198,6 +200,9 @@ export class GameScene extends Phaser.Scene {
                 [player, enemy] = [object2, object1];
             }
             player.collideAttacks(enemy);
+            // TODO: remove start
+            enemy.collideAttacks(player);
+            // TODO: remove end
         }
         if (object1 instanceof Character && object1.active) {
             object1.collidesWith(object2);
