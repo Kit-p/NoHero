@@ -193,14 +193,6 @@ export class PlayerCharacter extends Character {
      * @override
      */
     update() {
-        // disable control when hit animation is still playing
-        if (
-            this.anims.currentAnim !== null &&
-            this.anims.currentAnim.key === 'hit'
-        ) {
-            return;
-        }
-
         // parent class handles basic movements
         super.update();
 

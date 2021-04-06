@@ -49,6 +49,9 @@ export class Character extends Phaser.GameObjects.Sprite {
         ];
     }
 
+    /** @protected @type {GameScene} To enforce type checking. */
+    _scene;
+
     /** @type {CharacterControlState} */
     controlState;
 
@@ -85,6 +88,8 @@ export class Character extends Phaser.GameObjects.Sprite {
         super(scene, x, y, texture, frame);
         if (!(this.scene instanceof GameScene)) {
             throw new Error('Character: must be owned by a GameScene!');
+        } else {
+            this._scene = this.scene;
         }
         this.name = name;
         this._movementSpeed = movementSpeed;

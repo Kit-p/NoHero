@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import { CharacterControlState } from '../classes/CharacterControlState';
+import { PlayerCharacter } from '../characters/PlayerCharacter';
 
 /**
  * @extends CharacterControlState
@@ -62,6 +63,16 @@ export class HumanControlState extends CharacterControlState {
      */
     constructor(character, controls = HumanControlState.DefaultControls) {
         super(character);
+
+        if (!(this._character instanceof PlayerCharacter)) {
+            throw new Error(
+                'HumanControlState: can only control PlayerCharacter!'
+            );
+        }
+
+        /** @type {PlayerCharacter} */
+        this._character;
+
         // add controls to the scene for taking keyboard input
         for (const control of controls) {
             this._controls[control.id] = control;
@@ -75,8 +86,8 @@ export class HumanControlState extends CharacterControlState {
                     control.enableCapture === false ? false : true,
                     control.emitOnRepeat === true ? true : false
                 );
+                this._controls[control.id].key = control.key;
             }
-            this._controls[control.id].key = control.key;
         }
     }
 
@@ -85,6 +96,14 @@ export class HumanControlState extends CharacterControlState {
      */
     update() {
         super.update();
+
+        // disable control when hit animation is still playing
+        if (
+            this._character.anims.currentAnim !== null &&
+            this._character.anims.currentAnim.key === 'hit'
+        ) {
+            return;
+        }
 
         // handle conflicting key presses by memorizing the key press sequence
         for (const direction of ['UP', 'DOWN', 'LEFT', 'RIGHT']) {
