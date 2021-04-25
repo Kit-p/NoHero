@@ -8,10 +8,13 @@ PANG, Kit ([Kit-p](https://github.com/Kit-p)) <kpangaa@connect.ust.hk>
 
 ## Credit
 
-### tilesets
+### tilesets and sprites
 
 -   source: <https://0x72.itch.io/dungeontileset-ii>  
     author: [0x72](https://0x72.itch.io/)
 
--   source: <https://kvsr.itch.io/fx084>
+-   source: <https://kvsr.itch.io/fx084>  
     author: [NYKNCK](https://kvsr.itch.io/)
+
+-   source: <https://rustybulletgames.itch.io/colored-explosions-asset-pack>  
+    author: [RustyBulletGames](https://rustybulletgames.itch.io/)

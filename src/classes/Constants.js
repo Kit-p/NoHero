@@ -10,6 +10,7 @@ export default {
         ATLAS: {
             ALL_IN_ONE_2: 'atlas_all-in-one-2',
             EFFECT_ATTACK_1: 'atlas_effect_attack-1',
+            EFFECT_ATTACK_2: 'atlas_effect_attack-2',
         },
     },
     SCENE: {
