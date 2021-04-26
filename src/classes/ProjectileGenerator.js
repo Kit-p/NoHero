@@ -24,13 +24,19 @@ export class ProjectileGenerator {
     /** @protected @type {number} The scaling of this projectile generator. */
     _scale;
 
-    /** @type {number} The speed of this projectile. */
+    /** @protected @type {number} The speed of this projectile. */
     _speed;
 
-    /** @type {number} The damage of this projectile. */
+    /** @protected @type {number} The damage of this projectile. */
     _damage;
 
-    /** @type {Phaser.GameObjects.Sprite} The visual representation of this projectile generator. */
+    /** @protected @type {number} The cooldown (in milleseconds) of this projectile. */
+    _cooldown;
+
+    /** @protected @type {boolean} The flag indicating if this projectile is on cooldown. */
+    _isOnCooldown = false;
+
+    /** @protected @type {Phaser.GameObjects.Sprite} The visual representation of this projectile generator. */
     _sprite;
 
     /**
@@ -45,7 +51,14 @@ export class ProjectileGenerator {
         texture,
         frame,
         owner,
-        { x = 0, y = 0, scale = 1.0, speed = 96, damage = 1 } = {}
+        {
+            x = 0,
+            y = 0,
+            scale = 1.0,
+            speed = 96,
+            cooldown = 500,
+            damage = 1,
+        } = {}
     ) {
         if (!(scene instanceof GameScene)) {
             throw new Error('Projectile: must be owned by a GameScene!');
@@ -59,6 +72,7 @@ export class ProjectileGenerator {
         this._y = y;
         this._scale = scale;
         this._speed = speed;
+        this._cooldown = cooldown;
         this._damage = damage;
         this.render();
     }
@@ -133,6 +147,14 @@ export class ProjectileGenerator {
      * @param {number} srcY The source y-coordinate.
      */
     spawn(destX, destY, srcX = this.x, srcY = this.y) {
+        if (this._isOnCooldown) {
+            return;
+        } else {
+            this._isOnCooldown = true;
+            this._scene.time.delayedCall(this._cooldown, () => {
+                this._isOnCooldown = false;
+            });
+        }
         const angle = Math.atan2(destY - srcY, destX - srcX);
         const velocity = {
             x: this._speed * Math.cos(angle),
@@ -145,6 +167,7 @@ export class ProjectileGenerator {
             this._texture,
             this._frame,
             velocity,
+            this._damage,
             this._owner.type,
             this._scale
         );

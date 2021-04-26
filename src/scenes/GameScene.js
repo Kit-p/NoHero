@@ -5,6 +5,7 @@ import { Character } from '../classes/Character';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
 import { HumanControlState } from '../states/HumanControlState';
 import { StrongAIControlState } from '../states/StrongAIControlState';
+import { BasicProjectile } from '../projectiles/BasicProjectile';
 
 export class GameScene extends Phaser.Scene {
     /** @type {{tilemap: Phaser.Tilemaps.Tilemap, layers: Phaser.Tilemaps.TilemapLayer[]}} */
@@ -40,7 +41,7 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(
             this.projectileGroup,
             this.characterGroup,
-            undefined, // this._projectileCollideCallback,
+            this._projectileCollideCallback,
             undefined,
             this
         );
@@ -177,7 +178,13 @@ export class GameScene extends Phaser.Scene {
             layerDepth += 10;
             // allow game objects to collide with layer
             this.physics.add.collider(this.characterGroup, layer);
-            this.physics.add.collider(this.projectileGroup, layer);
+            this.physics.add.collider(
+                this.projectileGroup,
+                layer,
+                this._projectileCollideCallback,
+                undefined,
+                this
+            );
             this.map.layers.push(layer);
         }
         // ensure all sprites are at least on top of the lowest layer
@@ -223,6 +230,50 @@ export class GameScene extends Phaser.Scene {
         if (object2 instanceof Character && object2.active) {
             object2.collidesWith(object1);
         }
+    }
+
+    /**
+     * A callback function used as ArcadePhysicsCallback.
+     * Check the type of the colliding objects and call corresponding methods if necessary.
+     * @protected
+     * @type {ArcadePhysicsCallback}
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
+     */
+    _projectileCollideCallback(object1, object2) {
+        let projectile, character;
+        if (object1 instanceof BasicProjectile) {
+            projectile = object1;
+        } else if (object2 instanceof BasicProjectile) {
+            projectile = object2;
+        } else {
+            return;
+        }
+
+        if (object2 instanceof PlayerCharacter) {
+            character = object2;
+        } else if (object1 instanceof PlayerCharacter) {
+            character = object1;
+        } else {
+            // collide with wall
+            // destroy the projectile
+            projectile.active = false;
+            projectile.body.setEnable(false);
+            projectile.destroy();
+            return;
+        }
+
+        if (projectile.type === character.type) {
+            return;
+        }
+
+        // collide with enemy character and deal damage
+        character.takeHit(projectile.damage, projectile.body);
+
+        // destroy the projectile
+        projectile.active = false;
+        projectile.body.setEnable(false);
+        projectile.destroy();
     }
 
     /**
