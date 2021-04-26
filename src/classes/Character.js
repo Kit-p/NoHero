@@ -4,6 +4,9 @@ import Utils from './Utils';
 import { GameScene } from '../scenes/GameScene';
 import { CharacterControlState } from './CharacterControlState';
 
+/**
+ * @extends Phaser.GameObjects.Sprite
+ */
 export class Character extends Phaser.GameObjects.Sprite {
     /**
      * @static
@@ -96,7 +99,7 @@ export class Character extends Phaser.GameObjects.Sprite {
         this.type = type;
 
         // add this character to the scene and the physics plugin
-        this.scene.physicsGroup.add(this, true);
+        this.scene.characterGroup.add(this, true);
         if (!(this.body instanceof Phaser.Physics.Arcade.Body)) {
             /** @type {Phaser.Physics.Arcade.Body} */
             this.body = new Phaser.Physics.Arcade.Body(

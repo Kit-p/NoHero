@@ -13,8 +13,11 @@ export class GameScene extends Phaser.Scene {
         layers: [],
     };
 
-    /** @type {Phaser.Physics.Arcade.Group} A group of game objects with physics. */
-    physicsGroup;
+    /** @type {Phaser.Physics.Arcade.Group} A group of characters with physics. */
+    characterGroup;
+
+    /** @type {Phaser.Physics.Arcade.Group} A group of projectiles with physics. */
+    projectileGroup;
 
     /** @type {PlayerCharacter} The current human controlled character. */
     currentHumanControlledCharacter;
@@ -24,7 +27,23 @@ export class GameScene extends Phaser.Scene {
     }
 
     init() {
-        this.physicsGroup = this.physics.add.group();
+        this.characterGroup = this.physics.add.group();
+        this.projectileGroup = this.physics.add.group();
+        // make each of the game objects collide with each other
+        this.physics.add.collider(
+            this.characterGroup,
+            this.characterGroup,
+            this._characterCollideCallback,
+            undefined,
+            this
+        );
+        // this.physics.add.collider(
+        //     this.projectileGroup,
+        //     this.characterGroup,
+        //     this._projectileCollideCallback,
+        //     undefined,
+        //     this
+        // );
         console.log(this);
     }
 
@@ -38,6 +57,7 @@ export class GameScene extends Phaser.Scene {
             {
                 name: 'big_demon',
                 controlState: HumanControlState,
+                maxHealth: 18,
                 type: 'player',
             }
         );
@@ -57,6 +77,7 @@ export class GameScene extends Phaser.Scene {
             {
                 name: 'knight_m',
                 controlState: StrongAIControlState,
+                maxHealth: 12,
                 collideAttackDamage: 1,
                 type: 'enemy',
             }
@@ -67,15 +88,6 @@ export class GameScene extends Phaser.Scene {
 
         // set reference for GameUIScene to display health
         this.currentHumanControlledCharacter = player;
-
-        // make each of the game objects collide with each other
-        this.physics.add.collider(
-            this.physicsGroup,
-            this.physicsGroup,
-            this._physicsObjectCollideCallback,
-            undefined,
-            this
-        );
 
         // create the map for this scene
         this._createMap(
@@ -107,25 +119,27 @@ export class GameScene extends Phaser.Scene {
             enemy: 0,
         };
         // update game objects with physics
-        for (const physicsObject of this.physicsGroup.getChildren()) {
-            physicsObject.update();
+        for (const character of this.characterGroup.getChildren()) {
+            character.update();
             // count active game objects for determing end-game situations
-            if (
-                physicsObject.active &&
-                physicsObject instanceof PlayerCharacter
-            ) {
-                if (typeof count[physicsObject.type] !== 'number') {
-                    count[physicsObject.type] = 0;
+            if (character.active && character instanceof PlayerCharacter) {
+                if (typeof count[character.type] !== 'number') {
+                    count[character.type] = 0;
                 }
-                ++count[physicsObject.type];
+                ++count[character.type];
             }
+        }
+        for (const projectile of this.projectileGroup.getChildren()) {
+            projectile.update();
         }
         // check end-game situations and transition to game end scene if ended
         if (count.player === 0 || count.enemy === 0) {
             // ? potentially use launch(), but need to pause current scenes
             this.scene.get(Constants.SCENE.GAME_UI).scene.stop();
-            this.scene.start(Constants.SCENE.GAME_END, {
-                isVictory: count.enemy === 0,
+            this.time.delayedCall(2000, () => {
+                this.scene.start(Constants.SCENE.GAME_END, {
+                    isVictory: count.enemy === 0,
+                });
             });
         }
     }
@@ -162,13 +176,13 @@ export class GameScene extends Phaser.Scene {
             layer.setDepth(layerDepth);
             layerDepth += 10;
             // allow game objects to collide with layer
-            for (const physicsObject of this.physicsGroup.getChildren()) {
+            for (const physicsObject of this.characterGroup.getChildren()) {
                 this.physics.add.collider(physicsObject, layer);
             }
             this.map.layers.push(layer);
         }
         // ensure all sprites are at least on top of the lowest layer
-        for (const physicsObject of this.physicsGroup.getChildren()) {
+        for (const physicsObject of this.characterGroup.getChildren()) {
             if (physicsObject instanceof Phaser.GameObjects.Sprite) {
                 physicsObject.setDepth(this.map.layers[0].depth + 1);
             }
@@ -185,7 +199,7 @@ export class GameScene extends Phaser.Scene {
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
      */
-    _physicsObjectCollideCallback(object1, object2) {
+    _characterCollideCallback(object1, object2) {
         if (
             object1 instanceof PlayerCharacter &&
             object2 instanceof PlayerCharacter &&

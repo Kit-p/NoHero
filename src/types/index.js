@@ -3,6 +3,7 @@
  */
 
 /**
+ * @typedef {import ('../classes/ProjectileGenerator').ProjectileGenerator} ProjectileGenerator
  * @typedef {import ('../classes/Character').Character} Character
  * @typedef {import ('../classes/CharacterControlState').CharacterControlState} CharacterControlState
  * @typedef {import ('../characters/PlayerCharacter').PlayerCharacter} PlayerCharacter

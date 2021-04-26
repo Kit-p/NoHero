@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import Utils from '../classes/Utils';
 import Constants from '../classes/Constants';
 import { Character } from '../classes/Character';
+import { ProjectileGenerator } from '../classes/ProjectileGenerator';
 
 /**
  * @extends Character
@@ -22,6 +23,12 @@ export class PlayerCharacter extends Character {
     /** @protected @type {number} The duration of hit animation in milleseconds. */
     _hitAnimationDuration = 200;
 
+    /** @protected @type {ProjectileGenerator[]} The projectiles available for this character. */
+    _availableProjectiles = [];
+
+    /** @type {ProjectileGenerator} The current projectile selected by this character. */
+    currentProjectile;
+
     /**
      * @param {Phaser.Scene} scene The Scene to which this character belongs.
      * @param {number} x The initial x-coordinate of the character.
@@ -39,7 +46,7 @@ export class PlayerCharacter extends Character {
         {
             name = 'elf_m',
             movementSpeed = 64,
-            maxHealth = 6,
+            maxHealth = 18,
             health = maxHealth,
             collideAttackDamage = 2,
             controlState = undefined,
@@ -58,6 +65,7 @@ export class PlayerCharacter extends Character {
         if (this.type === 'player') {
             this.body.pushable = false;
         }
+        this._createProjectiles();
     }
 
     get maxHealth() {
@@ -211,6 +219,16 @@ export class PlayerCharacter extends Character {
                 true
             );
         }
+
+        // update projectile generator position
+        const radius = this.displayHeight / 2 + 5;
+        const center = this.getCenter();
+        let angle = Math.atan2(
+            this.scene.input.mousePointer.y - center.y,
+            this.scene.input.mousePointer.x - center.x
+        );
+        this.currentProjectile.x = center.x + Math.cos(angle) * radius;
+        this.currentProjectile.y = center.y + Math.sin(angle) * radius;
     }
 
     /**
@@ -297,5 +315,47 @@ export class PlayerCharacter extends Character {
             Utils.inclinationOf(enemy, this)
         );
         enemy.takeHit(this.collideAttackDamage, this.body);
+    }
+
+    /**
+     * Create an array of available projectiles for this character.
+     */
+    _createProjectiles() {
+        if (this.type === 'player') {
+            // create available projectiles for player
+            this._availableProjectiles.push(
+                new ProjectileGenerator(
+                    this._scene,
+                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_2,
+                    'bullet_red_anim_f1',
+                    this,
+                    {
+                        x: 50,
+                        y: 50,
+                        scale: 0.3,
+                        speed: 96,
+                        damage: 2,
+                    }
+                )
+            );
+        } else {
+            // create available projectiles for enemy
+            this._availableProjectiles.push(
+                new ProjectileGenerator(
+                    this._scene,
+                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_2,
+                    'bullet_cyan_anim_f1',
+                    this,
+                    {
+                        x: 50,
+                        y: 50,
+                        scale: 0.3,
+                        speed: 128,
+                        damage: 1,
+                    }
+                )
+            );
+        }
+        this.currentProjectile = this._availableProjectiles[0];
     }
 }

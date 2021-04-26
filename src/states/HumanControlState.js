@@ -175,5 +175,55 @@ export class HumanControlState extends CharacterControlState {
         } else if (this._character.body.velocity.x < 0) {
             this._character.setFlipX(true);
         }
+
+        this._handleFireProjectile();
+    }
+
+    /**
+     * A handler for firing projectile.
+     * @protected
+     */
+    _handleFireProjectile() {
+        const fireControl = this._controls['FIRE'];
+        let toFire = false;
+        if (fireControl === undefined || fireControl === null) {
+            return;
+        }
+        if (fireControl.type === 'MOUSE') {
+            // check if mouse button is held down
+            switch (fireControl.mouseButton) {
+                case 'PRIMARY':
+                    toFire = this._scene.input.mousePointer.primaryDown;
+                    break;
+                case 'LEFT':
+                    toFire = this._scene.input.mousePointer.leftButtonDown();
+                    break;
+                case 'MIDDLE':
+                    toFire = this._scene.input.mousePointer.middleButtonDown();
+                    break;
+                case 'RIGHT':
+                    toFire = this._scene.input.mousePointer.rightButtonDown();
+                    break;
+                case 'ANY':
+                default:
+                    toFire = !this._scene.input.mousePointer.noButtonDown();
+            }
+        } else {
+            // check if key is held down
+            const key = fireControl.key;
+            if (!(key instanceof Phaser.Input.Keyboard.Key)) {
+                return;
+            } else {
+                toFire = key.isDown;
+            }
+        }
+
+        if (toFire) {
+            // spawn the projectile flying towards the mouse pointer location
+            this._character.currentProjectile.spawn(
+                this._scene.input.mousePointer.x,
+                this._scene.input.mousePointer.y
+            );
+        }
     }
 }
