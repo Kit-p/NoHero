@@ -47,13 +47,27 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
             );
         }
 
+        // set collision size
+        this.body.setCircle(this.displayWidth / 2);
+
         // set the scaling
         this.setScale(scale);
 
-        // set collision size
-        this.body.setCircle(10 * scale);
-
         // set initial velocity of this projectile
         this.body.setVelocity(this._velocity.x, this._velocity.y);
+    }
+
+    update() {
+        // self-destroy when out-of-bound
+        if (
+            this.x < 0 ||
+            this.x > this._scene.physics.world.bounds.width ||
+            this.y < 0 ||
+            this.y > this._scene.physics.world.bounds.height
+        ) {
+            this.active = false;
+            this.body.setEnable(false);
+            this.destroy();
+        }
     }
 }

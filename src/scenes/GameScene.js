@@ -37,13 +37,13 @@ export class GameScene extends Phaser.Scene {
             undefined,
             this
         );
-        // this.physics.add.collider(
-        //     this.projectileGroup,
-        //     this.characterGroup,
-        //     this._projectileCollideCallback,
-        //     undefined,
-        //     this
-        // );
+        this.physics.add.collider(
+            this.projectileGroup,
+            this.characterGroup,
+            undefined, // this._projectileCollideCallback,
+            undefined,
+            this
+        );
         console.log(this);
     }
 
@@ -176,15 +176,14 @@ export class GameScene extends Phaser.Scene {
             layer.setDepth(layerDepth);
             layerDepth += 10;
             // allow game objects to collide with layer
-            for (const physicsObject of this.characterGroup.getChildren()) {
-                this.physics.add.collider(physicsObject, layer);
-            }
+            this.physics.add.collider(this.characterGroup, layer);
+            this.physics.add.collider(this.projectileGroup, layer);
             this.map.layers.push(layer);
         }
         // ensure all sprites are at least on top of the lowest layer
-        for (const physicsObject of this.characterGroup.getChildren()) {
-            if (physicsObject instanceof Phaser.GameObjects.Sprite) {
-                physicsObject.setDepth(this.map.layers[0].depth + 1);
+        for (const character of this.characterGroup.getChildren()) {
+            if (character instanceof Phaser.GameObjects.Sprite) {
+                character.setDepth(this.map.layers[0].depth + 1);
             }
         }
         this.map.tilemap = map;
