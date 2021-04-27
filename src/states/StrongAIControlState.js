@@ -58,7 +58,8 @@ export class StrongAIControlState extends CharacterControlState {
      * @protected
      */
     _decideControl() {
-        const characters = this._character._scene.physicsGroup.getChildren();
+        // decide which player to track
+        const characters = this._character._scene.characterGroup.getChildren();
         let playerToTrack;
         for (const character of characters) {
             if (
@@ -70,13 +71,144 @@ export class StrongAIControlState extends CharacterControlState {
             playerToTrack = character;
             break;
         }
-        const inclination = Utils.inclinationOf(this._character, playerToTrack);
+
+        let trackAngle = Utils.inclinationOf(this._character, playerToTrack);
+
+        // decide how to track the player by avoiding projectile
+        const collisionBounds = this._computeCollisionBounds();
+
+        // adjust trackAngle to avoid collision with projectile
+        for (const bound of collisionBounds) {
+            if (trackAngle <= bound.lower || trackAngle >= bound.higher) {
+                continue;
+            }
+            // trackAngle will run into projectile
+            // adjust to closest angle without collision
+            trackAngle =
+                Math.abs(trackAngle - bound.lower) <
+                Math.abs(trackAngle - bound.higher)
+                    ? bound.lower
+                    : bound.higher;
+        }
+
+        // move the character in trackAngle
         const vec = new Phaser.Math.Vector2(
-            Math.cos(inclination),
-            Math.sin(inclination)
+            Math.cos(trackAngle),
+            Math.sin(trackAngle)
         )
             .normalize()
             .scale(this._character.movementSpeed);
         this._character.body.setVelocity(vec.x, vec.y);
+    }
+
+    /**
+     * Compute the collision angle bounds that will run into projectile.
+     * @protected
+     * @returns {{lower: number, higher: number}[]} An array of collision angle bounds.
+     */
+    _computeCollisionBounds() {
+        /** @type {{lower: number, higher: number}[]} An array of collision angle bounds. */
+        const collisionBounds = [];
+        const center = this._character.body.center;
+        const projectiles = this._character._scene.projectileGroup.getChildren();
+        // calculate projectile collision angle bounds
+        for (const projectile of projectiles) {
+            if (
+                projectile.type === this._character.type ||
+                !(projectile.body instanceof Phaser.Physics.Arcade.Body)
+            ) {
+                return;
+            }
+
+            const projectileAngle = Math.atan2(
+                projectile.body.position.y - center.y,
+                projectile.body.position.x - center.x
+            );
+
+            // compute safe distance (minimum distance away from projectile to avoid collision)
+            const safeDistance = this._computeSafeDistance(projectileAngle);
+
+            const radius = projectile.body.radius;
+            const distance = Phaser.Math.Distance.BetweenPoints(
+                projectile.body.center,
+                this._character.body.center
+            );
+            if (typeof radius !== 'number' || typeof distance !== 'number') {
+                return;
+            }
+            const collisionAngle = Math.atan2(radius + safeDistance, distance);
+
+            collisionBounds.push({
+                lower: projectileAngle - collisionAngle,
+                higher: projectileAngle + collisionAngle,
+            });
+        }
+
+        // clean up overlapping bounds
+        for (let i = collisionBounds.length - 1; i >= 0; --i) {
+            for (let j = collisionBounds.length - 1; j >= 0; --j) {
+                if (i >= collisionBounds.length) {
+                    i = collisionBounds.length - 1;
+                }
+
+                if (j >= collisionBounds.length) {
+                    j = collisionBounds.length - 1;
+                }
+
+                if (i < 0 || j < 0) {
+                    break;
+                }
+
+                if (i === j) {
+                    continue;
+                }
+
+                // check if bounds overlapping
+                if (
+                    collisionBounds[i].higher >= collisionBounds[j].lower &&
+                    collisionBounds[j].higher >= collisionBounds[i].lower
+                ) {
+                    // merge overlapping bounds
+                    collisionBounds[i].lower =
+                        collisionBounds[j].lower < collisionBounds[i].lower
+                            ? collisionBounds[j].lower
+                            : collisionBounds[i].lower;
+                    collisionBounds[i].higher =
+                        collisionBounds[j].higher > collisionBounds[i].higher
+                            ? collisionBounds[j].higher
+                            : collisionBounds[i].higher;
+
+                    collisionBounds.splice(j, 1);
+                    // prevent invalid access and ensure complete checking
+                    --i;
+                }
+            }
+        }
+        return collisionBounds;
+    }
+
+    /**
+     * Compute safe distance (minimum distance away from projectile to avoid collision).
+     * @protected
+     * @param {number} projectileAngle The angle (in radian) of projectile relative to the character.
+     * @returns {number} The safe distance.
+     */
+    _computeSafeDistance(projectileAngle) {
+        const center = this._character.body.center;
+        const safeAngle = projectileAngle - Math.PI / 2;
+        const cosSafeAngle = Math.cos(safeAngle);
+        const sinSafeAngle = Math.sin(safeAngle);
+        let safeX, safeY;
+        if (
+            this._character.body.width * Math.abs(sinSafeAngle) <
+            this._character.body.height * Math.abs(cosSafeAngle)
+        ) {
+            safeX = Math.sign(cosSafeAngle) * this._character.body.halfWidth;
+            safeY = Math.tan(safeAngle) * safeX;
+        } else {
+            safeY = Math.sign(sinSafeAngle) * this._character.body.halfHeight;
+            safeX = (1 / Math.tan(safeAngle)) * safeY;
+        }
+        return Math.hypot(center.x - safeX, center.y - safeY);
     }
 }
