@@ -258,7 +258,7 @@ export class GameScene extends Phaser.Scene {
             // collide with wall
             // destroy the projectile
             projectile.active = false;
-            projectile.body.setEnable(false);
+            projectile.body?.setEnable(false);
             projectile.destroy();
             return;
         }
@@ -272,7 +272,7 @@ export class GameScene extends Phaser.Scene {
 
         // destroy the projectile
         projectile.active = false;
-        projectile.body.setEnable(false);
+        projectile.body?.setEnable(false);
         projectile.destroy();
     }
 

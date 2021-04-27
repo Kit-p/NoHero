@@ -97,7 +97,7 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
             this.y > this._scene.physics.world.bounds.height
         ) {
             this.active = false;
-            this.body.setEnable(false);
+            this.body?.setEnable(false);
             this.destroy();
         }
     }
