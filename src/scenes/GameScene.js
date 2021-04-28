@@ -79,7 +79,7 @@ export class GameScene extends Phaser.Scene {
                 name: 'knight_m',
                 controlState: StrongAIControlState,
                 maxHealth: 12,
-                collideAttackDamage: 1,
+                collideAttackDamage: 6,
                 type: 'enemy',
             }
         );
@@ -219,10 +219,7 @@ export class GameScene extends Phaser.Scene {
             if (player.type !== 'player') {
                 [player, enemy] = [object2, object1];
             }
-            player.collideAttacks(enemy);
-            // TODO: remove start
             enemy.collideAttacks(player);
-            // TODO: remove end
         }
         if (object1 instanceof Character && object1.active) {
             object1.collidesWith(object2);

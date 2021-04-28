@@ -60,6 +60,7 @@ export class StrongAIControlState extends CharacterControlState {
     _decideControl() {
         // decide which player to track
         const characters = this._character._scene.characterGroup.getChildren();
+        /** @type {PlayerCharacter} */
         let playerToTrack;
         for (const character of characters) {
             if (
@@ -68,8 +69,19 @@ export class StrongAIControlState extends CharacterControlState {
             ) {
                 continue;
             }
+
+            // ignore dead player
+            if (character.active === false || character.body === undefined) {
+                continue;
+            }
+
             playerToTrack = character;
             break;
+        }
+
+        // all player dead
+        if (playerToTrack === undefined) {
+            return;
         }
 
         let trackAngle = Utils.inclinationOf(this._character, playerToTrack);
