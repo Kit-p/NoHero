@@ -38,10 +38,10 @@ export class GameScene extends Phaser.Scene {
             undefined,
             this
         );
-        this.physics.add.collider(
+        this.physics.add.overlap(
             this.projectileGroup,
             this.characterGroup,
-            this._projectileCollideCallback,
+            this._projectileOverlapCallback,
             undefined,
             this
         );
@@ -181,7 +181,7 @@ export class GameScene extends Phaser.Scene {
             this.physics.add.collider(
                 this.projectileGroup,
                 layer,
-                this._projectileCollideCallback,
+                this._projectileOverlapCallback,
                 undefined,
                 this
             );
@@ -231,13 +231,13 @@ export class GameScene extends Phaser.Scene {
 
     /**
      * A callback function used as ArcadePhysicsCallback.
-     * Check the type of the colliding objects and call corresponding methods if necessary.
+     * Check the type of the overlapping objects and call corresponding methods if necessary.
      * @protected
      * @type {ArcadePhysicsCallback}
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
      */
-    _projectileCollideCallback(object1, object2) {
+    _projectileOverlapCallback(object1, object2) {
         let projectile, character;
         if (object1 instanceof BasicProjectile) {
             projectile = object1;
