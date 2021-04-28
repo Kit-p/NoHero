@@ -284,6 +284,23 @@ export class PlayerCharacter extends Character {
     }
 
     /**
+     * Heal the character by the specified amount.
+     * @param {number} healing Amount of healing to be applied.
+     */
+    heal(healing) {
+        // flash the character to green
+        Utils.tintFill(
+            this.scene,
+            this,
+            this._hitAnimationDuration,
+            Constants.COLOR.HEAL
+        );
+
+        // increase health with setter so no checking needed
+        this.health += healing;
+    }
+
+    /**
      * Handle attacking enemy on collision, play animation and damage enemy.
      //  * param {Phaser.Types.Physics.Arcade.GameObjectWithBody} enemy The enemy to attack.
      * @param {PlayerCharacter} enemy The enemy to attack.

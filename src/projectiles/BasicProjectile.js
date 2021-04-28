@@ -55,7 +55,7 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
         }
 
         // add this projectile to the scene and the physics plugin
-        this.scene.projectileGroup.add(this, true);
+        this._scene.projectileGroup.add(this, true);
         if (!(this.body instanceof Phaser.Physics.Arcade.Body)) {
             /** @type {Phaser.Physics.Arcade.Body} */
             this.body = new Phaser.Physics.Arcade.Body(

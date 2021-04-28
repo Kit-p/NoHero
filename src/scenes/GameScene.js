@@ -6,6 +6,7 @@ import { PlayerCharacter } from '../characters/PlayerCharacter';
 import { HumanControlState } from '../states/HumanControlState';
 import { StrongAIControlState } from '../states/StrongAIControlState';
 import { BasicProjectile } from '../projectiles/BasicProjectile';
+import { Potion } from '../items/Potion';
 
 export class GameScene extends Phaser.Scene {
     /** @type {{tilemap: Phaser.Tilemaps.Tilemap, layers: Phaser.Tilemaps.TilemapLayer[]}} */
@@ -20,8 +21,29 @@ export class GameScene extends Phaser.Scene {
     /** @type {Phaser.Physics.Arcade.Group} A group of projectiles with physics. */
     projectileGroup;
 
+    /** @type {Phaser.Physics.Arcade.Group} A group of potions with physics. */
+    potionGroup;
+
     /** @type {PlayerCharacter} The current human controlled character. */
     currentHumanControlledCharacter;
+
+    /** @protected @type {{player: {small: number, large: number}, enemy: {small: number, large: number}}} The count of different potion for both teams. */
+    _potionCount = {
+        player: {
+            small: 3,
+            large: 1,
+        },
+        enemy: {
+            small: 6,
+            large: 2,
+        },
+    };
+
+    /** @protected @type {{small: number, large: number}} The healing effect of each potion types (uses same ratio as damage). */
+    _potionHealing = {
+        small: 2,
+        large: 6,
+    };
 
     constructor() {
         super({ key: Constants.SCENE.GAME });
@@ -30,6 +52,7 @@ export class GameScene extends Phaser.Scene {
     init() {
         this.characterGroup = this.physics.add.group();
         this.projectileGroup = this.physics.add.group();
+        this.potionGroup = this.physics.add.group();
         // make each of the game objects collide with each other
         this.physics.add.collider(
             this.characterGroup,
@@ -42,6 +65,13 @@ export class GameScene extends Phaser.Scene {
             this.projectileGroup,
             this.characterGroup,
             this._projectileOverlapCallback,
+            undefined,
+            this
+        );
+        this.physics.add.overlap(
+            this.potionGroup,
+            this.characterGroup,
+            this._potionOverlapCallback,
             undefined,
             this
         );
@@ -107,6 +137,9 @@ export class GameScene extends Phaser.Scene {
         // place the enemy at the bottom center of the map
         enemy.setX(this.map.tilemap.widthInPixels * 0.5);
         enemy.setY(this.map.tilemap.heightInPixels * 0.5 + enemy.height * 0.5);
+
+        // spawn the healing potions
+        this._spawnPotions();
 
         // launch the UI scene to both scenes run in parallel
         this.scene.launch(Constants.SCENE.GAME_UI, { gameScene: this });
@@ -198,6 +231,62 @@ export class GameScene extends Phaser.Scene {
     }
 
     /**
+     * A utility method to create potions.
+     */
+    _spawnPotions() {
+        const frames = {
+            player: {
+                small: 'flask_red',
+                large: 'flask_big_red',
+            },
+            enemy: {
+                small: 'flask_blue',
+                large: 'flask_big_blue',
+            },
+        };
+        for (const [type, potions] of Object.entries(this._potionCount)) {
+            for (const [potion, count] of Object.entries(potions)) {
+                for (let i = 0; i < count; ++i) {
+                    /** @type {number} */
+                    let x, y;
+                    /** @type {boolean} */
+                    let clear;
+
+                    // generate random x y until no object exists in generated coordinates
+                    do {
+                        x =
+                            Math.random() *
+                                (this.map.tilemap.widthInPixels - 16 * 5) +
+                            16 * 2;
+                        y =
+                            Math.random() *
+                                (this.map.tilemap.heightInPixels - 16 * 5) +
+                            16 * 2;
+                        clear = true;
+                        for (const body of this.physics.world.bodies.getArray()) {
+                            if (body.hitTest(x, y)) {
+                                clear = false;
+                                break;
+                            }
+                        }
+                    } while (!clear);
+
+                    // spawn the potion
+                    new Potion(
+                        this,
+                        x,
+                        y,
+                        Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
+                        frames[type][potion],
+                        type,
+                        this._potionHealing[potion]
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * A callback function used as ArcadePhysicsCallback.
      * Check the type of the colliding objects and call corresponding methods if necessary.
      * @protected
@@ -271,6 +360,46 @@ export class GameScene extends Phaser.Scene {
         projectile.active = false;
         projectile.body?.setEnable(false);
         projectile.destroy();
+    }
+
+    /**
+     * A callback function used as ArcadePhysicsCallback.
+     * Check the type of the colliding objects and call corresponding methods if necessary.
+     * @protected
+     * @type {ArcadePhysicsCallback}
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
+     */
+    _potionOverlapCallback(object1, object2) {
+        let potion, character;
+        if (object1 instanceof Potion) {
+            potion = object1;
+        } else if (object2 instanceof Potion) {
+            potion = object2;
+        } else {
+            return;
+        }
+
+        if (object2 instanceof PlayerCharacter) {
+            character = object2;
+        } else if (object1 instanceof PlayerCharacter) {
+            character = object1;
+        } else {
+            return;
+        }
+
+        // ignore potion for enemy team
+        if (potion.type !== character.type) {
+            return;
+        }
+
+        // heal the character
+        character.heal(potion.healing);
+
+        // destroy the potion
+        potion.active = false;
+        potion.body?.setEnable(false);
+        potion.destroy();
     }
 
     /**
