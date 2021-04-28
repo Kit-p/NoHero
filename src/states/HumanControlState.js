@@ -48,6 +48,13 @@ export class HumanControlState extends CharacterControlState {
                 type: 'MOUSE',
                 mouseButton: 'PRIMARY',
             },
+            {
+                id: 'DASH',
+                name: 'Dash',
+                description: 'Dash forward',
+                type: 'KEYBOARD',
+                key: Phaser.Input.Keyboard.KeyCodes.SPACE,
+            },
         ];
     }
 
@@ -57,11 +64,24 @@ export class HumanControlState extends CharacterControlState {
     /** @protected @type {Phaser.Input.Keyboard.Key[]} For handling conflicting key presses. */
     _keyPressSequence = [];
 
+    /** @protected @type {number} The cooldown of dash control. */
+    _dashCooldown;
+
+    /** @protected @type {boolean} Flag to indicate whether dash is on cooldown. */
+    _isDashOnCooldown = false;
+
+    /** @protected @type {boolean} Flag to indicate whether the character is dashing. */
+    _isDashing = false;
+
     /**
      * @param {PlayerCharacter} character The character to control.
      * @param {Types.InputControl[]} [controls] An array of controls to be associated with this character.
      */
-    constructor(character, controls = HumanControlState.DefaultControls) {
+    constructor(
+        character,
+        controls = HumanControlState.DefaultControls,
+        dashCooldown = 3000
+    ) {
         super(character);
 
         if (!(this._character instanceof PlayerCharacter)) {
@@ -89,6 +109,8 @@ export class HumanControlState extends CharacterControlState {
                 this._controls[control.id].key = control.key;
             }
         }
+
+        this._dashCooldown = dashCooldown;
     }
 
     /**
@@ -97,10 +119,11 @@ export class HumanControlState extends CharacterControlState {
     update() {
         super.update();
 
-        // disable control when hit animation is still playing
+        // disable control when hit animation is still playing or the character is dashing
         if (
-            this._character.anims.currentAnim !== null &&
-            this._character.anims.currentAnim.key === 'hit'
+            (this._character.anims.currentAnim !== null &&
+                this._character.anims.currentAnim.key === 'hit') ||
+            this._isDashing
         ) {
             return;
         }
@@ -176,7 +199,70 @@ export class HumanControlState extends CharacterControlState {
             this._character.setFlipX(true);
         }
 
+        this._handleDash();
+
         this._handleFireProjectile();
+    }
+
+    /**
+     * A handler for dashing.
+     * @protected
+     */
+    _handleDash() {
+        // ignore if on cooldown
+        if (this._isDashOnCooldown) {
+            return;
+        }
+
+        const dashControl = this._controls['DASH'];
+        if (dashControl === undefined || dashControl === null) {
+            return;
+        }
+        if (dashControl.type === 'KEYBOARD') {
+            // guard statement
+            if (!(dashControl.key instanceof Phaser.Input.Keyboard.Key)) {
+                return;
+            }
+
+            if (dashControl.key.isDown) {
+                // dash
+                const dashDuration = 200;
+                const dashSpeed = 200;
+                const originalVelocity = this._character.body.velocity.clone();
+
+                // initialize direction as facing direction
+                let direction = new Phaser.Math.Vector2({
+                    x: this._character.flipX ? -1 : 1,
+                    y: 0,
+                });
+
+                // change direction to moving direction if not idle
+                if (
+                    this._character.body.velocity.x !== 0 ||
+                    this._character.body.velocity.y !== 0
+                ) {
+                    direction = this._character.body.velocity.clone();
+                }
+
+                direction.normalize();
+
+                // make the player move forward is high speed for a short duration to simulate a dash
+                this._character.body.velocity = direction.scale(dashSpeed);
+                this._isDashing = true;
+                this._isDashOnCooldown = true;
+
+                // restore original velocity after dash ends
+                this._scene.time.delayedCall(dashDuration, () => {
+                    this._character.body.velocity = originalVelocity;
+                    this._isDashing = false;
+                });
+
+                // re-activate dash after cooldown
+                this._scene.time.delayedCall(this._dashCooldown, () => {
+                    this._isDashOnCooldown = false;
+                });
+            }
+        }
     }
 
     /**

@@ -29,6 +29,9 @@ export class PlayerCharacter extends Character {
     /** @type {ProjectileGenerator} The current projectile selected by this character. */
     currentProjectile;
 
+    /** @type {Object.<string, number>} The cooldowns of various controls of this character. */
+    _cooldowns;
+
     /**
      * @param {Phaser.Scene} scene The Scene to which this character belongs.
      * @param {number} x The initial x-coordinate of the character.
@@ -50,6 +53,10 @@ export class PlayerCharacter extends Character {
             health = maxHealth,
             collideAttackDamage = 2,
             controlState = undefined,
+            cooldowns = {
+                projectile: 500,
+                dash: 3000,
+            },
             type = 'player',
         } = {}
     ) {
@@ -62,6 +69,7 @@ export class PlayerCharacter extends Character {
         this._maxHealth = maxHealth;
         this._health = health;
         this._collideAttackDamage = collideAttackDamage;
+        this._cooldowns = cooldowns;
         if (this.type === 'player') {
             this.body.pushable = false;
         }
@@ -352,6 +360,7 @@ export class PlayerCharacter extends Character {
                         scale: 0.3,
                         speed: 96,
                         damage: 2,
+                        cooldown: this._cooldowns.projectile,
                     }
                 )
             );
@@ -369,6 +378,7 @@ export class PlayerCharacter extends Character {
                         scale: 0.3,
                         speed: 128,
                         damage: 1,
+                        cooldown: this._cooldowns.projectile,
                     }
                 )
             );

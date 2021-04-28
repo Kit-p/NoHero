@@ -8,50 +8,6 @@ import { CharacterControlState } from './CharacterControlState';
  * @extends Phaser.GameObjects.Sprite
  */
 export class Character extends Phaser.GameObjects.Sprite {
-    /**
-     * @static
-     * @returns {Types.InputControl[]}
-     */
-    static get DefaultControls() {
-        return [
-            {
-                id: 'UP',
-                name: 'Up',
-                description: 'Move Up',
-                type: 'KEYBOARD',
-                key: Phaser.Input.Keyboard.KeyCodes.W,
-            },
-            {
-                id: 'DOWN',
-                name: 'Down',
-                description: 'Move Down',
-                type: 'KEYBOARD',
-                key: Phaser.Input.Keyboard.KeyCodes.S,
-            },
-            {
-                id: 'LEFT',
-                name: 'Left',
-                description: 'Move Left',
-                type: 'KEYBOARD',
-                key: Phaser.Input.Keyboard.KeyCodes.A,
-            },
-            {
-                id: 'RIGHT',
-                name: 'Right',
-                description: 'Move Right',
-                type: 'KEYBOARD',
-                key: Phaser.Input.Keyboard.KeyCodes.D,
-            },
-            {
-                id: 'FIRE',
-                name: 'Fire',
-                description: 'Fire a spell',
-                type: 'MOUSE',
-                mouseButton: 'PRIMARY',
-            },
-        ];
-    }
-
     /** @type {GameScene} To enforce type checking. */
     _scene;
 
