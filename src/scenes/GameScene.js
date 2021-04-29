@@ -220,12 +220,30 @@ export class GameScene extends Phaser.Scene {
             );
             this.map.layers.push(layer);
         }
-        // ensure all sprites are at least on top of the lowest layer
-        for (const character of this.characterGroup.getChildren()) {
-            if (character instanceof Phaser.GameObjects.Sprite) {
-                character.setDepth(this.map.layers[0].depth + 1);
+
+        if (this.map.layers.length > 0) {
+            // ensure all sprites are at least on top of the base layer
+            // set base layer to PillarBase if exists
+            let baseLayer = this.map.layers.find(
+                (layer) => layer.layer.name === 'PillarBase'
+            );
+            // set base layer to Ground if exists
+            if (baseLayer === undefined) {
+                baseLayer = this.map.layers.find(
+                    (layer) => layer.layer.name === 'Ground'
+                );
+            }
+            // set base layer as lowest layer
+            if (baseLayer === undefined) {
+                baseLayer = this.map.layers[0];
+            }
+            for (const character of this.characterGroup.getChildren()) {
+                if (character instanceof Phaser.GameObjects.Sprite) {
+                    character.setDepth(baseLayer.depth + 1);
+                }
             }
         }
+
         this.map.tilemap = map;
         return map;
     }

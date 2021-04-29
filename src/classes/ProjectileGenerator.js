@@ -129,7 +129,7 @@ export class ProjectileGenerator {
             );
 
             // set the depth
-            this._sprite.setDepth(this._owner.depth + 10);
+            this._sprite.setDepth(this._owner.depth + 1);
 
             // set the scaling
             this._sprite.setScale(this._scale);
