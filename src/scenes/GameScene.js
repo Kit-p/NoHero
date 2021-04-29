@@ -7,6 +7,7 @@ import { HumanControlState } from '../states/HumanControlState';
 import { StrongAIControlState } from '../states/StrongAIControlState';
 import { BasicProjectile } from '../projectiles/BasicProjectile';
 import { Potion } from '../items/Potion';
+import { Spike } from '../traps/Spike';
 
 export class GameScene extends Phaser.Scene {
     /** @type {{tilemap: Phaser.Tilemaps.Tilemap, layers: Phaser.Tilemaps.TilemapLayer[]}} */
@@ -23,6 +24,9 @@ export class GameScene extends Phaser.Scene {
 
     /** @type {Phaser.Physics.Arcade.Group} A group of potions with physics. */
     potionGroup;
+
+    /** @type {Phaser.Physics.Arcade.Group} A group of spikes with physics. */
+    spikeGroup;
 
     /** @type {PlayerCharacter} The current human controlled character. */
     currentHumanControlledCharacter;
@@ -45,6 +49,9 @@ export class GameScene extends Phaser.Scene {
         large: 6,
     };
 
+    /** @protected @type {number} The number of spikes to be spawned on the map. */
+    _spikeCount = 2;
+
     constructor() {
         super({ key: Constants.SCENE.GAME });
     }
@@ -53,14 +60,18 @@ export class GameScene extends Phaser.Scene {
         this.characterGroup = this.physics.add.group();
         this.projectileGroup = this.physics.add.group();
         this.potionGroup = this.physics.add.group();
-        // make each of the game objects collide with each other
-        this.physics.add.collider(
+        this.spikeGroup = this.physics.add.group();
+
+        // make each of the character to overlap with each other
+        this.physics.add.overlap(
             this.characterGroup,
             this.characterGroup,
-            this._characterCollideCallback,
+            this._characterOverlapCallback,
             undefined,
             this
         );
+
+        // make each of the projectiles to overlap with characters
         this.physics.add.overlap(
             this.projectileGroup,
             this.characterGroup,
@@ -68,6 +79,8 @@ export class GameScene extends Phaser.Scene {
             undefined,
             this
         );
+
+        // make each of the potions to overlap with characters
         this.physics.add.overlap(
             this.potionGroup,
             this.characterGroup,
@@ -75,6 +88,16 @@ export class GameScene extends Phaser.Scene {
             undefined,
             this
         );
+
+        // make each of the spikes to overlap with characters
+        this.physics.add.overlap(
+            this.spikeGroup,
+            this.characterGroup,
+            this._spikeOverlapCallback,
+            undefined,
+            this
+        );
+
         console.log(this);
     }
 
@@ -138,6 +161,9 @@ export class GameScene extends Phaser.Scene {
         enemy.setX(this.map.tilemap.widthInPixels * 0.5);
         enemy.setY(this.map.tilemap.heightInPixels * 0.5 + enemy.height * 0.5);
 
+        // spawn the spikes
+        this._spawnSpikes();
+
         // spawn the healing potions
         this._spawnPotions();
 
@@ -165,6 +191,12 @@ export class GameScene extends Phaser.Scene {
         }
         for (const projectile of this.projectileGroup.getChildren()) {
             projectile.update();
+        }
+        for (const potion of this.potionGroup.getChildren()) {
+            potion.update();
+        }
+        for (const spike of this.spikeGroup.getChildren()) {
+            spike.update();
         }
         // check end-game situations and transition to game end scene if ended
         if (count.player === 0 || count.enemy === 0) {
@@ -249,6 +281,62 @@ export class GameScene extends Phaser.Scene {
     }
 
     /**
+     * A utility method to create spikes.
+     */
+    _spawnSpikes() {
+        // get spike spawn position data if exists
+        const spikeLayer = this.map.tilemap.getObjectLayer('Spike');
+        if (spikeLayer !== undefined && spikeLayer !== null) {
+            // spawn spikes at specified positions, ignore _spikeCount
+            for (const spike of spikeLayer.objects) {
+                new Spike(
+                    this,
+                    spike.x,
+                    spike.y,
+                    Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
+                    3
+                );
+            }
+        } else {
+            // spawn spikes at random positions
+            for (let i = 0; i < this._spikeCount; ++i) {
+                /** @type {number} */
+                let x, y;
+                /** @type {boolean} */
+                let clear;
+
+                // generate random x y until no object exists in generated coordinates
+                do {
+                    x =
+                        Math.random() *
+                            (this.map.tilemap.widthInPixels - 16 * 5) +
+                        16 * 2;
+                    y =
+                        Math.random() *
+                            (this.map.tilemap.heightInPixels - 16 * 5) +
+                        16 * 2;
+
+                    // ensure the spawn is at a complete tile (not in between tiles)
+                    x = Math.floor(x);
+                    x = x - (x % 16) + 8;
+                    y = Math.floor(y);
+                    y = y - (y % 16) + 2;
+
+                    clear = true;
+                    for (const body of this.physics.world.bodies.getArray()) {
+                        if (body.hitTest(x, y)) {
+                            clear = false;
+                            break;
+                        }
+                    }
+                } while (!clear);
+
+                new Spike(this, x, y, Constants.RESOURCE.ATLAS.ALL_IN_ONE_2, 3);
+            }
+        }
+    }
+
+    /**
      * A utility method to create potions.
      */
     _spawnPotions() {
@@ -312,7 +400,7 @@ export class GameScene extends Phaser.Scene {
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
      */
-    _characterCollideCallback(object1, object2) {
+    _characterOverlapCallback(object1, object2) {
         if (
             object1 instanceof PlayerCharacter &&
             object2 instanceof PlayerCharacter &&
@@ -372,7 +460,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         // collide with enemy character and deal damage
-        character.takeHit(projectile.damage, projectile.body);
+        character.takeHit(projectile.damage, projectile);
 
         // destroy the projectile
         projectile.active = false;
@@ -418,6 +506,44 @@ export class GameScene extends Phaser.Scene {
         potion.active = false;
         potion.body?.setEnable(false);
         potion.destroy();
+    }
+
+    /**
+     * A callback function used as ArcadePhysicsCallback.
+     * Check the type of the colliding objects and call corresponding methods if necessary.
+     * @protected
+     * @type {ArcadePhysicsCallback}
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
+     */
+    _spikeOverlapCallback(object1, object2) {
+        let spike, character;
+        if (object1 instanceof Spike) {
+            spike = object1;
+        } else if (object2 instanceof Spike) {
+            spike = object2;
+        } else {
+            return;
+        }
+
+        if (object2 instanceof PlayerCharacter) {
+            character = object2;
+        } else if (object1 instanceof PlayerCharacter) {
+            character = object1;
+        } else {
+            return;
+        }
+
+        // ignore if spike not trusted out
+        if (!spike.isDamaging) {
+            return;
+        }
+
+        // damage the character
+        character.takeHit(spike.damage, spike);
+
+        // remember collision to prevent continuous damage
+        character.collidesWith(spike);
     }
 
     /**

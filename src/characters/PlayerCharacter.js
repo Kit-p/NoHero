@@ -253,9 +253,13 @@ export class PlayerCharacter extends Character {
      * Take hit from an attacker, play hit animation if exist.
      * Decrease health by setting health as the decreased health.
      * @param {number} damage Amount of damage to be taken.
-     * @param {Phaser.Physics.Arcade.Body} attacker The attacker physics body.
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} attacker The attacker object.
      */
     takeHit(damage, attacker) {
+        // prevent continuous damage
+        if (this.collidedPhysicsObjects.includes(attacker)) {
+            return;
+        }
         // flash the character to white
         Utils.tintFill(
             this.scene,
@@ -265,8 +269,8 @@ export class PlayerCharacter extends Character {
         );
         // bounce the player
         let vec = new Phaser.Math.Vector2(
-            this.body.x - attacker.x,
-            this.body.y - attacker.y
+            this.body.x - attacker.body.x,
+            this.body.y - attacker.body.y
         )
             .normalize()
             .scale(150);
@@ -339,7 +343,7 @@ export class PlayerCharacter extends Character {
             },
             Utils.inclinationOf(enemy, this)
         );
-        enemy.takeHit(this.collideAttackDamage, this.body);
+        enemy.takeHit(this.collideAttackDamage, this);
     }
 
     /**

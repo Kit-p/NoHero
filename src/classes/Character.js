@@ -64,6 +64,9 @@ export class Character extends Phaser.GameObjects.Sprite {
             );
         }
 
+        // prevent this character to be pushed
+        this.body.pushable = false;
+
         if (typeof controlState === 'function') {
             this.controlState = new controlState(this);
             if (!(this.controlState instanceof CharacterControlState)) {
