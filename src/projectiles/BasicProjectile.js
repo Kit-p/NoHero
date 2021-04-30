@@ -90,12 +90,13 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
 
     update() {
         // self-destroy when out-of-bound
-        if (
-            this.x < 0 ||
-            this.x > this._scene.physics.world.bounds.width ||
-            this.y < 0 ||
-            this.y > this._scene.physics.world.bounds.height
-        ) {
+        const width =
+            this._scene.physics?.world?.bounds?.width ??
+            this._scene.map.tilemap.widthInPixels;
+        const height =
+            this._scene.physics?.world?.bounds?.height ??
+            this._scene.map.tilemap.heightInPixels;
+        if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
             this.active = false;
             this.body?.setEnable(false);
             this.destroy();

@@ -122,8 +122,11 @@ export class StrongAIControlState extends CharacterControlState {
         /** @type {{lower: number, higher: number}[]} An array of collision angle bounds. */
         const collisionBounds = [];
         const center = this._character.body.center;
-        const projectiles = this._character._scene.projectileGroup.getChildren();
+
+        // calculate obstacle collision angle bounds
+
         // calculate projectile collision angle bounds
+        const projectiles = this._character._scene.projectileGroup.getChildren();
         for (const projectile of projectiles) {
             if (
                 projectile.type === this._character.type ||
@@ -148,7 +151,13 @@ export class StrongAIControlState extends CharacterControlState {
             if (typeof radius !== 'number' || typeof distance !== 'number') {
                 return;
             }
-            const collisionAngle = Math.atan2(radius + safeDistance, distance);
+
+            // set toleranceFactor to compensate Math inaccuracy
+            const toleranceFactor = 4;
+            const collisionAngle = Math.atan2(
+                radius * toleranceFactor + safeDistance,
+                distance
+            );
 
             collisionBounds.push({
                 lower: projectileAngle - collisionAngle,
