@@ -51,13 +51,15 @@ export default class Utils {
     /**
      * Returns the inclination (in radian) of object2 from object1, relative to their center coordinates.
      * @static
-     * @param {Phaser.GameObjects.Components.GetBounds} object1 The first object.
-     * @param {Phaser.GameObjects.Components.GetBounds} object2 The second object.
+     * @param {Phaser.GameObjects.Components.GetBounds | Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} object1 The first object.
+     * @param {Phaser.GameObjects.Components.GetBounds | Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} object2 The second object.
      * @returns {number} The inclination (in radian).
      */
     static inclinationOf(object1, object2) {
-        const { x: x1, y: y1 } = object1.getCenter();
-        const { x: x2, y: y2 } = object2.getCenter();
+        // @ts-ignore - Reason: checked
+        const { x: x1, y: y1 } = object1.getCenter?.() ?? object1;
+        // @ts-ignore - Reason: checked
+        const { x: x2, y: y2 } = object2.getCenter?.() ?? object2;
         return Math.atan2(y2 - y1, x2 - x1);
     }
 

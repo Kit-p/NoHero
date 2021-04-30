@@ -86,6 +86,34 @@ export class StrongAIControlState extends CharacterControlState {
 
         let trackAngle = Utils.inclinationOf(this._character, playerToTrack);
 
+        // find potion when health too low
+        if (this._character.health < this._character.maxHealth * 0.5) {
+            const closestPotion = this._scene.physics.closest(
+                this._character,
+                this._character._scene.potionGroup
+                    .getChildren()
+                    .filter((potion) => potion.type === this._character.type)
+            );
+
+            if (closestPotion instanceof Phaser.Physics.Arcade.Body) {
+                trackAngle = Utils.inclinationOf(
+                    this._character,
+                    closestPotion.center
+                );
+            } else if (
+                closestPotion instanceof Phaser.Physics.Arcade.StaticBody
+            ) {
+                // empty block for type checking
+            } else if (
+                closestPotion.body instanceof Phaser.Physics.Arcade.Body
+            ) {
+                trackAngle = Utils.inclinationOf(
+                    this._character,
+                    closestPotion.body.center
+                );
+            }
+        }
+
         // decide how to track the player by avoiding projectile
         const collisionBounds = this._computeCollisionBounds();
 
