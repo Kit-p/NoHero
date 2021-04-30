@@ -18,6 +18,10 @@ export class PreloaderScene extends Phaser.Scene {
             Constants.RESOURCE.TILEMAP.TRIAL_1,
             'assets/maps/trial-1.json'
         );
+        this.load.tilemapTiledJSON(
+            Constants.RESOURCE.TILEMAP.TRIAL_2,
+            'assets/maps/trial-2.json'
+        );
         this.load.atlas(
             Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
             'assets/tiles/all-in-one/2.png',
@@ -32,6 +36,11 @@ export class PreloaderScene extends Phaser.Scene {
             Constants.RESOURCE.ATLAS.EFFECT_ATTACK_2,
             'assets/tiles/effects/attack-2.png',
             'assets/tiles/atlases/effect_attack-2.json'
+        );
+        this.load.atlas(
+            Constants.RESOURCE.ATLAS.EFFECT_ATTACK_3,
+            'assets/tiles/effects/attack-3.png',
+            'assets/tiles/atlases/effect_attack-3.json'
         );
     }
 

@@ -6,11 +6,13 @@ export default {
         },
         TILEMAP: {
             TRIAL_1: 'map_trial-1',
+            TRIAL_2: 'map_trial-2',
         },
         ATLAS: {
             ALL_IN_ONE_2: 'atlas_all-in-one-2',
             EFFECT_ATTACK_1: 'atlas_effect_attack-1',
             EFFECT_ATTACK_2: 'atlas_effect_attack-2',
+            EFFECT_ATTACK_3: 'atlas_effect_attack-3',
         },
     },
     SCENE: {
