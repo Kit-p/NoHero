@@ -228,15 +228,17 @@ export class PlayerCharacter extends Character {
             );
         }
 
-        // update projectile generator position
-        const radius = this.displayHeight / 2 + 15;
-        const center = this.getCenter();
-        let angle = Math.atan2(
-            this.scene.input.mousePointer.y - center.y,
-            this.scene.input.mousePointer.x - center.x
-        );
-        this.currentProjectile.x = center.x + Math.cos(angle) * radius;
-        this.currentProjectile.y = center.y + Math.sin(angle) * radius;
+        if (this.currentProjectile !== undefined) {
+            // update projectile generator position
+            const radius = this.displayHeight / 2 + 15;
+            const center = this.getCenter();
+            let angle = Math.atan2(
+                this.scene.input.mousePointer.y - center.y,
+                this.scene.input.mousePointer.x - center.x
+            );
+            this.currentProjectile.x = center.x + Math.cos(angle) * radius;
+            this.currentProjectile.y = center.y + Math.sin(angle) * radius;
+        }
     }
 
     /**

@@ -73,6 +73,9 @@ export class HumanControlState extends CharacterControlState {
     /** @protected @type {boolean} Flag to indicate whether the character is dashing. */
     _isDashing = false;
 
+    /** @protected @type {boolean} Flag to indicate whether the character can fire a projectile. */
+    _canFireProjectile = false;
+
     /**
      * @param {PlayerCharacter} character The character to control.
      * @param {Types.InputControl[]} [controls] An array of controls to be associated with this character.
@@ -201,6 +204,16 @@ export class HumanControlState extends CharacterControlState {
 
         this._handleDash();
 
+        // always check if the character has a selected projectile
+        if (this._character.currentProjectile === undefined) {
+            this._canFireProjectile = false;
+        } else if (!this._canFireProjectile) {
+            // enable firing projectile when mouse click releases (from clicking the play button)
+            this._scene.input.once('pointerup', () => {
+                this._canFireProjectile = true;
+            });
+        }
+
         this._handleFireProjectile();
     }
 
@@ -270,6 +283,11 @@ export class HumanControlState extends CharacterControlState {
      * @protected
      */
     _handleFireProjectile() {
+        // ignore if the character cannot fire projectile
+        if (!this._canFireProjectile) {
+            return;
+        }
+
         const fireControl = this._controls['FIRE'];
         let toFire = false;
         if (fireControl === undefined || fireControl === null) {

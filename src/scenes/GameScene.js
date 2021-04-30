@@ -205,7 +205,14 @@ export class GameScene extends Phaser.Scene {
         // check end-game situations and transition to game end scene if ended
         if (count.player === 0 || count.enemy === 0) {
             // ? potentially use launch(), but need to pause current scenes
+
+            // disable physics
+            this.physics.shutdown();
+
+            // hide GameUIScene
             this.scene.get(Constants.SCENE.GAME_UI).scene.stop();
+
+            // start GameEndScene
             this.time.delayedCall(2000, () => {
                 this.scene.start(Constants.SCENE.GAME_END, {
                     isVictory: count.enemy === 0,
