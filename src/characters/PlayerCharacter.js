@@ -361,8 +361,8 @@ export class PlayerCharacter extends Character {
                     {
                         x: 50,
                         y: 50,
-                        scale: 0.3,
-                        speed: 96,
+                        scale: 1,
+                        speed: 32,
                         damage: 2,
                         cooldown: this._cooldowns.projectile,
                     }

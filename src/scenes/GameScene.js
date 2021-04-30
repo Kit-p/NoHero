@@ -113,6 +113,10 @@ export class GameScene extends Phaser.Scene {
                 controlState: HumanControlState,
                 maxHealth: 18,
                 type: 'player',
+                cooldowns: {
+                    projectile: 1500,
+                    dash: 3000,
+                },
             }
         );
         // manually adjust the collision body size and offset
