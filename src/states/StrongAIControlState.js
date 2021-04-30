@@ -136,8 +136,8 @@ export class StrongAIControlState extends CharacterControlState {
             }
 
             const projectileAngle = Math.atan2(
-                projectile.body.position.y - center.y,
-                projectile.body.position.x - center.x
+                projectile.body.center.y - center.y,
+                projectile.body.center.x - center.x
             );
 
             // compute safe distance (minimum distance away from projectile to avoid collision)

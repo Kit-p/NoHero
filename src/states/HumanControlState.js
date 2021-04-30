@@ -266,7 +266,10 @@ export class HumanControlState extends CharacterControlState {
 
                 // restore original velocity after dash ends
                 this._scene.time.delayedCall(dashDuration, () => {
-                    this._character.body.velocity = originalVelocity;
+                    this._character.body?.setVelocity(
+                        originalVelocity.x,
+                        originalVelocity.y
+                    );
                     this._isDashing = false;
                 });
 
