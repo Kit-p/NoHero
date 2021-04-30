@@ -18,3 +18,6 @@ PANG, Kit ([Kit-p](https://github.com/Kit-p)) <kpangaa@connect.ust.hk>
 
 -   source: <https://rustybulletgames.itch.io/colored-explosions-asset-pack>  
     author: [RustyBulletGames](https://rustybulletgames.itch.io/)
+
+-   source: <https://wenrexa.itch.io/laser2020>  
+    author: [Wenrexa](https://wenrexa.itch.io/)

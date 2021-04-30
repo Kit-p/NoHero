@@ -1,0 +1,111 @@
+{
+  "frames": {
+    "shuriken_red_anim_f1": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 50,
+        "h": 50
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 50,
+        "h": 50
+      },
+      "sourceSize": {
+        "w": 50,
+        "h": 50
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "mine_purple_anim_f1": {
+      "frame": {
+        "x": 0,
+        "y": 50,
+        "w": 35,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 35,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 35,
+        "h": 35
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "bullet_glow_anim_f1": {
+      "frame": {
+        "x": 35,
+        "y": 50,
+        "w": 32,
+        "h": 33
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 4,
+        "w": 32,
+        "h": 33
+      },
+      "sourceSize": {
+        "w": 44,
+        "h": 40
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "bullet_poison_anim_f1": {
+      "frame": {
+        "x": 50,
+        "y": 0,
+        "w": 30,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 30,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 30,
+        "h": 30
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "attack-3.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 80,
+      "h": 85
+    },
+    "scale": 1
+  }
+}
