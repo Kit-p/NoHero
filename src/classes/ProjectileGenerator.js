@@ -1,6 +1,7 @@
 import { BasicProjectile } from '../projectiles/BasicProjectile';
 import { GameScene } from '../scenes/GameScene';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
+import { TrackProjectile } from '../projectiles/TrackProjectile';
 
 export class ProjectileGenerator {
     /** @type {GameScene} To enforce type checking. */
@@ -165,16 +166,31 @@ export class ProjectileGenerator {
             x: this._speed * Math.cos(angle),
             y: this._speed * Math.sin(angle),
         };
-        new BasicProjectile(
-            this._scene,
-            srcX,
-            srcY,
-            this._texture,
-            this._frame,
-            velocity,
-            this._damage,
-            this._owner.type,
-            this._scale
-        );
+
+        if (this._isTrack) {
+            new TrackProjectile(
+                this._scene,
+                srcX,
+                srcY,
+                this._texture,
+                this._frame,
+                velocity,
+                this._damage,
+                this._owner.type,
+                this._scale
+            );
+        } else {
+            new BasicProjectile(
+                this._scene,
+                srcX,
+                srcY,
+                this._texture,
+                this._frame,
+                velocity,
+                this._damage,
+                this._owner.type,
+                this._scale
+            );
+        }
     }
 }

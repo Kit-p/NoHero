@@ -386,20 +386,20 @@ export class PlayerCharacter extends Character {
                 );
                 break;
             default:
-                projectile = new ProjectileGenerator(
-                    this._scene,
-                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_2,
-                    'bullet_cyan_anim_f1',
-                    this,
-                    {
-                        x: 50,
-                        y: 50,
-                        scale: 0.3,
-                        speed: 128,
-                        damage: 1,
-                        cooldown: this._cooldowns.projectile,
-                    }
-                );
+            // projectile = new ProjectileGenerator(
+            //     this._scene,
+            //     Constants.RESOURCE.ATLAS.EFFECT_ATTACK_2,
+            //     'bullet_cyan_anim_f1',
+            //     this,
+            //     {
+            //         x: 50,
+            //         y: 50,
+            //         scale: 0.3,
+            //         speed: 128,
+            //         damage: 1,
+            //         cooldown: this._cooldowns.projectile,
+            //     }
+            // );
         }
 
         if (projectile !== undefined) {

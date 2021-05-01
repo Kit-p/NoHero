@@ -5,6 +5,7 @@
 /**
  * @typedef {import ('../classes/ProjectileGenerator').ProjectileGenerator} ProjectileGenerator
  * @typedef {import ('../projectiles/BasicProjectile').BasicProjectile} BasicProjectile
+ * @typedef {import ('../projectiles/TrackProjectile').TrackProjectile} TrackProjectile
  * @typedef {import ('../items/Potion').Potion} Potion
  * @typedef {import ('../classes/Character').Character} Character
  * @typedef {import ('../classes/CharacterControlState').CharacterControlState} CharacterControlState

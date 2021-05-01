@@ -8,6 +8,9 @@ import Utils from '../classes/Utils';
  * @extends CharacterControlState
  */
 export class StrongAIControlState extends CharacterControlState {
+    /** @type {{x: number, y: number, weight: number}[]} */
+    _pillars = [];
+
     /**
      * @param {PlayerCharacter} character The character to control.
      */
@@ -22,6 +25,9 @@ export class StrongAIControlState extends CharacterControlState {
 
         /** @type {PlayerCharacter} */
         this._character;
+
+        // populate the colliding object arrays
+        this._findCollidingObjects();
     }
 
     /**
@@ -36,6 +42,11 @@ export class StrongAIControlState extends CharacterControlState {
             this._character.anims.currentAnim.key === 'hit'
         ) {
             return;
+        }
+
+        // reset preference
+        for (const pillar of this._pillars) {
+            pillar.weight = 0;
         }
 
         this._decideControl();
@@ -54,41 +65,53 @@ export class StrongAIControlState extends CharacterControlState {
     }
 
     /**
+     *
+     */
+    _findCollidingObjects() {
+        // find all the pillars on the map
+        const pillarLayer = this._character._scene.map.layers.find(
+            (layer) => layer.name === 'Pillar'
+        );
+        if (pillarLayer === undefined) {
+            return NaN;
+        }
+        const pillars = pillarLayer.filterTiles(
+            () => true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            { isNotEmpty: true, isColliding: true }
+        );
+
+        for (const pillar of pillars) {
+            this._pillars.push({
+                x: pillar.getCenterX(),
+                y: pillar.getCenterY(),
+                weight: 0,
+            });
+        }
+    }
+
+    /**
      * Decide how to control the character with AI algorithm.
      * @protected
      */
     _decideControl() {
-        // decide which player to track
-        const characters = this._character._scene.characterGroup.getChildren();
-        /** @type {PlayerCharacter} */
-        let playerToTrack;
-        for (const character of characters) {
-            if (
-                !(character instanceof PlayerCharacter) ||
-                character.type !== 'player'
-            ) {
-                continue;
-            }
-
-            // ignore dead player
-            if (character.active === false || character.body === undefined) {
-                continue;
-            }
-
-            playerToTrack = character;
-            break;
+        let moveDirection;
+        if (this._character.currentProjectile !== undefined) {
+            // ranged character
+            moveDirection = this._computeFleeAngle();
+        } else {
+            // melee character
+            moveDirection = this._computeTrackAngle();
         }
 
-        // all player dead
-        if (playerToTrack === undefined) {
+        if (isNaN(moveDirection)) {
+            // failed to determine moving direction
             return;
         }
-
-        let trackAngle = Utils.inclinationOf(
-            this._character,
-            playerToTrack,
-            true
-        );
 
         // find potion when health too low
         const critFactor = 0.5; // percentage
@@ -101,7 +124,7 @@ export class StrongAIControlState extends CharacterControlState {
             );
 
             if (closestPotion instanceof Phaser.Physics.Arcade.Body) {
-                trackAngle = Utils.inclinationOf(
+                moveDirection = Utils.inclinationOf(
                     this._character,
                     closestPotion.center,
                     true
@@ -113,7 +136,7 @@ export class StrongAIControlState extends CharacterControlState {
             } else if (
                 closestPotion?.body instanceof Phaser.Physics.Arcade.Body
             ) {
-                trackAngle = Utils.inclinationOf(
+                moveDirection = Utils.inclinationOf(
                     this._character,
                     closestPotion.body.center,
                     true
@@ -129,33 +152,30 @@ export class StrongAIControlState extends CharacterControlState {
             // temporarily boost the angles for easy comparison
             if (bound.lower > bound.higher) {
                 bound.higher += Math.PI * 2;
-                trackAngle =
-                    trackAngle < Math.PI
-                        ? trackAngle + Math.PI * 2
-                        : trackAngle;
+                moveDirection =
+                    moveDirection < Math.PI
+                        ? moveDirection + Math.PI * 2
+                        : moveDirection;
             }
 
-            if (trackAngle > bound.lower && trackAngle < bound.higher) {
+            if (moveDirection > bound.lower && moveDirection < bound.higher) {
                 // trackAngle will run into projectile
                 // adjust to closest angle without collision
-                trackAngle =
-                    Math.abs(trackAngle - bound.lower) <
-                    Math.abs(trackAngle - bound.higher)
+                moveDirection =
+                    Math.abs(moveDirection - bound.lower) <
+                    Math.abs(moveDirection - bound.higher)
                         ? bound.lower
                         : bound.higher;
             }
 
             // normalize the angle to compensate the temporary boost
-            trackAngle = Phaser.Math.Angle.Normalize(trackAngle);
+            moveDirection = Phaser.Math.Angle.Normalize(moveDirection);
         }
-
-        console.log(collisionBounds);
-        console.log(trackAngle);
 
         // move the character in trackAngle
         const vec = new Phaser.Math.Vector2(
-            Math.cos(trackAngle),
-            Math.sin(trackAngle)
+            Math.cos(moveDirection),
+            Math.sin(moveDirection)
         )
             .normalize()
             .scale(this._character.movementSpeed);
@@ -244,13 +264,112 @@ export class StrongAIControlState extends CharacterControlState {
     }
 
     /**
+     * Compute angle tracking a specific player.
+     * @protected
+     * @returns {number} The angle (NaN if no player to track).
+     */
+    _computeTrackAngle() {
+        // decide which player to track
+        const characters = this._character._scene.characterGroup.getChildren();
+        /** @type {PlayerCharacter} */
+        let playerToTrack;
+        for (const character of characters) {
+            if (
+                !(character instanceof PlayerCharacter) ||
+                character.type !== 'player'
+            ) {
+                continue;
+            }
+
+            // ignore dead player
+            if (character.active === false || character.body === undefined) {
+                continue;
+            }
+
+            // find the lowest health character to track
+            if (
+                playerToTrack === undefined ||
+                playerToTrack.health < character.health
+            ) {
+                playerToTrack = character;
+            }
+            break;
+        }
+
+        // all player dead
+        if (playerToTrack === undefined) {
+            return NaN;
+        }
+
+        return Utils.inclinationOf(this._character, playerToTrack, true);
+    }
+
+    /**
+     * Compute angle fleeing from the player.
+     * @protected
+     * @returns {number} The angle (NaN if no player to flee from).
+     */
+    _computeFleeAngle() {
+        if (this._pillars.length <= 0) {
+            // no pillar to hide (impossible as all maps should have pillar)
+            return NaN;
+        }
+
+        const center = this._character.getCenter();
+
+        // find the closest player to flee from and compute preference for pillars
+        const characters = this._character._scene.characterGroup.getChildren();
+        /** @type {PlayerCharacter} */
+        let closestCharacter;
+        /** @type {number} */
+        let closestDistance;
+        for (const character of characters) {
+            if (!(character instanceof PlayerCharacter)) {
+                continue;
+            }
+            if (character.type === this._character.type) {
+                // ignore teamates
+                continue;
+            }
+            const distance = Phaser.Math.Distance.BetweenPoints(
+                center,
+                character.getCenter()
+            );
+
+            // find closest character to flee from
+            if (closestCharacter === undefined || distance < closestDistance) {
+                closestCharacter = character;
+                closestDistance = Phaser.Math.Distance.BetweenPoints(
+                    center,
+                    closestCharacter.getCenter()
+                );
+            }
+
+            // compute preference (total distance of all player characters) for each pillars
+            for (const pillar of this._pillars) {
+                pillar.weight += Phaser.Math.Distance.BetweenPoints(
+                    character.getCenter(),
+                    { x: pillar.x, y: pillar.y }
+                );
+            }
+        }
+
+        // no player to flee from
+        if (closestCharacter === undefined) {
+            return NaN;
+        }
+
+        // TODO: use most preferred pillar to flee from closest player character
+        return NaN;
+    }
+
+    /**
      * Merge overlapping collision angle bounds.
      * @protected
      * @param {{lower: number, higher: number}[]} collisionBounds The collision angle bounds to be cleaned up.
      * @returns {{lower: number, higher: number}[]} The cleaned up collision bounds.
      */
     _cleanUpCollisionBounds(collisionBounds) {
-        console.log(JSON.stringify(collisionBounds, null, 2));
         for (let i = collisionBounds.length - 1; i >= 0; --i) {
             for (let j = collisionBounds.length - 1; j >= 0; --j) {
                 if (i >= collisionBounds.length) {
