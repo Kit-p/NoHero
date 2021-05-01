@@ -61,11 +61,8 @@ export default class Utils {
         const { x: x1, y: y1 } = object1.getCenter?.() ?? object1;
         // @ts-ignore - Reason: checked
         const { x: x2, y: y2 } = object2.getCenter?.() ?? object2;
-        let result = Math.atan2(y2 - y1, x2 - x1);
-        if (toNormalize && result < 0) {
-            result += Math.PI * 2;
-        }
-        return result;
+        const result = Math.atan2(y2 - y1, x2 - x1);
+        return toNormalize ? Phaser.Math.Angle.Normalize(result) : result;
     }
 
     /**

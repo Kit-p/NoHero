@@ -126,17 +126,31 @@ export class StrongAIControlState extends CharacterControlState {
 
         // adjust trackAngle to avoid collision with projectile
         for (const bound of collisionBounds) {
-            if (trackAngle <= bound.lower || trackAngle >= bound.higher) {
-                continue;
+            // temporarily boost the angles for easy comparison
+            if (bound.lower > bound.higher) {
+                bound.higher += Math.PI * 2;
+                trackAngle =
+                    trackAngle < Math.PI
+                        ? trackAngle + Math.PI * 2
+                        : trackAngle;
             }
-            // trackAngle will run into projectile
-            // adjust to closest angle without collision
-            trackAngle =
-                Math.abs(trackAngle - bound.lower) <
-                Math.abs(trackAngle - bound.higher)
-                    ? bound.lower
-                    : bound.higher;
+
+            if (trackAngle > bound.lower && trackAngle < bound.higher) {
+                // trackAngle will run into projectile
+                // adjust to closest angle without collision
+                trackAngle =
+                    Math.abs(trackAngle - bound.lower) <
+                    Math.abs(trackAngle - bound.higher)
+                        ? bound.lower
+                        : bound.higher;
+            }
+
+            // normalize the angle to compensate the temporary boost
+            trackAngle = Phaser.Math.Angle.Normalize(trackAngle);
         }
+
+        console.log(collisionBounds);
+        console.log(trackAngle);
 
         // move the character in trackAngle
         const vec = new Phaser.Math.Vector2(
@@ -170,9 +184,11 @@ export class StrongAIControlState extends CharacterControlState {
                 continue;
             }
 
+            const projectileCenter = projectile.body.center;
+
             const distance = Phaser.Math.Distance.BetweenPoints(
-                projectile.body.center,
-                this._character.body.center
+                center,
+                projectileCenter
             );
 
             // ignore far away projectiles
@@ -180,11 +196,7 @@ export class StrongAIControlState extends CharacterControlState {
                 continue;
             }
 
-            const angle = Utils.inclinationOf(
-                center,
-                projectile.body.center,
-                true
-            );
+            const angle = Utils.inclinationOf(center, projectileCenter, true);
 
             // compute safe distance (minimum distance away from projectile to avoid collision)
             const safeDistance = this._computeSafeDistance(angle);
@@ -203,47 +215,7 @@ export class StrongAIControlState extends CharacterControlState {
             });
         }
 
-        // clean up overlapping bounds
-        for (let i = collisionBounds.length - 1; i >= 0; --i) {
-            for (let j = collisionBounds.length - 1; j >= 0; --j) {
-                if (i >= collisionBounds.length) {
-                    i = collisionBounds.length - 1;
-                }
-
-                if (j >= collisionBounds.length) {
-                    j = collisionBounds.length - 1;
-                }
-
-                if (i < 0 || j < 0) {
-                    break;
-                }
-
-                if (i === j) {
-                    continue;
-                }
-
-                // check if bounds overlapping
-                if (
-                    collisionBounds[i].higher >= collisionBounds[j].lower &&
-                    collisionBounds[j].higher >= collisionBounds[i].lower
-                ) {
-                    // merge overlapping bounds
-                    collisionBounds[i].lower =
-                        collisionBounds[j].lower < collisionBounds[i].lower
-                            ? collisionBounds[j].lower
-                            : collisionBounds[i].lower;
-                    collisionBounds[i].higher =
-                        collisionBounds[j].higher > collisionBounds[i].higher
-                            ? collisionBounds[j].higher
-                            : collisionBounds[i].higher;
-
-                    collisionBounds.splice(j, 1);
-                    // prevent invalid access and ensure complete checking
-                    --i;
-                }
-            }
-        }
-        return collisionBounds;
+        return this._cleanUpCollisionBounds(collisionBounds);
     }
 
     /**
@@ -269,5 +241,83 @@ export class StrongAIControlState extends CharacterControlState {
             safeX = (1 / Math.tan(safeAngle)) * safeY;
         }
         return Math.hypot(center.x - safeX, center.y - safeY);
+    }
+
+    /**
+     * Merge overlapping collision angle bounds.
+     * @protected
+     * @param {{lower: number, higher: number}[]} collisionBounds The collision angle bounds to be cleaned up.
+     * @returns {{lower: number, higher: number}[]} The cleaned up collision bounds.
+     */
+    _cleanUpCollisionBounds(collisionBounds) {
+        console.log(JSON.stringify(collisionBounds, null, 2));
+        for (let i = collisionBounds.length - 1; i >= 0; --i) {
+            for (let j = collisionBounds.length - 1; j >= 0; --j) {
+                if (i >= collisionBounds.length) {
+                    i = collisionBounds.length - 1;
+                }
+
+                if (j >= collisionBounds.length) {
+                    j = collisionBounds.length - 1;
+                }
+
+                if (i < 0 || j < 0) {
+                    break;
+                }
+
+                if (i === j) {
+                    continue;
+                }
+
+                // check transition from 2pi to 0
+                const boundTransition = {
+                    i: collisionBounds[i].higher < collisionBounds[i].lower,
+                    j: collisionBounds[j].higher < collisionBounds[j].lower,
+                };
+
+                // use local copy to boost up the angle for easy comparison
+                const boundI = {
+                    lower: collisionBounds[i].lower,
+                    higher: collisionBounds[i].higher,
+                };
+                const boundJ = {
+                    lower: collisionBounds[j].lower,
+                    higher: collisionBounds[j].higher,
+                };
+
+                if (boundTransition.i) {
+                    boundI.higher += Math.PI * 2;
+                    boundJ.higher += Math.PI * 2;
+                    if (!boundTransition.j) {
+                        boundJ.lower += Math.PI * 2;
+                    }
+                } else if (boundTransition.j) {
+                    boundJ.higher += Math.PI * 2;
+                    boundI.lower += Math.PI * 2;
+                    boundI.higher += Math.PI * 2;
+                }
+
+                // check if bounds overlapping
+                if (
+                    boundI.higher >= boundJ.lower &&
+                    boundJ.higher >= boundI.lower
+                ) {
+                    // merge overlapping bounds
+                    collisionBounds[i].lower =
+                        boundJ.lower < boundI.lower
+                            ? collisionBounds[j].lower
+                            : collisionBounds[i].lower;
+                    collisionBounds[i].higher =
+                        boundJ.higher > boundI.higher
+                            ? collisionBounds[j].higher
+                            : collisionBounds[i].higher;
+
+                    collisionBounds.splice(j, 1);
+                    // prevent invalid access and ensure complete checking
+                    --i;
+                }
+            }
+        }
+        return collisionBounds;
     }
 }
