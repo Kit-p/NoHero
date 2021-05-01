@@ -122,8 +122,8 @@ export class GameScene extends Phaser.Scene {
                 maxHealth: 24,
                 type: 'player',
                 cooldowns: {
-                    projectile: 1500,
-                    dash: 3000,
+                    projectile: 1000,
+                    dash: 2000,
                 },
             }
         );
