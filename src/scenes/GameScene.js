@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import EasyStar from 'easystarjs';
 
 import Constants from '../classes/Constants';
 import { Character } from '../classes/Character';
@@ -10,11 +11,15 @@ import { Potion } from '../items/Potion';
 import { Spike } from '../traps/Spike';
 
 export class GameScene extends Phaser.Scene {
-    /** @type {{tilemap: Phaser.Tilemaps.Tilemap, layers: Phaser.Tilemaps.TilemapLayer[]}} */
+    /** @type {{tilemap: Phaser.Tilemaps.Tilemap, tileset: Phaser.Tilemaps.Tileset, layers: Phaser.Tilemaps.TilemapLayer[]}} */
     map = {
         tilemap: null,
+        tileset: null,
         layers: [],
     };
+
+    /** @type {EasyStar.js} The EasyStar library for path-finding. */
+    easystar = new EasyStar.js();
 
     /** @type {Phaser.Physics.Arcade.Group} A group of characters with physics. */
     characterGroup;
@@ -247,6 +252,13 @@ export class GameScene extends Phaser.Scene {
             // disable physics
             this.physics.shutdown();
 
+            // disable all tweens timeline
+            for (const tween of this.tweens.getAllTweens()) {
+                if (tween instanceof Phaser.Tweens.Timeline) {
+                    tween.stop();
+                }
+            }
+
             // hide GameUIScene
             this.scene.get(Constants.SCENE.GAME_UI).scene.stop();
 
@@ -273,7 +285,7 @@ export class GameScene extends Phaser.Scene {
         this.map.tilemap = null;
         this.map.layers = [];
         const map = this.add.tilemap(tilemap);
-        map.addTilesetImage(tileset);
+        const tiles = map.addTilesetImage(tileset);
         this.scale.setGameSize(map.widthInPixels, map.heightInPixels);
         this.physics.world.bounds.width = map.widthInPixels;
         this.physics.world.bounds.height = map.heightInPixels;
@@ -326,8 +338,14 @@ export class GameScene extends Phaser.Scene {
         }
 
         this.map.tilemap = map;
+        this.map.tileset = tiles;
+
         // populate the pillars array for other classes to use
         this._findPillars();
+
+        // set up EasyStar
+        this._initEasyStar();
+
         return map;
     }
 
@@ -450,7 +468,7 @@ export class GameScene extends Phaser.Scene {
     _findPillars() {
         // find all the pillars on the map
         const pillarLayer = this.map.layers.find(
-            (layer) => layer.name === 'Pillar'
+            (layer) => layer.layer.name === 'Pillar'
         );
         if (pillarLayer === undefined) {
             return;
@@ -471,6 +489,45 @@ export class GameScene extends Phaser.Scene {
                 y: pillar.getCenterY(),
             });
         }
+    }
+
+    /**
+     * Initialize EasyStar with map data.
+     * @protected
+     */
+    _initEasyStar() {
+        // set up the world grid with the pillar layer
+        const grid = [];
+        for (let y = 0; y < this.map.tilemap.height; ++y) {
+            const col = [];
+            for (let x = 0; x < this.map.tilemap.width; ++x) {
+                col.push(
+                    this.map.tilemap.getTileAt(x, y, true, 'Pillar').index
+                );
+            }
+            grid.push(col);
+        }
+        this.easystar.setGrid(grid);
+
+        // set up the acceptable (walkable) tiles
+        const acceptableTiles = [-1];
+        const tileset = this.map.tileset;
+        const properties = tileset.tileProperties;
+        for (let i = tileset.firstgid - 1; i < tileset.total; ++i) {
+            if (properties[i]?.collides !== true) {
+                acceptableTiles.push(i + 1);
+            }
+
+            // set the tile cost if any
+            if (properties[i]?.cost !== undefined) {
+                this.easystar.setTileCost(i + 1, properties[i].cost);
+            }
+        }
+        this.easystar.setAcceptableTiles(acceptableTiles);
+
+        // enable more optimal path-finding settings
+        // this.easystar.enableDiagonals();
+        // this.easystar.enableCornerCutting();
     }
 
     /**

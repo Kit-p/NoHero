@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
         "checkJs": true,
-        "target": "es6"
+        "target": "es6",
+        "moduleResolution": "node"
     },
     "include": [
         "src/**/*"

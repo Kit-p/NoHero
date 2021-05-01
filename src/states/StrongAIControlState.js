@@ -25,11 +25,6 @@ export class StrongAIControlState extends CharacterControlState {
 
         /** @type {PlayerCharacter} */
         this._character;
-
-        // populate the colliding object arrays
-        for (const pillar of this._character._scene.pillars) {
-            this._pillars.push({ x: pillar.x, y: pillar.y, weight: 0 });
-        }
     }
 
     /**
@@ -37,6 +32,13 @@ export class StrongAIControlState extends CharacterControlState {
      */
     update() {
         super.update();
+
+        if (this._pillars.length <= 0) {
+            // populate the colliding object arrays
+            for (const pillar of this._character._scene.pillars) {
+                this._pillars.push({ x: pillar.x, y: pillar.y, weight: 0 });
+            }
+        }
 
         // disable control when hit animation is still playing
         if (
@@ -74,14 +76,14 @@ export class StrongAIControlState extends CharacterControlState {
      * @protected
      */
     _decideControl() {
-        let moveDirection;
         if (this._character.currentProjectile !== undefined) {
             // ranged character
-            moveDirection = this._computeFleeAngle();
-        } else {
-            // melee character
-            moveDirection = this._computeTrackAngle();
+            this._flee();
+            return;
         }
+
+        // melee character
+        let moveDirection = this._computeTrackAngle();
 
         if (isNaN(moveDirection)) {
             // failed to determine moving direction
@@ -280,14 +282,18 @@ export class StrongAIControlState extends CharacterControlState {
     }
 
     /**
-     * Compute angle fleeing from the player.
+     * Flee from player, with path-finding and tween.
      * @protected
-     * @returns {number} The angle (NaN if no player to flee from).
      */
-    _computeFleeAngle() {
+    _flee() {
         if (this._pillars.length <= 0) {
             // no pillar to hide (impossible as all maps should have pillar)
-            return NaN;
+            return;
+        }
+
+        // wait for existing tween to complete
+        if (this._character._scene.tweens.isTweening(this._character)) {
+            return;
         }
 
         const center = this._character.getCenter();
@@ -330,7 +336,7 @@ export class StrongAIControlState extends CharacterControlState {
 
         // no player to flee from
         if (closestCharacter === undefined) {
-            return NaN;
+            return;
         }
 
         // find the most preferred pillar
@@ -345,7 +351,7 @@ export class StrongAIControlState extends CharacterControlState {
         }
 
         if (chosenPillar === undefined) {
-            return NaN;
+            return;
         }
 
         // determine the coordinates to move to
@@ -356,15 +362,47 @@ export class StrongAIControlState extends CharacterControlState {
         const tolerance = Math.PI / 4;
         const bound = { lower: angle - tolerance, upper: angle + tolerance };
         angle = Math.random() * (bound.upper - bound.lower) + bound.lower;
-        // eslint-disable-next-line no-unused-vars
+
+        // calculate the tile coordinates of the path source and destination
+        const source = {
+            x: Math.floor(this._character.body.center.x / 16),
+            y: Math.floor(this._character.body.center.y / 16),
+        };
         const destination = {
-            x: chosenPillar.x + Math.cos(angle) * 16,
-            y: chosenPillar.y + Math.sin(angle) * 16,
+            x: Math.floor((chosenPillar.x + Math.cos(angle) * 16) / 16),
+            y: Math.floor((chosenPillar.y + Math.sin(angle) * 16) / 16),
         };
 
-        // hide behind most preferred pillar
-        // TODO: path-finding
-        return NaN;
+        // find the path
+        this._character._scene.easystar.findPath(
+            source.x,
+            source.y,
+            destination.x,
+            destination.y,
+            (path) => {
+                if (path !== undefined && path !== null) {
+                    // move the character to hide behind most preferred pillar
+                    const tweens = [];
+                    for (let i = 1; i < path.length; ++i) {
+                        tweens.push({
+                            targets: this._character,
+                            x: {
+                                value: path[i].x * 16,
+                                duration:
+                                    (16 / this._character.movementSpeed) * 1000,
+                            },
+                            y: {
+                                value: path[i].y * 16,
+                                duration:
+                                    (16 / this._character.movementSpeed) * 1000,
+                            },
+                        });
+                    }
+                    this._character._scene.tweens.timeline({ tweens });
+                }
+            }
+        );
+        this._character._scene.easystar.calculate();
     }
 
     /**
