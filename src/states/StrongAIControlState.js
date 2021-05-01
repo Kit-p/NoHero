@@ -91,7 +91,8 @@ export class StrongAIControlState extends CharacterControlState {
         );
 
         // find potion when health too low
-        if (this._character.health < this._character.maxHealth * 0.5) {
+        const critFactor = 0.5; // percentage
+        if (this._character.health < this._character.maxHealth * critFactor) {
             const closestPotion = this._scene.physics.closest(
                 this._character,
                 this._character._scene.potionGroup
@@ -166,26 +167,29 @@ export class StrongAIControlState extends CharacterControlState {
                 projectile.type === this._character.type ||
                 !(projectile.body instanceof Phaser.Physics.Arcade.Body)
             ) {
-                return;
+                continue;
             }
 
-            const projectileAngle = Utils.inclinationOf(
+            const distance = Phaser.Math.Distance.BetweenPoints(
+                projectile.body.center,
+                this._character.body.center
+            );
+
+            // ignore far away projectiles
+            if (distance > 16 * 8) {
+                continue;
+            }
+
+            const angle = Utils.inclinationOf(
                 center,
                 projectile.body.center,
                 true
             );
 
             // compute safe distance (minimum distance away from projectile to avoid collision)
-            const safeDistance = this._computeSafeDistance(projectileAngle);
+            const safeDistance = this._computeSafeDistance(angle);
 
             const radius = projectile.body.radius;
-            const distance = Phaser.Math.Distance.BetweenPoints(
-                projectile.body.center,
-                this._character.body.center
-            );
-            if (typeof radius !== 'number' || typeof distance !== 'number') {
-                return;
-            }
 
             // set toleranceFactor to compensate Math inaccuracy
             const toleranceFactor = 4;
@@ -194,12 +198,8 @@ export class StrongAIControlState extends CharacterControlState {
             );
 
             collisionBounds.push({
-                lower: Phaser.Math.Angle.Normalize(
-                    projectileAngle - collisionAngle
-                ),
-                higher: Phaser.Math.Angle.Normalize(
-                    projectileAngle + collisionAngle
-                ),
+                lower: Phaser.Math.Angle.Normalize(angle - collisionAngle),
+                higher: Phaser.Math.Angle.Normalize(angle + collisionAngle),
             });
         }
 
