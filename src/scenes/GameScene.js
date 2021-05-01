@@ -126,7 +126,7 @@ export class GameScene extends Phaser.Scene {
             player.body.height * 0.25
         );
 
-        const enemy = new PlayerCharacter(
+        const knight = new PlayerCharacter(
             this,
             0,
             0,
@@ -141,8 +141,35 @@ export class GameScene extends Phaser.Scene {
             }
         );
         // manually adjust the collision body size and offset
-        enemy.body.setSize(enemy.width * 0.75, enemy.height * 0.65, true);
-        enemy.body.setOffset(enemy.body.width * 0.15, enemy.body.height * 0.5);
+        knight.body.setSize(knight.width * 0.75, knight.height * 0.65, true);
+        knight.body.setOffset(
+            knight.body.width * 0.15,
+            knight.body.height * 0.5
+        );
+
+        const wizard = new PlayerCharacter(
+            this,
+            0,
+            0,
+            Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
+            'wizard_m_idle_anim_f0',
+            {
+                name: 'wizard_m',
+                controlState: StrongAIControlState,
+                maxHealth: 8,
+                movementSpeed: 48,
+                cooldowns: {
+                    projectile: 3000,
+                },
+                type: 'enemy',
+            }
+        );
+        // manually adjust the collision body size and offset
+        wizard.body.setSize(wizard.width * 0.75, wizard.height * 0.65, true);
+        wizard.body.setOffset(
+            wizard.body.width * 0.15,
+            wizard.body.height * 0.5
+        );
 
         // set reference for GameUIScene to display health
         this.currentHumanControlledCharacter = player;
@@ -162,8 +189,16 @@ export class GameScene extends Phaser.Scene {
         );
 
         // place the enemy at the bottom center of the map
-        enemy.setX(this.map.tilemap.widthInPixels * 0.5);
-        enemy.setY(this.map.tilemap.heightInPixels * 0.5 + enemy.height * 0.5);
+        knight.setX(this.map.tilemap.widthInPixels * 0.25);
+        knight.setY(
+            this.map.tilemap.heightInPixels * 0.5 + knight.height * 0.5
+        );
+
+        // place the enemy at the bottom center of the map
+        wizard.setX(this.map.tilemap.widthInPixels * 0.75);
+        wizard.setY(
+            this.map.tilemap.heightInPixels * 0.5 + wizard.height * 0.5
+        );
 
         // spawn the spikes
         this._spawnSpikes();

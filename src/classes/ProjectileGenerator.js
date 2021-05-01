@@ -30,6 +30,9 @@ export class ProjectileGenerator {
     /** @protected @type {number} The damage of this projectile. */
     _damage;
 
+    /** @protected @type {boolean} Flag indicating whether this projectile tracks enemies. */
+    _isTrack;
+
     /** @protected @type {number} The cooldown (in milleseconds) of this projectile. */
     _cooldown;
 
@@ -58,6 +61,7 @@ export class ProjectileGenerator {
             speed = 96,
             cooldown = 500,
             damage = 1,
+            isTrack = false,
         } = {}
     ) {
         if (!(scene instanceof GameScene)) {
@@ -74,6 +78,7 @@ export class ProjectileGenerator {
         this._speed = speed;
         this._cooldown = cooldown;
         this._damage = damage;
+        this._isTrack = isTrack;
         this.render();
     }
 

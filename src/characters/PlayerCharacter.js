@@ -352,10 +352,10 @@ export class PlayerCharacter extends Character {
      * Create an array of available projectiles for this character.
      */
     _createProjectiles() {
-        if (this.type === 'player') {
-            // create available projectiles for player
-            this._availableProjectiles.push(
-                new ProjectileGenerator(
+        let projectile;
+        switch (this.name) {
+            case 'big_demon':
+                projectile = new ProjectileGenerator(
                     this._scene,
                     Constants.RESOURCE.ATLAS.EFFECT_ATTACK_2,
                     'bullet_red_anim_f1',
@@ -368,12 +368,25 @@ export class PlayerCharacter extends Character {
                         damage: 2,
                         cooldown: this._cooldowns.projectile,
                     }
-                )
-            );
-        } else {
-            // create available projectiles for enemy
-            this._availableProjectiles.push(
-                new ProjectileGenerator(
+                );
+                break;
+            case 'wizard_m':
+                projectile = new ProjectileGenerator(
+                    this._scene,
+                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_3,
+                    'bullet_glow_anim_f1',
+                    this,
+                    {
+                        scale: 1,
+                        speed: 128,
+                        damage: 2,
+                        cooldown: this._cooldowns.projectile,
+                        isTrack: true,
+                    }
+                );
+                break;
+            default:
+                projectile = new ProjectileGenerator(
                     this._scene,
                     Constants.RESOURCE.ATLAS.EFFECT_ATTACK_2,
                     'bullet_cyan_anim_f1',
@@ -386,9 +399,12 @@ export class PlayerCharacter extends Character {
                         damage: 1,
                         cooldown: this._cooldowns.projectile,
                     }
-                )
-            );
+                );
         }
-        this.currentProjectile = this._availableProjectiles[0];
+
+        if (projectile !== undefined) {
+            this._availableProjectiles.push(projectile);
+            this.currentProjectile = this._availableProjectiles[0];
+        }
     }
 }

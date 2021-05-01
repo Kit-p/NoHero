@@ -7,4 +7,5 @@
  * @property {number} [speed] The speed of the projectile.
  * @property {number} [cooldown] The cooldown (in milleseconds) of the projectile.
  * @property {number} [damage] The damage of the projectile.
+ * @property {boolean} [isTrack] Flag indicating if the bullet will track enemies.
  */
