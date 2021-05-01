@@ -333,7 +333,37 @@ export class StrongAIControlState extends CharacterControlState {
             return NaN;
         }
 
-        // TODO: use most preferred pillar to flee from closest player character
+        // find the most preferred pillar
+        let chosenPillar;
+        for (const pillar of this._pillars) {
+            if (
+                chosenPillar === undefined ||
+                pillar.weight > chosenPillar.weight
+            ) {
+                chosenPillar = pillar;
+            }
+        }
+
+        if (chosenPillar === undefined) {
+            return NaN;
+        }
+
+        // determine the coordinates to move to
+        let angle = Utils.inclinationOf(closestCharacter, {
+            x: chosenPillar.x,
+            y: chosenPillar.y,
+        });
+        const tolerance = Math.PI / 4;
+        const bound = { lower: angle - tolerance, upper: angle + tolerance };
+        angle = Math.random() * (bound.upper - bound.lower) + bound.lower;
+        // eslint-disable-next-line no-unused-vars
+        const destination = {
+            x: chosenPillar.x + Math.cos(angle) * 16,
+            y: chosenPillar.y + Math.sin(angle) * 16,
+        };
+
+        // hide behind most preferred pillar
+        // TODO: path-finding
         return NaN;
     }
 
