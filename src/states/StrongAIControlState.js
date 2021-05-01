@@ -62,10 +62,14 @@ export class StrongAIControlState extends CharacterControlState {
         } else if (this._character.body.velocity.x < 0) {
             this._character.setFlipX(true);
         }
+
+        // fire projectile if available
+        this._handleFireProjectile();
     }
 
     /**
-     *
+     * Find all colliding objects on the map and save their positions.
+     * @protected
      */
     _findCollidingObjects() {
         // find all the pillars on the map
@@ -276,7 +280,7 @@ export class StrongAIControlState extends CharacterControlState {
         for (const character of characters) {
             if (
                 !(character instanceof PlayerCharacter) ||
-                character.type !== 'player'
+                character.type === this._character.type
             ) {
                 continue;
             }
@@ -324,11 +328,10 @@ export class StrongAIControlState extends CharacterControlState {
         /** @type {number} */
         let closestDistance;
         for (const character of characters) {
-            if (!(character instanceof PlayerCharacter)) {
-                continue;
-            }
-            if (character.type === this._character.type) {
-                // ignore teamates
+            if (
+                !(character instanceof PlayerCharacter) ||
+                character.type === this._character.type
+            ) {
                 continue;
             }
             const distance = Phaser.Math.Distance.BetweenPoints(
@@ -438,5 +441,71 @@ export class StrongAIControlState extends CharacterControlState {
             }
         }
         return collisionBounds;
+    }
+
+    /**
+     * Decide where to fire projectile if available.
+     * @protected
+     */
+    _handleFireProjectile() {
+        if (this._character.currentProjectile === undefined) {
+            // no projectile to fire
+            return;
+        }
+
+        const center = this._character.body.center;
+
+        // shoot at the closest player
+        const characters = this._character._scene.characterGroup.getChildren();
+        /** @type {PlayerCharacter} */
+        let closestCharacter;
+        /** @type {number} */
+        let closestDistance;
+        for (const character of characters) {
+            if (
+                !(character instanceof PlayerCharacter) ||
+                character.type === this._character.type
+            ) {
+                continue;
+            }
+            const distance = Phaser.Math.Distance.BetweenPoints(
+                center,
+                character.getCenter()
+            );
+
+            // find closest character to flee from
+            if (closestCharacter === undefined || distance < closestDistance) {
+                closestCharacter = character;
+                closestDistance = Phaser.Math.Distance.BetweenPoints(
+                    center,
+                    closestCharacter.getCenter()
+                );
+            }
+        }
+
+        if (closestCharacter === undefined) {
+            // no player to shoot
+            return;
+        }
+
+        // angle range (in radian)
+        const inaccuracy = Math.PI / 4;
+        const angle =
+            Utils.inclinationOf(this._character, closestCharacter, true) +
+            (Math.random() * (inaccuracy * 2) - inaccuracy);
+
+        // compute a position simulating a mouse click
+        const x =
+            closestCharacter.body.center.x + Math.cos(angle) * closestDistance;
+        const y =
+            closestCharacter.body.center.y + Math.sin(angle) * closestDistance;
+
+        // spawn the projectile
+        this._character.currentProjectile.spawn(
+            x,
+            y,
+            this._character.body.center.x,
+            this._character.body.center.y
+        );
     }
 }

@@ -377,7 +377,7 @@ export class PlayerCharacter extends Character {
                     'bullet_glow_anim_f1',
                     this,
                     {
-                        scale: 1,
+                        scale: 0.2,
                         speed: 128,
                         damage: 2,
                         cooldown: this._cooldowns.projectile,
