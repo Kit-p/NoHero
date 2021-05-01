@@ -12,6 +12,11 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
     _scene;
 
     /**
+     * @protected @type {number} The speed of this projectile.
+     */
+    _speed;
+
+    /**
      * @protected @type {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} The velocity of the projectile.
      */
     _velocity;
@@ -27,6 +32,7 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
      * @param {number} y The initial y-coordinate of this projectile.
      * @param {string | Phaser.Textures.Texture} texture The key, or instance of the Texture this projectile will use to render with, as stored in the Texture Manager.
      * @param {string | number} frame The initial frame from the Texture this projectile is rendering with.
+     * @param {number} speed The speed of this projectile.
      * @param {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} velocity The velocity of this projectile.
      * @param {number} damage The damage of this projectile.
      * @param {string} type The type of PlayerCharacter this projectile belongs to.
@@ -38,12 +44,14 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
         y,
         texture,
         frame,
+        speed,
         velocity,
         damage,
         type,
         scale = 1.0
     ) {
         super(scene, x, y, texture, frame);
+        this._speed = speed;
         this._velocity = velocity;
         this._damage = damage;
         this.type = type;
@@ -70,8 +78,20 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
         // set the scaling
         this.setScale(scale);
 
+        // normalize and scale the velocity by the speed
+        this._velocity = new Phaser.Math.Vector2(this._velocity)
+            .normalize()
+            .scale(this._speed);
+
         // set initial velocity of this projectile
         this.body.setVelocity(this._velocity.x, this._velocity.y);
+    }
+
+    /**
+     * @returns The speed of this projectile.
+     */
+    get speed() {
+        return this._speed;
     }
 
     /**
@@ -79,6 +99,17 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
      */
     get velocity() {
         return this._velocity;
+    }
+
+    /**
+     * Sets the velocity.
+     * @param {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} velocity
+     */
+    set velocity(velocity) {
+        this._velocity = new Phaser.Math.Vector2(velocity)
+            .normalize()
+            .scale(this._speed);
+        this.body.setVelocity(this._velocity.x, this._velocity.y);
     }
 
     /**

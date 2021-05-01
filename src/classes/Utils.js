@@ -323,4 +323,24 @@ export default class Utils {
             }
         }
     }
+
+    /**
+     * A utility method to determine if an angle is within a boundary.
+     * @static
+     * @param {number} angle The angle to be checked.
+     * @param {number} lower The lower bound.
+     * @param {number} upper The upper bound.
+     */
+    static isAngleBetween(angle, lower, upper) {
+        angle = Phaser.Math.Angle.Normalize(angle);
+        lower = Phaser.Math.Angle.Normalize(lower);
+        upper = Phaser.Math.Angle.Normalize(upper);
+        if (lower < upper) {
+            // normal case
+            return lower <= angle && angle <= upper;
+        } else {
+            // special case (transition from 2pi to 0)
+            return lower <= angle || angle <= upper;
+        }
+    }
 }

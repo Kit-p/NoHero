@@ -27,7 +27,9 @@ export class StrongAIControlState extends CharacterControlState {
         this._character;
 
         // populate the colliding object arrays
-        this._findCollidingObjects();
+        for (const pillar of this._character._scene.pillars) {
+            this._pillars.push({ x: pillar.x, y: pillar.y, weight: 0 });
+        }
     }
 
     /**
@@ -65,37 +67,6 @@ export class StrongAIControlState extends CharacterControlState {
 
         // fire projectile if available
         this._handleFireProjectile();
-    }
-
-    /**
-     * Find all colliding objects on the map and save their positions.
-     * @protected
-     */
-    _findCollidingObjects() {
-        // find all the pillars on the map
-        const pillarLayer = this._character._scene.map.layers.find(
-            (layer) => layer.name === 'Pillar'
-        );
-        if (pillarLayer === undefined) {
-            return NaN;
-        }
-        const pillars = pillarLayer.filterTiles(
-            () => true,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            { isNotEmpty: true, isColliding: true }
-        );
-
-        for (const pillar of pillars) {
-            this._pillars.push({
-                x: pillar.getCenterX(),
-                y: pillar.getCenterY(),
-                weight: 0,
-            });
-        }
     }
 
     /**
@@ -154,22 +125,22 @@ export class StrongAIControlState extends CharacterControlState {
         // adjust trackAngle to avoid collision with projectile
         for (const bound of collisionBounds) {
             // temporarily boost the angles for easy comparison
-            if (bound.lower > bound.higher) {
-                bound.higher += Math.PI * 2;
+            if (bound.lower > bound.upper) {
+                bound.upper += Math.PI * 2;
                 moveDirection =
                     moveDirection < Math.PI
                         ? moveDirection + Math.PI * 2
                         : moveDirection;
             }
 
-            if (moveDirection > bound.lower && moveDirection < bound.higher) {
+            if (moveDirection > bound.lower && moveDirection < bound.upper) {
                 // trackAngle will run into projectile
                 // adjust to closest angle without collision
                 moveDirection =
                     Math.abs(moveDirection - bound.lower) <
-                    Math.abs(moveDirection - bound.higher)
+                    Math.abs(moveDirection - bound.upper)
                         ? bound.lower
-                        : bound.higher;
+                        : bound.upper;
             }
 
             // normalize the angle to compensate the temporary boost
@@ -189,10 +160,10 @@ export class StrongAIControlState extends CharacterControlState {
     /**
      * Compute the collision angle bounds that will run into projectile.
      * @protected
-     * @returns {{lower: number, higher: number}[]} An array of collision angle bounds.
+     * @returns {{lower: number, upper: number}[]} An array of collision angle bounds.
      */
     _computeCollisionBounds() {
-        /** @type {{lower: number, higher: number}[]} An array of collision angle bounds. */
+        /** @type {{lower: number, upper: number}[]} An array of collision angle bounds. */
         const collisionBounds = [];
         const center = this._character.body.center;
 
@@ -235,7 +206,7 @@ export class StrongAIControlState extends CharacterControlState {
 
             collisionBounds.push({
                 lower: Phaser.Math.Angle.Normalize(angle - collisionAngle),
-                higher: Phaser.Math.Angle.Normalize(angle + collisionAngle),
+                upper: Phaser.Math.Angle.Normalize(angle + collisionAngle),
             });
         }
 
@@ -369,8 +340,8 @@ export class StrongAIControlState extends CharacterControlState {
     /**
      * Merge overlapping collision angle bounds.
      * @protected
-     * @param {{lower: number, higher: number}[]} collisionBounds The collision angle bounds to be cleaned up.
-     * @returns {{lower: number, higher: number}[]} The cleaned up collision bounds.
+     * @param {{lower: number, upper: number}[]} collisionBounds The collision angle bounds to be cleaned up.
+     * @returns {{lower: number, upper: number}[]} The cleaned up collision bounds.
      */
     _cleanUpCollisionBounds(collisionBounds) {
         for (let i = collisionBounds.length - 1; i >= 0; --i) {
@@ -393,46 +364,46 @@ export class StrongAIControlState extends CharacterControlState {
 
                 // check transition from 2pi to 0
                 const boundTransition = {
-                    i: collisionBounds[i].higher < collisionBounds[i].lower,
-                    j: collisionBounds[j].higher < collisionBounds[j].lower,
+                    i: collisionBounds[i].upper < collisionBounds[i].lower,
+                    j: collisionBounds[j].upper < collisionBounds[j].lower,
                 };
 
                 // use local copy to boost up the angle for easy comparison
                 const boundI = {
                     lower: collisionBounds[i].lower,
-                    higher: collisionBounds[i].higher,
+                    upper: collisionBounds[i].upper,
                 };
                 const boundJ = {
                     lower: collisionBounds[j].lower,
-                    higher: collisionBounds[j].higher,
+                    upper: collisionBounds[j].upper,
                 };
 
                 if (boundTransition.i) {
-                    boundI.higher += Math.PI * 2;
-                    boundJ.higher += Math.PI * 2;
+                    boundI.upper += Math.PI * 2;
+                    boundJ.upper += Math.PI * 2;
                     if (!boundTransition.j) {
                         boundJ.lower += Math.PI * 2;
                     }
                 } else if (boundTransition.j) {
-                    boundJ.higher += Math.PI * 2;
+                    boundJ.upper += Math.PI * 2;
                     boundI.lower += Math.PI * 2;
-                    boundI.higher += Math.PI * 2;
+                    boundI.upper += Math.PI * 2;
                 }
 
                 // check if bounds overlapping
                 if (
-                    boundI.higher >= boundJ.lower &&
-                    boundJ.higher >= boundI.lower
+                    boundI.upper >= boundJ.lower &&
+                    boundJ.upper >= boundI.lower
                 ) {
                     // merge overlapping bounds
                     collisionBounds[i].lower =
                         boundJ.lower < boundI.lower
                             ? collisionBounds[j].lower
                             : collisionBounds[i].lower;
-                    collisionBounds[i].higher =
-                        boundJ.higher > boundI.higher
-                            ? collisionBounds[j].higher
-                            : collisionBounds[i].higher;
+                    collisionBounds[i].upper =
+                        boundJ.upper > boundI.upper
+                            ? collisionBounds[j].upper
+                            : collisionBounds[i].upper;
 
                     collisionBounds.splice(j, 1);
                     // prevent invalid access and ensure complete checking

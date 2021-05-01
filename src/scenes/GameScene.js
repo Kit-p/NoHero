@@ -28,6 +28,9 @@ export class GameScene extends Phaser.Scene {
     /** @type {Phaser.Physics.Arcade.Group} A group of spikes with physics. */
     spikeGroup;
 
+    /** @type {{x: number, y: number}[]} */
+    pillars = [];
+
     /** @type {PlayerCharacter} The current human controlled character. */
     currentHumanControlledCharacter;
 
@@ -111,7 +114,7 @@ export class GameScene extends Phaser.Scene {
             {
                 name: 'big_demon',
                 controlState: HumanControlState,
-                maxHealth: 18,
+                maxHealth: 24,
                 type: 'player',
                 cooldowns: {
                     projectile: 1500,
@@ -323,6 +326,8 @@ export class GameScene extends Phaser.Scene {
         }
 
         this.map.tilemap = map;
+        // populate the pillars array for other classes to use
+        this._findPillars();
         return map;
     }
 
@@ -435,6 +440,36 @@ export class GameScene extends Phaser.Scene {
                     );
                 }
             }
+        }
+    }
+
+    /**
+     * Find all colliding objects on the map and save their positions.
+     * @protected
+     */
+    _findPillars() {
+        // find all the pillars on the map
+        const pillarLayer = this.map.layers.find(
+            (layer) => layer.name === 'Pillar'
+        );
+        if (pillarLayer === undefined) {
+            return;
+        }
+        const pillars = pillarLayer.filterTiles(
+            () => true,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            { isNotEmpty: true, isColliding: true }
+        );
+
+        for (const pillar of pillars) {
+            this.pillars.push({
+                x: pillar.getCenterX(),
+                y: pillar.getCenterY(),
+            });
         }
     }
 
