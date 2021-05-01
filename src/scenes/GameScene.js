@@ -165,7 +165,7 @@ export class GameScene extends Phaser.Scene {
                 name: 'wizard_m',
                 controlState: StrongAIControlState,
                 maxHealth: 8,
-                movementSpeed: 48,
+                movementSpeed: 36,
                 cooldowns: {
                     projectile: 3000,
                 },
