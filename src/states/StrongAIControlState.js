@@ -84,7 +84,11 @@ export class StrongAIControlState extends CharacterControlState {
             return;
         }
 
-        let trackAngle = Utils.inclinationOf(this._character, playerToTrack);
+        let trackAngle = Utils.inclinationOf(
+            this._character,
+            playerToTrack,
+            true
+        );
 
         // find potion when health too low
         if (this._character.health < this._character.maxHealth * 0.5) {
@@ -98,18 +102,20 @@ export class StrongAIControlState extends CharacterControlState {
             if (closestPotion instanceof Phaser.Physics.Arcade.Body) {
                 trackAngle = Utils.inclinationOf(
                     this._character,
-                    closestPotion.center
+                    closestPotion.center,
+                    true
                 );
             } else if (
                 closestPotion instanceof Phaser.Physics.Arcade.StaticBody
             ) {
                 // empty block for type checking
             } else if (
-                closestPotion.body instanceof Phaser.Physics.Arcade.Body
+                closestPotion?.body instanceof Phaser.Physics.Arcade.Body
             ) {
                 trackAngle = Utils.inclinationOf(
                     this._character,
-                    closestPotion.body.center
+                    closestPotion.body.center,
+                    true
                 );
             }
         }
@@ -163,9 +169,10 @@ export class StrongAIControlState extends CharacterControlState {
                 return;
             }
 
-            const projectileAngle = Math.atan2(
-                projectile.body.center.y - center.y,
-                projectile.body.center.x - center.x
+            const projectileAngle = Utils.inclinationOf(
+                center,
+                projectile.body.center,
+                true
             );
 
             // compute safe distance (minimum distance away from projectile to avoid collision)
@@ -182,14 +189,17 @@ export class StrongAIControlState extends CharacterControlState {
 
             // set toleranceFactor to compensate Math inaccuracy
             const toleranceFactor = 4;
-            const collisionAngle = Math.atan2(
-                radius * toleranceFactor + safeDistance,
-                distance
+            const collisionAngle = Phaser.Math.Angle.Normalize(
+                Math.atan2(radius * toleranceFactor + safeDistance, distance)
             );
 
             collisionBounds.push({
-                lower: projectileAngle - collisionAngle,
-                higher: projectileAngle + collisionAngle,
+                lower: Phaser.Math.Angle.Normalize(
+                    projectileAngle - collisionAngle
+                ),
+                higher: Phaser.Math.Angle.Normalize(
+                    projectileAngle + collisionAngle
+                ),
             });
         }
 

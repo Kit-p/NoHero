@@ -53,14 +53,19 @@ export default class Utils {
      * @static
      * @param {Phaser.GameObjects.Components.GetBounds | Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} object1 The first object.
      * @param {Phaser.GameObjects.Components.GetBounds | Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} object2 The second object.
+     * @param {boolean} [toNormalize] Flag to indicate if the result should be normalized to [0, 2PI).
      * @returns {number} The inclination (in radian).
      */
-    static inclinationOf(object1, object2) {
+    static inclinationOf(object1, object2, toNormalize = false) {
         // @ts-ignore - Reason: checked
         const { x: x1, y: y1 } = object1.getCenter?.() ?? object1;
         // @ts-ignore - Reason: checked
         const { x: x2, y: y2 } = object2.getCenter?.() ?? object2;
-        return Math.atan2(y2 - y1, x2 - x1);
+        let result = Math.atan2(y2 - y1, x2 - x1);
+        if (toNormalize && result < 0) {
+            result += Math.PI * 2;
+        }
+        return result;
     }
 
     /**
