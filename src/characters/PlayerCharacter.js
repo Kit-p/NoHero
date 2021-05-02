@@ -41,7 +41,7 @@ export class PlayerCharacter extends Character {
     /** @type {boolean} Flag indicating if this character is invulnerable. */
     _isInvulnerable = false;
 
-    /** @type {number} The duration of invulnerability after taking damage in millesconds. */
+    /** @type {number} The duration of invulnerability after taking damage in milleseconds. */
     _invulnerablePeriod = 300;
 
     /**
