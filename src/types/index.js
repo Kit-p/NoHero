@@ -5,8 +5,11 @@
 /**
  * @typedef {import ('../classes/ProjectileGenerator').ProjectileGenerator} ProjectileGenerator
  * @typedef {import ('../projectiles/BasicProjectile').BasicProjectile} BasicProjectile
+ * @typedef {import ('../projectiles/FieldProjectile').FieldProjectile} FieldProjectile
  * @typedef {import ('../projectiles/TrackProjectile').TrackProjectile} TrackProjectile
  * @typedef {import ('../items/Potion').Potion} Potion
+ * @typedef {import ('../traps/Field').Field} Field
+ * @typedef {import ('../traps/Spike').Spike} Spike
  * @typedef {import ('../classes/Character').Character} Character
  * @typedef {import ('../classes/CharacterControlState').CharacterControlState} CharacterControlState
  * @typedef {import ('../characters/PlayerCharacter').PlayerCharacter} PlayerCharacter

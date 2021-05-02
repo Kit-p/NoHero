@@ -35,6 +35,15 @@ export class PlayerCharacter extends Character {
     /** @type {Object.<string, number>} The cooldowns of various controls of this character. */
     _cooldowns;
 
+    /** @type {boolean} Flag indicating if this character can move. */
+    _canMove = true;
+
+    /** @type {boolean} Flag indicating if this character is invulnerable. */
+    _isInvulnerable = false;
+
+    /** @type {number} The duration of invulnerability after taking damage in millesconds. */
+    _invulnerablePeriod = 300;
+
     /**
      * @param {Phaser.Scene} scene The Scene to which this character belongs.
      * @param {number} x The initial x-coordinate of the character.
@@ -250,10 +259,15 @@ export class PlayerCharacter extends Character {
      * Destroy the sprite and automatically perform garbage cleaning.
      */
     die() {
-        // fade out for 0.5s and destroy this character
-        this.destroy(500);
+        this._canMove = false;
+        this.anims?.pause();
+        this.scene?.tweens?.killTweensOf(this);
+
         // disable the physics body to ensure no collision leftover
         this.body?.setEnable(false);
+
+        // fade out for 0.5s and destroy this character
+        this.destroy(500);
     }
 
     /**
@@ -261,43 +275,68 @@ export class PlayerCharacter extends Character {
      * Decrease health by setting health as the decreased health.
      * @param {number} damage Amount of damage to be taken.
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} attacker The attacker object.
+     * @param {boolean} toBounce Flag indicating if this character should be bounced.
      */
-    takeHit(damage, attacker) {
-        // prevent continuous damage
-        if (this.collidedPhysicsObjects.includes(attacker)) {
+    takeHit(damage, attacker, toBounce = true) {
+        if (damage <= 0 || this._isInvulnerable) {
             return;
         }
+
+        // prevent continuous damage
+        if (this?.collidedPhysicsObjects?.includes(attacker)) {
+            return;
+        }
+
+        // make player invulnerable for specific duration
+        this._isInvulnerable = true;
+        this?._scene?.time?.delayedCall(
+            this?._invulnerablePeriod,
+            () => (this._isInvulnerable = false)
+        );
+
+        // disable movement
+        this._canMove = false;
+        this?._scene?.time?.delayedCall(
+            this?._hitAnimationDuration,
+            () => (this._canMove = true)
+        );
+
         // flash the character to white
         Utils.tintFill(
-            this.scene,
+            this?.scene,
             this,
-            this._hitAnimationDuration,
+            this?._hitAnimationDuration,
             Constants.COLOR.HIT
         );
-        // bounce the player
-        let vec = new Phaser.Math.Vector2(
-            this.body.x - attacker.body.x,
-            this.body.y - attacker.body.y
-        )
-            .normalize()
-            .scale(150);
-        this.body.setVelocity(vec.x, vec.y);
-        // reset velocity so this player does not bounce indefinitely
-        this.scene.time.delayedCall(this._hitAnimationDuration, () =>
-            this.body.setVelocity(0, 0)
-        );
+
+        if (toBounce) {
+            // bounce the player
+            let vec = new Phaser.Math.Vector2(
+                this?.body?.x - attacker?.body?.x,
+                this?.body?.y - attacker?.body?.y
+            )
+                .normalize()
+                .scale(120);
+            this?.body?.setVelocity(vec.x, vec.y);
+            // reset velocity so this player does not bounce indefinitely
+            this?.scene?.time?.delayedCall(this?._hitAnimationDuration, () => {
+                this?.body?.setVelocity(0, 0);
+            });
+        }
+
         // play hit animation if exists
-        if (this.anims.exists('hit')) {
-            this.anims.play(
+        if (this?.anims?.exists('hit')) {
+            this?.anims?.play(
                 {
                     key: 'hit',
-                    duration: this._hitAnimationDuration,
+                    duration: this?._hitAnimationDuration,
                 },
                 false
             );
         }
-        // ensure the animation stops after the duration
-        this.anims.playAfterDelay('idle', this._hitAnimationDuration);
+        if (this?.health === undefined) {
+            return;
+        }
         // decrease health with setter so no checking needed
         this.health -= damage;
     }
@@ -307,6 +346,10 @@ export class PlayerCharacter extends Character {
      * @param {number} healing Amount of healing to be applied.
      */
     heal(healing) {
+        if (healing <= 0) {
+            return;
+        }
+
         // flash the character to green
         Utils.tintFill(
             this.scene,
@@ -372,6 +415,26 @@ export class PlayerCharacter extends Character {
                         speed: 32,
                         damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
+                    }
+                );
+                break;
+            case 'orc_shaman':
+                projectile = new ProjectileGenerator(
+                    this._scene,
+                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_3,
+                    'bullet_poison_anim_f1',
+                    this,
+                    {
+                        scale: 0.5,
+                        speed: 64,
+                        range: 64,
+                        capacity: 1,
+                        damage: this._projectileAttackDamage,
+                        cooldown: this._cooldowns.projectile,
+                        isField: {
+                            isPoison: true,
+                            isSlow: false,
+                        },
                     }
                 );
                 break;

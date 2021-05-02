@@ -5,8 +5,10 @@ import Constants from '../classes/Constants';
 import { Character } from '../classes/Character';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
 import { BasicProjectile } from '../projectiles/BasicProjectile';
+import { FieldProjectile } from '../projectiles/FieldProjectile';
 import { Potion } from '../items/Potion';
 import { Spike } from '../traps/Spike';
+import { Field } from '../traps/Field';
 
 export class GameScene extends Phaser.Scene {
     /** @type {string | GameScene} The scene to the next level, undefined if is the last level. */
@@ -27,6 +29,9 @@ export class GameScene extends Phaser.Scene {
 
     /** @type {Phaser.Physics.Arcade.Group} A group of projectiles with physics. */
     projectileGroup;
+
+    /** @type {Phaser.Physics.Arcade.Group} A group of fields with physics. */
+    fieldGroup;
 
     /** @type {Phaser.Physics.Arcade.Group} A group of potions with physics. */
     potionGroup;
@@ -73,6 +78,7 @@ export class GameScene extends Phaser.Scene {
     init() {
         this.characterGroup = this.physics.add.group();
         this.projectileGroup = this.physics.add.group();
+        this.fieldGroup = this.physics.add.group();
         this.potionGroup = this.physics.add.group();
         this.spikeGroup = this.physics.add.group();
 
@@ -90,6 +96,15 @@ export class GameScene extends Phaser.Scene {
             this.projectileGroup,
             this.characterGroup,
             this._projectileOverlapCallback,
+            undefined,
+            this
+        );
+
+        // make each of the projectiles to overlap with characters
+        this.physics.add.overlap(
+            this.fieldGroup,
+            this.characterGroup,
+            this._fieldOverlapCallback,
             undefined,
             this
         );
@@ -599,6 +614,29 @@ export class GameScene extends Phaser.Scene {
         } else if (object1 instanceof PlayerCharacter) {
             character = object1;
         } else {
+            if (projectile instanceof FieldProjectile) {
+                // bounce off the wall
+                const velocity = {
+                    x: projectile.velocity.x,
+                    y: projectile.velocity.y,
+                };
+                if (
+                    projectile.body.blocked.left ||
+                    projectile.body.blocked.right
+                ) {
+                    projectile.velocity = { x: velocity.x * -1, y: velocity.y };
+                }
+                if (
+                    projectile.body.blocked.up ||
+                    projectile.body.blocked.down
+                ) {
+                    projectile.velocity = {
+                        x: velocity.x,
+                        y: velocity.y * -1,
+                    };
+                }
+                return;
+            }
             // collide with wall
             // destroy the projectile
             projectile.active = false;
@@ -611,6 +649,12 @@ export class GameScene extends Phaser.Scene {
             return;
         }
 
+        // field projectile does no damage
+        if (projectile instanceof FieldProjectile) {
+            projectile._handleOutOfRange();
+            return;
+        }
+
         // collide with enemy character and deal damage
         character.takeHit(projectile.damage, projectile);
 
@@ -618,6 +662,40 @@ export class GameScene extends Phaser.Scene {
         projectile.active = false;
         projectile.body?.setEnable(false);
         projectile.destroy();
+    }
+
+    /**
+     * A callback function used as ArcadePhysicsCallback.
+     * Check the type of the overlapping objects and call corresponding methods if necessary.
+     * @protected
+     * @type {ArcadePhysicsCallback}
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object1
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody} object2
+     */
+    _fieldOverlapCallback(object1, object2) {
+        let field, character;
+        if (object1 instanceof Field) {
+            field = object1;
+        } else if (object2 instanceof Field) {
+            field = object2;
+        } else {
+            return;
+        }
+
+        if (object2 instanceof PlayerCharacter) {
+            character = object2;
+        } else if (object1 instanceof PlayerCharacter) {
+            character = object1;
+        } else {
+            return;
+        }
+
+        if (field.type === character.type) {
+            return;
+        }
+
+        // collide with the player character and apply effects of the field to it
+        field.collidesWith(character);
     }
 
     /**

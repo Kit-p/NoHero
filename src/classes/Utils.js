@@ -73,10 +73,25 @@ export default class Utils {
      * @param {number} duration The amount of time to be tinted for in milleseconds.
      * @param {number} color The color to be tinted with.
      */
-    static tintFill(scene, object, duration, color) {
-        object.setTintFill(color);
+    static tint(scene, object, duration, color) {
+        object?.setTint(color);
         if (duration > 0) {
-            scene.time.delayedCall(duration, () => object.clearTint());
+            scene?.time?.delayedCall(duration, () => object?.clearTint());
+        }
+    }
+
+    /**
+     * Tint the object with the specified color for the specified duration.
+     * @static
+     * @param {Phaser.Scene} scene The scene the object belongs to.
+     * @param {Phaser.GameObjects.Components.Tint} object The object to be tinted.
+     * @param {number} duration The amount of time to be tinted for in milleseconds.
+     * @param {number} color The color to be tinted with.
+     */
+    static tintFill(scene, object, duration, color) {
+        object?.setTintFill(color);
+        if (duration > 0) {
+            scene?.time?.delayedCall(duration, () => object?.clearTint());
         }
     }
 

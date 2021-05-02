@@ -31,5 +31,7 @@ export default {
     COLOR: {
         HEAL: 0x6bea2a,
         HIT: 0xffffff,
+        SLOW: 0x5b2986,
+        POISON: 0x106910,
     },
 };

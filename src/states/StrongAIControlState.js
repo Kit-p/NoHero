@@ -37,10 +37,6 @@ export class StrongAIControlState extends CharacterControlState {
 
         this._maxTweenDuration =
             (Math.hypot(16, 16) / this._character.movementSpeed) * 1000;
-
-        if (this._character.name === 'wizard_m') {
-            console.log(this._character);
-        }
     }
 
     /**
@@ -56,11 +52,8 @@ export class StrongAIControlState extends CharacterControlState {
             }
         }
 
-        // disable control when hit animation is still playing
-        if (
-            this._character.anims.currentAnim !== null &&
-            this._character.anims.currentAnim.key === 'hit'
-        ) {
+        // disable control when specified
+        if (!this._character._canMove) {
             return;
         }
 
@@ -385,17 +378,17 @@ export class StrongAIControlState extends CharacterControlState {
                         duration: this._maxTweenDuration,
                         tweens,
                         onStart: () =>
-                            this._character.anims.play(
+                            this?._character?.anims?.play(
                                 {
                                     key: 'run',
                                     frameRate:
-                                        (this._character.movementSpeed / 32) *
+                                        (this?._character?.movementSpeed / 32) *
                                         4,
                                 },
                                 true
                             ),
                         onComplete: () =>
-                            this._character.anims.play('idle', true),
+                            this?._character?.anims?.play('idle', true),
                     });
                 }
             }
@@ -474,17 +467,17 @@ export class StrongAIControlState extends CharacterControlState {
                         duration: this._maxTweenDuration,
                         tweens,
                         onStart: () =>
-                            this._character.anims.play(
+                            this?._character?.anims?.play(
                                 {
                                     key: 'run',
                                     frameRate:
-                                        (this._character.movementSpeed / 32) *
+                                        (this?._character?.movementSpeed / 32) *
                                         4,
                                 },
                                 true
                             ),
                         onComplete: () =>
-                            this._character.anims.play('idle', true),
+                            this?._character?.anims?.play('idle', true),
                     });
                 }
             }

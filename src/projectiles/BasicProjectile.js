@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import Utils from '../classes/Utils';
 
 import { GameScene } from '../scenes/GameScene';
 
@@ -6,25 +7,23 @@ import { GameScene } from '../scenes/GameScene';
  * @extends Phaser.GameObjects.Sprite
  */
 export class BasicProjectile extends Phaser.GameObjects.Sprite {
-    /**
-     * @type {GameScene} To enforce type checking.
-     */
+    /** @type {GameScene} To enforce type checking. */
     _scene;
 
-    /**
-     * @protected @type {number} The speed of this projectile.
-     */
+    /** @protected @type {number} The speed of this projectile. */
     _speed;
 
-    /**
-     * @protected @type {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} The velocity of the projectile.
-     */
+    /** @protected @type {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} The velocity of the projectile. */
     _velocity;
 
-    /**
-     * @protected @type {number} The damage of this projectile.
-     */
+    /** @protected @type {number} The damage of this projectile. */
     _damage;
+
+    /** @protected @type {number} The range of this projectile (-1 for infinite). */
+    _range;
+
+    /** @protected @type {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} The initial coordinates. */
+    _origin;
 
     /**
      * @param {Phaser.Scene} scene The Scene to which this projectile belongs.
@@ -35,6 +34,7 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
      * @param {number} speed The speed of this projectile.
      * @param {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} velocity The velocity of this projectile.
      * @param {number} damage The damage of this projectile.
+     * @param {number} range The range of this projectile (-1 for infinite).
      * @param {string} type The type of PlayerCharacter this projectile belongs to.
      * @param {number} [scale] The scaling of this projectile.
      */
@@ -47,6 +47,7 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
         speed,
         velocity,
         damage,
+        range,
         type,
         scale = 1.0
     ) {
@@ -54,10 +55,12 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
         this._speed = speed;
         this._velocity = velocity;
         this._damage = damage;
+        this._range = range;
         this.type = type;
+        this._origin = { x, y };
 
         if (!(this.scene instanceof GameScene)) {
-            throw new Error('Character: must be owned by a GameScene!');
+            throw new Error('Projectile: must be owned by a GameScene!');
         } else {
             this._scene = this.scene;
         }
@@ -132,5 +135,28 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
             this.body?.setEnable(false);
             this.destroy();
         }
+
+        // check if still within range
+        if (this._range >= 0) {
+            const distance = Phaser.Math.Distance.BetweenPoints(
+                this.body.center,
+                this._origin
+            );
+            if (distance > this._range) {
+                // call handler for out of range action
+                this._handleOutOfRange();
+            }
+        }
+    }
+
+    /**
+     * Must override to handle out of range with custom action.
+     * Default action is destroy the projectile.
+     * @protected
+     */
+    _handleOutOfRange() {
+        this.active = false;
+        this.body?.setEnable(false);
+        Utils.fadeOutDestroy(this, 250);
     }
 }

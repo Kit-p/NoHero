@@ -23,6 +23,7 @@ export class TrackProjectile extends BasicProjectile {
      * @param {number} speed The speed of this projectile.
      * @param {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} velocity The velocity of this projectile.
      * @param {number} damage The damage of this projectile.
+     * @param {number} range The range of this projectile (-1 for infinite).
      * @param {string} type The type of PlayerCharacter this projectile belongs to.
      * @param {number} [scale] The scaling of this projectile.
      */
@@ -35,6 +36,7 @@ export class TrackProjectile extends BasicProjectile {
         speed,
         velocity,
         damage,
+        range,
         type,
         scale = 1.0
     ) {
@@ -47,6 +49,7 @@ export class TrackProjectile extends BasicProjectile {
             speed,
             velocity,
             damage,
+            range,
             type,
             scale
         );

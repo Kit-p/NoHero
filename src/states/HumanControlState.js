@@ -123,12 +123,8 @@ export class HumanControlState extends CharacterControlState {
     update() {
         super.update();
 
-        // disable control when hit animation is still playing or the character is dashing
-        if (
-            (this._character.anims.currentAnim !== null &&
-                this._character.anims.currentAnim.key === 'hit') ||
-            this._isDashing
-        ) {
+        // disable control when specified or the character is dashing
+        if (!this._character._canMove || this._isDashing) {
             return;
         }
 

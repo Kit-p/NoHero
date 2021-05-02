@@ -2,6 +2,8 @@ import { BasicProjectile } from '../projectiles/BasicProjectile';
 import { GameScene } from '../scenes/GameScene';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
 import { TrackProjectile } from '../projectiles/TrackProjectile';
+import { FieldProjectile } from '../projectiles/FieldProjectile';
+import Constants from './Constants';
 
 export class ProjectileGenerator {
     /** @type {GameScene} To enforce type checking. */
@@ -31,8 +33,17 @@ export class ProjectileGenerator {
     /** @protected @type {number} The damage of this projectile. */
     _damage;
 
+    /** @protected @type {number} The range of this projectile (-1 for infinite). */
+    _range;
+
+    /** @protected @type {number} The maximum number of the projectile instance (-1 for infinite). */
+    _capacity;
+
     /** @protected @type {boolean} Flag indicating whether this projectile tracks enemies. */
     _isTrack;
+
+    /** @protected @type {{isPoison: boolean, isSlow: boolean}} Flag indicating whether this projectile is a field and the effect. */
+    _isField;
 
     /** @protected @type {number} The cooldown (in milleseconds) of this projectile. */
     _cooldown;
@@ -42,6 +53,9 @@ export class ProjectileGenerator {
 
     /** @protected @type {Phaser.GameObjects.Sprite} The visual representation of this projectile generator. */
     _sprite;
+
+    /** @protected @type {BasicProjectile[]}} The history of projectile instances spawned. */
+    _history = [];
 
     /**
      * @param {Phaser.Scene} scene The Scene to which this projectile belongs.
@@ -62,11 +76,19 @@ export class ProjectileGenerator {
             speed = 96,
             cooldown = 500,
             damage = 1,
+            range = -1,
+            capacity = -1,
             isTrack = false,
+            isField = {
+                isPoison: false,
+                isSlow: false,
+            },
         } = {}
     ) {
         if (!(scene instanceof GameScene)) {
-            throw new Error('Projectile: must be owned by a GameScene!');
+            throw new Error(
+                'ProjectileGenerator: must be owned by a GameScene!'
+            );
         } else {
             this._scene = scene;
         }
@@ -79,7 +101,10 @@ export class ProjectileGenerator {
         this._speed = speed;
         this._cooldown = cooldown;
         this._damage = damage;
+        this._range = range;
+        this._capacity = capacity;
         this._isTrack = isTrack;
+        this._isField = isField;
         this.render();
     }
 
@@ -167,32 +192,82 @@ export class ProjectileGenerator {
             y: this._speed * Math.sin(angle),
         };
 
-        if (this._isTrack) {
-            new TrackProjectile(
-                this._scene,
-                srcX,
-                srcY,
-                this._texture,
-                this._frame,
-                this._speed,
-                velocity,
-                this._damage,
-                this._owner.type,
-                this._scale
+        if (this._isField?.isPoison || this._isField?.isSlow) {
+            const color = this._isField?.isPoison
+                ? Constants.COLOR.POISON
+                : Constants.COLOR.SLOW;
+            this._history.push(
+                new FieldProjectile(
+                    this._scene,
+                    srcX,
+                    srcY,
+                    this._texture,
+                    this._frame,
+                    this._speed,
+                    velocity,
+                    this._damage,
+                    this._range,
+                    this._capacity,
+                    32,
+                    5000,
+                    color,
+                    this._isField,
+                    this._owner.type,
+                    this._scale
+                )
+            );
+        } else if (this._isTrack) {
+            this._history.push(
+                new TrackProjectile(
+                    this._scene,
+                    srcX,
+                    srcY,
+                    this._texture,
+                    this._frame,
+                    this._speed,
+                    velocity,
+                    this._damage,
+                    this._range,
+                    this._owner.type,
+                    this._scale
+                )
             );
         } else {
-            new BasicProjectile(
-                this._scene,
-                srcX,
-                srcY,
-                this._texture,
-                this._frame,
-                this._speed,
-                velocity,
-                this._damage,
-                this._owner.type,
-                this._scale
+            this._history.push(
+                new BasicProjectile(
+                    this._scene,
+                    srcX,
+                    srcY,
+                    this._texture,
+                    this._frame,
+                    this._speed,
+                    velocity,
+                    this._damage,
+                    this._range,
+                    this._owner.type,
+                    this._scale
+                )
             );
+        }
+    }
+
+    /**
+     * Destroy olderst projectile if exceeded capacity and remove destroyed projectiles from history.
+     * @protected
+     */
+    _enforceCapacity() {
+        // clean history
+        for (let i = this._history.length - 1; i >= 0; --i) {
+            const projectile = this._history[i];
+            if (!projectile?.active || !projectile?.body?.enable) {
+                this._history.splice(i, 1);
+            }
+        }
+
+        // check capacity
+        while (this._history.length > this._capacity) {
+            this._history[0].destroy();
+            this._history.splice(0, 1);
         }
     }
 }
