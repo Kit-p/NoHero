@@ -533,6 +533,7 @@ export class PlayerCharacter extends Character {
                 );
                 break;
             case 'wizard_m':
+            case 'wizard_f':
                 projectile = new ProjectileGenerator(
                     this._scene,
                     Constants.RESOURCE.ATLAS.EFFECT_ATTACK_3,

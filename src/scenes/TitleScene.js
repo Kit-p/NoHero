@@ -37,7 +37,7 @@ export class TitleScene extends Phaser.Scene {
             { useHandCursor: true },
             /** @this playButton */
             function () {
-                this.setStyle({ color: '#ff0000' });
+                this.setStyle({ color: '#dddd00' });
             },
             /** @this playButton */
             function () {

@@ -26,7 +26,7 @@ export class GameEndScene extends Phaser.Scene {
     init(data) {
         this._isVictory = data.isVictory === true ? true : false;
         this._currentScene = data.currentScene;
-        this._nextScene = data.nextScene ?? Constants.SCENE.TITLE;
+        this._nextScene = data.nextScene;
         this.scale.setGameSize(800, 600);
     }
 
@@ -42,6 +42,9 @@ export class GameEndScene extends Phaser.Scene {
                 description: 'aka YOU LOSE!',
             },
         };
+
+        const objects = [];
+
         // create the title with corresponding text
         const title = this.add.text(
             0,
@@ -55,6 +58,9 @@ export class GameEndScene extends Phaser.Scene {
                 color: this._isVictory ? '#00ff00' : '#ff0000',
             }
         );
+
+        objects.push(title);
+
         // create the (funny?) description with corresponding text
         const description = this.add.text(
             0,
@@ -71,13 +77,60 @@ export class GameEndScene extends Phaser.Scene {
             }
         );
 
-        // TODO: create the next level button or the back to title button
+        objects.push(description);
+
+        // create the next level button
+        if (this._isVictory) {
+            if (this._nextScene === undefined) {
+                // create thank you text
+                const thankyou = this.add.text(
+                    0,
+                    description.y + description.displayHeight + 50,
+                    'This is all for the demo! Thank you!',
+                    {
+                        fontSize: '36px',
+                        fontStyle: 'normal',
+                        fontFamily: 'Arial',
+                        align: 'center',
+                        color: this._isVictory ? '#00ff00' : '#ff0000',
+                    }
+                );
+                objects.push(thankyou);
+            } else {
+                const nextLevelButton = Utils.createTextButton(
+                    this,
+                    0,
+                    description.y + description.displayHeight + 50,
+                    'Next Level',
+                    {
+                        fontSize: '48px',
+                        fontStyle: 'bold',
+                        fontFamily: 'Arial',
+                        align: 'center',
+                        color: '#ffffff',
+                    },
+                    { useHandCursor: true },
+                    /** @this restartButton */
+                    function () {
+                        this.setStyle({ color: '#dddd00' });
+                    },
+                    /** @this restartButton */
+                    function () {
+                        this.setStyle({ color: '#ffffff' });
+                    },
+                    () => this.scene.start(this._nextScene)
+                );
+                objects.push(nextLevelButton);
+            }
+        }
 
         // create the restart button
         const restartButton = Utils.createTextButton(
             this,
             0,
-            description.y + description.displayHeight + 100,
+            objects[objects.length - 1].y +
+                objects[objects.length - 1].displayHeight +
+                50,
             'Restart',
             {
                 fontSize: '48px',
@@ -89,7 +142,7 @@ export class GameEndScene extends Phaser.Scene {
             { useHandCursor: true },
             /** @this restartButton */
             function () {
-                this.setStyle({ color: '#ff0000' });
+                this.setStyle({ color: '#dddd00' });
             },
             /** @this restartButton */
             function () {
@@ -97,13 +150,35 @@ export class GameEndScene extends Phaser.Scene {
             },
             () => this.scene.start(this._currentScene)
         );
+        objects.push(restartButton);
+
+        // create the back to title button
+        const backTitleButton = Utils.createTextButton(
+            this,
+            0,
+            restartButton.y + restartButton.displayHeight + 50,
+            'Back To Title',
+            {
+                fontSize: '48px',
+                fontStyle: 'bold',
+                fontFamily: 'Arial',
+                align: 'center',
+                color: '#ffffff',
+            },
+            { useHandCursor: true },
+            /** @this restartButton */
+            function () {
+                this.setStyle({ color: '#dddd00' });
+            },
+            /** @this restartButton */
+            function () {
+                this.setStyle({ color: '#ffffff' });
+            },
+            () => this.scene.start(Constants.SCENE.TITLE)
+        );
+        objects.push(backTitleButton);
 
         // center all objects horizontally and vertically in the scene
-        Utils.centerInScene(
-            this,
-            [title, description, restartButton],
-            true,
-            true
-        );
+        Utils.centerInScene(this, objects, true, true);
     }
 }
