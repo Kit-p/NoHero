@@ -1,4 +1,3 @@
-import Utils from './Utils';
 import { Character } from './Character';
 import { GameScene } from '../scenes/GameScene';
 
@@ -30,7 +29,5 @@ export class CharacterControlState {
     /**
      * Must be overridden to provide control to the character.
      */
-    update() {
-        Utils.updateFacingDirection(this._character);
-    }
+    update() {}
 }

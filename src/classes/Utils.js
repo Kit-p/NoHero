@@ -349,12 +349,20 @@ export default class Utils {
      * This method manipulates the flipX property of the object.
      * @static
      * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody & Phaser.GameObjects.Components.Flip} object The object to handle.
+     * @param {boolean} [byPosition] Flag indicating if the facing direction should be determined by position instead of velocity.
      */
-    static updateFacingDirection(object) {
-        if (object.body.velocity.x > 0) {
-            object.setFlipX(false);
-        } else if (object.body.velocity.x < 0) {
-            object.setFlipX(true);
+    static updateFacingDirection(object, byPosition = false) {
+        if (byPosition) {
+            if (!(object.body instanceof Phaser.Physics.Arcade.Body)) {
+                return;
+            }
+            const angle = Utils.inclinationOf(
+                object.body.prev,
+                object.body.position
+            );
+            object.setFlipX(Math.abs(angle) > Math.PI / 2);
+        } else {
+            object.setFlipX(object.body.velocity.x < 0);
         }
     }
 }

@@ -8,8 +8,14 @@ import Utils from '../classes/Utils';
  * @extends CharacterControlState
  */
 export class StrongAIControlState extends CharacterControlState {
-    /** @type {{x: number, y: number, weight: number}[]} */
+    /** @protected @type {{x: number, y: number, weight: number}[]} */
     _pillars = [];
+
+    /** @protected @type {number} Max tween duration. */
+    _maxTweenDuration;
+
+    /** @protected @type {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} The previous character coordinates. */
+    _characterPrev;
 
     /**
      * @param {PlayerCharacter} character The character to control.
@@ -25,6 +31,16 @@ export class StrongAIControlState extends CharacterControlState {
 
         /** @type {PlayerCharacter} */
         this._character;
+
+        // initialize previous coordinates
+        this._characterPrev = this._character.body.position.clone();
+
+        this._maxTweenDuration =
+            (Math.hypot(16, 16) / this._character.movementSpeed) * 1000;
+
+        if (this._character.name === 'wizard_m') {
+            console.log(this._character);
+        }
     }
 
     /**
@@ -61,11 +77,14 @@ export class StrongAIControlState extends CharacterControlState {
             .scale(this._character.movementSpeed);
 
         // update facing direction
-        if (this._character.body.velocity.x > 0) {
-            this._character.setFlipX(false);
-        } else if (this._character.body.velocity.x < 0) {
-            this._character.setFlipX(true);
-        }
+        const angle = Utils.inclinationOf(
+            this._characterPrev,
+            this._character.body.position
+        );
+        this._character.setFlipX(Math.abs(angle) > Math.PI / 2);
+
+        // update previous coordinates
+        this._characterPrev = this._character.body.position.clone();
 
         // fire projectile if available
         this._handleFireProjectile();
@@ -357,20 +376,27 @@ export class StrongAIControlState extends CharacterControlState {
                     const tweens = [];
                     for (let i = 1; i < path.length; ++i) {
                         tweens.push({
-                            targets: this._character,
-                            x: {
-                                value: path[i].x * 16,
-                                duration:
-                                    (16 / this._character.movementSpeed) * 1000,
-                            },
-                            y: {
-                                value: path[i].y * 16,
-                                duration:
-                                    (16 / this._character.movementSpeed) * 1000,
-                            },
+                            x: path[i].x * 16 + 16 / 2,
+                            y: path[i].y * 16 + 16 / 2,
                         });
                     }
-                    this._character._scene.tweens.timeline({ tweens });
+                    this._character._scene.tweens.timeline({
+                        targets: this._character,
+                        duration: this._maxTweenDuration,
+                        tweens,
+                        onStart: () =>
+                            this._character.anims.play(
+                                {
+                                    key: 'run',
+                                    frameRate:
+                                        (this._character.movementSpeed / 32) *
+                                        4,
+                                },
+                                true
+                            ),
+                        onComplete: () =>
+                            this._character.anims.play('idle', true),
+                    });
                 }
             }
         );
@@ -439,20 +465,27 @@ export class StrongAIControlState extends CharacterControlState {
                     const tweens = [];
                     for (let i = 1; i < path.length; ++i) {
                         tweens.push({
-                            targets: this._character,
-                            x: {
-                                value: path[i].x * 16,
-                                duration:
-                                    (16 / this._character.movementSpeed) * 1000,
-                            },
-                            y: {
-                                value: path[i].y * 16,
-                                duration:
-                                    (16 / this._character.movementSpeed) * 1000,
-                            },
+                            x: path[i].x * 16 + 16 / 2,
+                            y: path[i].y * 16 + 16 / 2,
                         });
                     }
-                    this._character._scene.tweens.timeline({ tweens });
+                    this._character._scene.tweens.timeline({
+                        targets: this._character,
+                        duration: this._maxTweenDuration,
+                        tweens,
+                        onStart: () =>
+                            this._character.anims.play(
+                                {
+                                    key: 'run',
+                                    frameRate:
+                                        (this._character.movementSpeed / 32) *
+                                        4,
+                                },
+                                true
+                            ),
+                        onComplete: () =>
+                            this._character.anims.play('idle', true),
+                    });
                 }
             }
         );

@@ -538,7 +538,7 @@ export class GameScene extends Phaser.Scene {
         this.easystar.setAcceptableTiles(acceptableTiles);
 
         // enable more optimal path-finding settings
-        // this.easystar.enableDiagonals();
+        this.easystar.enableDiagonals();
         // this.easystar.enableCornerCutting();
     }
 
