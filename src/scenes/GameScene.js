@@ -264,6 +264,9 @@ export class GameScene extends Phaser.Scene {
             // disable physics
             this.physics.shutdown();
 
+            // disable animations
+            this.anims.shutdown();
+
             // disable all tweens timeline
             for (const tween of this.tweens.getAllTweens()) {
                 if (tween instanceof Phaser.Tweens.Timeline) {
