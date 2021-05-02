@@ -110,6 +110,7 @@ export class Field extends Phaser.GameObjects.Graphics {
         this.body.setCircle(radius, x - radius, y - radius);
 
         if (duration >= 0) {
+            // destroy field if exceeded duration
             this._scene.time.delayedCall(duration, () => {
                 if (this !== undefined) {
                     this.body?.setEnable(false);

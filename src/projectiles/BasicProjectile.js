@@ -22,8 +22,11 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
     /** @protected @type {number} The range of this projectile (-1 for infinite). */
     _range;
 
-    /** @protected @type {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} The initial coordinates. */
-    _origin;
+    /** @protected @type {Phaser.Math.Vector2 | Phaser.Types.Math.Vector2Like} The previous coordinates. */
+    _prev;
+
+    /** @protected @type {number} The accumulated distance. */
+    _distance = 0;
 
     /**
      * @param {Phaser.Scene} scene The Scene to which this projectile belongs.
@@ -57,7 +60,7 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
         this._damage = damage;
         this._range = range;
         this.type = type;
-        this._origin = { x, y };
+        this._prev = { x, y };
 
         if (!(this.scene instanceof GameScene)) {
             throw new Error('Projectile: must be owned by a GameScene!');
@@ -138,14 +141,16 @@ export class BasicProjectile extends Phaser.GameObjects.Sprite {
 
         // check if still within range
         if (this._range >= 0) {
-            const distance = Phaser.Math.Distance.BetweenPoints(
+            this._distance += Phaser.Math.Distance.BetweenPoints(
                 this.body.center,
-                this._origin
+                this._prev
             );
-            if (distance > this._range) {
+            if (this._distance > this._range) {
                 // call handler for out of range action
                 this._handleOutOfRange();
             }
+            // update previous coordinates
+            this._prev = { x: this.body.center.x, y: this.body.center.y };
         }
     }
 

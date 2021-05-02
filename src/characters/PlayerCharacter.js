@@ -295,6 +295,12 @@ export class PlayerCharacter extends Character {
      * Destroy the sprite and automatically perform garbage cleaning.
      */
     die() {
+        // destroy projectile sprite
+        this.currentProjectile?.sprite?.destroy();
+
+        // automatically switch character
+        this._scene?.switchCharacter();
+
         this._canMove = false;
         this.anims?.pause();
         this.scene?.tweens?.killTweensOf(this);

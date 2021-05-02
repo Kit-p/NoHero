@@ -65,7 +65,7 @@ export class GameUIScene extends Phaser.Scene {
      * @protected
      */
     _createHearts() {
-        this._heartGroup.clear();
+        this._heartGroup.clear(true, true);
         this._heartGroup.createMultiple({
             classType: Phaser.GameObjects.Image,
             key: Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,

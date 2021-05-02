@@ -6,6 +6,7 @@ import { Character } from '../classes/Character';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
 import { BasicProjectile } from '../projectiles/BasicProjectile';
 import { FieldProjectile } from '../projectiles/FieldProjectile';
+import { TrapProjectile } from '../projectiles/TrapProjectile';
 import { Potion } from '../items/Potion';
 import { Spike } from '../traps/Spike';
 import { Field } from '../traps/Field';
@@ -661,7 +662,10 @@ export class GameScene extends Phaser.Scene {
         } else if (object1 instanceof PlayerCharacter) {
             character = object1;
         } else {
-            if (projectile instanceof FieldProjectile) {
+            if (
+                projectile instanceof FieldProjectile ||
+                projectile instanceof TrapProjectile
+            ) {
                 // bounce off the wall
                 const velocity = {
                     x: projectile.velocity.x,
@@ -698,12 +702,17 @@ export class GameScene extends Phaser.Scene {
 
         // field projectile does no damage
         if (projectile instanceof FieldProjectile) {
-            projectile._handleOutOfRange();
             return;
         }
 
         // collide with enemy character and deal damage
         character.takeHit(projectile.damage, projectile);
+        character.collidesWith(projectile);
+
+        // trap projectile does not despawn upon hitting enemy
+        if (projectile instanceof TrapProjectile) {
+            return;
+        }
 
         // destroy the projectile
         projectile.active = false;

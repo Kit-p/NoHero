@@ -4,6 +4,7 @@ import { PlayerCharacter } from '../characters/PlayerCharacter';
 import { TrackProjectile } from '../projectiles/TrackProjectile';
 import { FieldProjectile } from '../projectiles/FieldProjectile';
 import Constants from './Constants';
+import { TrapProjectile } from '../projectiles/TrapProjectile';
 
 export class ProjectileGenerator {
     /** @type {GameScene} To enforce type checking. */
@@ -236,6 +237,24 @@ export class ProjectileGenerator {
                     velocity,
                     this._damage,
                     this._range,
+                    this._owner.type,
+                    this._scale
+                )
+            );
+        } else if (this._isTrap) {
+            this._history.push(
+                new TrapProjectile(
+                    this._scene,
+                    srcX,
+                    srcY,
+                    this._texture,
+                    this._frame,
+                    this._speed,
+                    velocity,
+                    this._damage,
+                    this._range,
+                    this._capacity,
+                    8000,
                     this._owner.type,
                     this._scale
                 )
