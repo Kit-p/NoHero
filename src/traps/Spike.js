@@ -6,24 +6,16 @@ import { GameScene } from '../scenes/GameScene';
  * @extends Phaser.GameObjects.Sprite
  */
 export class Spike extends Phaser.GameObjects.Sprite {
-    /**
-     * @type {GameScene} To enforce type checking.
-     */
+    /** @type {GameScene} To enforce type checking. */
     _scene;
 
-    /**
-     * @protected @type {number} The damage of this projectile.
-     */
+    /** @protected @type {number} The damage of this projectile. */
     _damage;
 
-    /**
-     * @protected @type {boolean} A flag indicating whether the spike is in damaging state (dependent on animation frame).
-     */
+    /** @protected @type {boolean} A flag indicating whether the spike is in damaging state (dependent on animation frame). */
     _isDamaging = false;
 
-    /**
-     * @property @type {number} The rate of spike thrusting (frame rate).
-     */
+    /** @property @type {number} The rate of spike thrusting (frame rate). */
     _rate = 4;
 
     /**

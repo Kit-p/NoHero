@@ -6,14 +6,10 @@ import { GameScene } from '../scenes/GameScene';
  * @extends Phaser.GameObjects.Sprite
  */
 export class Potion extends Phaser.GameObjects.Sprite {
-    /**
-     * @type {GameScene} To enforce type checking.
-     */
+    /** @type {GameScene} To enforce type checking. */
     _scene;
 
-    /**
-     * @protected @type {number} The amount of healing (uses same ratio as damage)
-     */
+    /** @protected @type {number} The amount of healing (uses same ratio as damage) */
     _healing;
 
     /**
