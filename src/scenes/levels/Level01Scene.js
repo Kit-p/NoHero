@@ -1,7 +1,6 @@
 import Constants from '../../classes/Constants';
 import { GameScene } from '../GameScene';
 import { PlayerCharacter } from '../../characters/PlayerCharacter';
-import { HumanControlState } from '../../states/HumanControlState';
 import { StrongAIControlState } from '../../states/StrongAIControlState';
 
 /**
@@ -43,7 +42,6 @@ export class Level01Scene extends GameScene {
             'big_demon_idle_anim_f0',
             {
                 name: 'big_demon',
-                controlState: HumanControlState,
                 maxHealth: 24,
                 projectileDamage: 8,
                 type: 'player',

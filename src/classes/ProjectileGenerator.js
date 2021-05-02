@@ -42,6 +42,9 @@ export class ProjectileGenerator {
     /** @protected @type {boolean} Flag indicating whether this projectile tracks enemies. */
     _isTrack;
 
+    /** @protected @type {boolean} Flag indicating whether this projectile is a trap. */
+    _isTrap;
+
     /** @protected @type {{isPoison: boolean, isSlow: boolean}} Flag indicating whether this projectile is a field and the effect. */
     _isField;
 
@@ -51,11 +54,11 @@ export class ProjectileGenerator {
     /** @protected @type {boolean} The flag indicating if this projectile is on cooldown. */
     _isOnCooldown = false;
 
-    /** @protected @type {Phaser.GameObjects.Sprite} The visual representation of this projectile generator. */
-    _sprite;
-
     /** @protected @type {BasicProjectile[]}} The history of projectile instances spawned. */
     _history = [];
+
+    /** @type {Phaser.GameObjects.Sprite} The visual representation of this projectile generator. */
+    sprite;
 
     /**
      * @param {Phaser.Scene} scene The Scene to which this projectile belongs.
@@ -79,6 +82,7 @@ export class ProjectileGenerator {
             range = -1,
             capacity = -1,
             isTrack = false,
+            isTrap = false,
             isField = {
                 isPoison: false,
                 isSlow: false,
@@ -104,6 +108,7 @@ export class ProjectileGenerator {
         this._range = range;
         this._capacity = capacity;
         this._isTrack = isTrack;
+        this._isTrap = isTrap;
         this._isField = isField;
         this.render();
     }
@@ -112,14 +117,14 @@ export class ProjectileGenerator {
      * @returns The x-coordinate of this projectile generator.
      */
     get x() {
-        return this._sprite.x;
+        return this.sprite.x;
     }
 
     /**
      * @returns The y-coordinate of this projectile generator.
      */
     get y() {
-        return this._sprite.y;
+        return this.sprite.y;
     }
 
     /**
@@ -127,10 +132,10 @@ export class ProjectileGenerator {
      * @param {number} value The new value.
      */
     set x(value) {
-        if (this._sprite === undefined) {
+        if (this.sprite === undefined) {
             return;
         }
-        this._sprite.x = value;
+        this.sprite.x = value;
     }
 
     /**
@@ -138,10 +143,10 @@ export class ProjectileGenerator {
      * @param {number} value The new value.
      */
     set y(value) {
-        if (this._sprite === undefined) {
+        if (this.sprite === undefined) {
             return;
         }
-        this._sprite.y = value;
+        this.sprite.y = value;
     }
 
     /**
@@ -152,21 +157,24 @@ export class ProjectileGenerator {
             this._owner instanceof PlayerCharacter &&
             this._owner.type === 'player'
         ) {
-            this._sprite = this._scene.add.sprite(
+            this.sprite = this._scene.add.sprite(
                 this._x,
                 this._y,
                 this._texture,
                 this._frame
             );
 
+            // hide the visual representation
+            this.sprite.setVisible(false);
+
             // set the depth
-            this._sprite.setDepth(this._owner.depth + 1);
+            this.sprite.setDepth(this._owner.depth + 1);
 
             // set the scaling
-            this._sprite.setScale(this._scale);
+            this.sprite.setScale(this._scale);
 
             // set the alpha
-            this._sprite.setAlpha(0.3);
+            this.sprite.setAlpha(0.3);
         }
     }
 

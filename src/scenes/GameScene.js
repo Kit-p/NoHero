@@ -43,7 +43,7 @@ export class GameScene extends Phaser.Scene {
     pillars = [];
 
     /** @type {PlayerCharacter} The current human controlled character. */
-    currentHumanControlledCharacter;
+    _currentHumanControlledCharacter;
 
     /** @protected @type {{player: {small: number, large: number}, enemy: {small: number, large: number}}} The count of different potion for both teams. */
     _potionCount = {
@@ -73,6 +73,29 @@ export class GameScene extends Phaser.Scene {
     constructor(config, nextScene = undefined) {
         super(config);
         this.nextScene = nextScene;
+    }
+
+    /**
+     * @returns The current human controlled character.
+     */
+    get currentHumanControlledCharacter() {
+        return this._currentHumanControlledCharacter;
+    }
+
+    /**
+     * Sets the current human controlled character.
+     * @param {PlayerCharacter} character The new human controlled character.
+     */
+    set currentHumanControlledCharacter(character) {
+        if (character.type !== 'player') {
+            return;
+        }
+        if (this._currentHumanControlledCharacter !== undefined) {
+            this._currentHumanControlledCharacter.isHumanControlled = false;
+        }
+
+        this._currentHumanControlledCharacter = character;
+        this._currentHumanControlledCharacter.isHumanControlled = true;
     }
 
     init() {
@@ -142,7 +165,6 @@ export class GameScene extends Phaser.Scene {
             'big_demon_idle_anim_f0',
             {
                 name: 'big_demon',
-                controlState: HumanControlState,
                 maxHealth: 24,
                 projectileDamage: 8,
                 type: 'player',
@@ -298,6 +320,31 @@ export class GameScene extends Phaser.Scene {
                 });
             });
         }
+    }
+
+    /**
+     * Switch the current human controlled character.
+     */
+    switchCharacter() {
+        const characters = this.characterGroup.getChildren();
+        let index = characters.indexOf(this.currentHumanControlledCharacter);
+        if (index < 0) {
+            return;
+        }
+
+        // switch to the next character
+        do {
+            ++index;
+            if (index >= characters.length) {
+                index = 0;
+            }
+        } while (
+            !(characters[index] instanceof PlayerCharacter) ||
+            characters[index].type !== 'player'
+        );
+
+        // @ts-ignore - Reason: type checked
+        this.currentHumanControlledCharacter = characters[index];
     }
 
     /**

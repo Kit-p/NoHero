@@ -56,6 +56,13 @@ export class HumanControlState extends CharacterControlState {
                 type: 'KEYBOARD',
                 key: Phaser.Input.Keyboard.KeyCodes.SPACE,
             },
+            {
+                id: 'SWITCH',
+                name: 'Switch',
+                description: 'Switch character',
+                type: 'KEYBOARD',
+                key: Phaser.Input.Keyboard.KeyCodes.Q,
+            },
         ];
     }
 
@@ -121,6 +128,14 @@ export class HumanControlState extends CharacterControlState {
      * @override
      */
     update() {
+        // ignore if not controlling
+        if (
+            this._character !==
+            this._character._scene.currentHumanControlledCharacter
+        ) {
+            return;
+        }
+
         super.update();
 
         // disable control when specified or the character is dashing
@@ -208,6 +223,27 @@ export class HumanControlState extends CharacterControlState {
         }
 
         this._handleFireProjectile();
+
+        // handle switch character
+        this._handleSwitch();
+    }
+
+    /**
+     * A handler for switching character.
+     * @protected
+     */
+    _handleSwitch() {
+        const switchControl = this._controls['SWITCH'];
+        if (switchControl === undefined || switchControl === null) {
+            return;
+        }
+        if (!(switchControl.key instanceof Phaser.Input.Keyboard.Key)) {
+            return;
+        }
+        if (Phaser.Input.Keyboard.JustDown(switchControl.key)) {
+            // switch the character
+            this._character._scene.switchCharacter();
+        }
     }
 
     /**

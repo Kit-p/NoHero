@@ -4,12 +4,23 @@ import Utils from '../classes/Utils';
 import Constants from '../classes/Constants';
 import { Character } from '../classes/Character';
 import { ProjectileGenerator } from '../classes/ProjectileGenerator';
+import { HumanControlState } from '../states/HumanControlState';
+import { WeakAIControlState } from '../states/WeakAIControlState';
 
 /**
  * @extends Character
  */
 export class PlayerCharacter extends Character {
     // * Important Note: heart-to-health/damage ratio is 1:2. E.g. 1 heart = 2 health/damage
+
+    /** @protected @type {boolean} Flag indicating whether the player is controlled by human. */
+    _isHumanControlled = false;
+
+    /** @protected @type {{human: HumanControlState, ai: WeakAIControlState}} Stores a copy of both control states for easy access. */
+    _controlStates = {
+        human: undefined,
+        ai: undefined,
+    };
 
     /** @protected @type {number} The current health of the player. */
     _health;
@@ -79,6 +90,13 @@ export class PlayerCharacter extends Character {
             controlState,
             type,
         });
+
+        if (this.controlState === undefined) {
+            this._controlStates.human = new HumanControlState(this);
+            this._controlStates.ai = new WeakAIControlState(this);
+            this.isHumanControlled = false;
+        }
+
         this._maxHealth = maxHealth;
         this._health = health;
         this._collideAttackDamage = collideAttackDamage;
@@ -88,6 +106,24 @@ export class PlayerCharacter extends Character {
             this.body.pushable = false;
         }
         this._createProjectiles();
+    }
+
+    get isHumanControlled() {
+        return this._isHumanControlled;
+    }
+
+    /**
+     * @param {boolean} flag Flag indicating whether this character is human controlled.
+     */
+    set isHumanControlled(flag) {
+        this._isHumanControlled = flag ? true : false;
+        if (this._isHumanControlled) {
+            this.currentProjectile?.sprite?.setVisible(true);
+            this.controlState = this._controlStates.human;
+        } else {
+            this.currentProjectile?.sprite?.setVisible(false);
+            this.controlState = this._controlStates.ai;
+        }
     }
 
     get maxHealth() {
@@ -435,6 +471,43 @@ export class PlayerCharacter extends Character {
                             isPoison: true,
                             isSlow: false,
                         },
+                    }
+                );
+                break;
+            case 'necromancer':
+                projectile = new ProjectileGenerator(
+                    this._scene,
+                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_3,
+                    'mine_purple_anim_f1',
+                    this,
+                    {
+                        scale: 0.5,
+                        speed: 128,
+                        range: 0,
+                        capacity: 4,
+                        damage: this._projectileAttackDamage,
+                        cooldown: this._cooldowns.projectile,
+                        isField: {
+                            isPoison: false,
+                            isSlow: true,
+                        },
+                    }
+                );
+                break;
+            case 'wogol':
+                projectile = new ProjectileGenerator(
+                    this._scene,
+                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_3,
+                    'shuriken_red_anim_f1',
+                    this,
+                    {
+                        scale: 0.6,
+                        speed: 128,
+                        range: 128,
+                        capacity: 2,
+                        damage: this._projectileAttackDamage,
+                        cooldown: this._cooldowns.projectile,
+                        isTrap: true,
                     }
                 );
                 break;
