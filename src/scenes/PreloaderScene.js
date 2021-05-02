@@ -53,6 +53,7 @@ export class PreloaderScene extends Phaser.Scene {
         );
 
         // load audio
+        this.load.audio(Constants.RESOURCE.AUDIO.BGM, 'assets/audio/bgm.wav');
         this.load.audio(Constants.RESOURCE.AUDIO.LOSE, 'assets/audio/lose.wav');
         this.load.audio(Constants.RESOURCE.AUDIO.WIN, 'assets/audio/win.wav');
         this.load.audio(

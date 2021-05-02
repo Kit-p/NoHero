@@ -16,6 +16,7 @@ export default {
             EFFECT_ATTACK_3: 'atlas_effect_attack-3',
         },
         AUDIO: {
+            BGM: 'audio_bgm',
             LOSE: 'audio_lose',
             WIN: 'audio_win',
             PLAYER_HURT: 'audio_player_hurt',
