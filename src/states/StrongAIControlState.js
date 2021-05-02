@@ -76,6 +76,9 @@ export class StrongAIControlState extends CharacterControlState {
      * @protected
      */
     _decideControl() {
+        // heal with potion if possible and needed
+        this._findPotion();
+
         if (this._character.currentProjectile !== undefined) {
             // ranged character
             this._flee();
@@ -88,37 +91,6 @@ export class StrongAIControlState extends CharacterControlState {
         if (isNaN(moveDirection)) {
             // failed to determine moving direction
             return;
-        }
-
-        // find potion when health too low
-        const critFactor = 0.5; // percentage
-        if (this._character.health < this._character.maxHealth * critFactor) {
-            const closestPotion = this._scene.physics.closest(
-                this._character,
-                this._character._scene.potionGroup
-                    .getChildren()
-                    .filter((potion) => potion.type === this._character.type)
-            );
-
-            if (closestPotion instanceof Phaser.Physics.Arcade.Body) {
-                moveDirection = Utils.inclinationOf(
-                    this._character,
-                    closestPotion.center,
-                    true
-                );
-            } else if (
-                closestPotion instanceof Phaser.Physics.Arcade.StaticBody
-            ) {
-                // empty block for type checking
-            } else if (
-                closestPotion?.body instanceof Phaser.Physics.Arcade.Body
-            ) {
-                moveDirection = Utils.inclinationOf(
-                    this._character,
-                    closestPotion.body.center,
-                    true
-                );
-            }
         }
 
         // decide how to track the player by avoiding projectile
@@ -382,6 +354,88 @@ export class StrongAIControlState extends CharacterControlState {
             (path) => {
                 if (path !== undefined && path !== null) {
                     // move the character to hide behind most preferred pillar
+                    const tweens = [];
+                    for (let i = 1; i < path.length; ++i) {
+                        tweens.push({
+                            targets: this._character,
+                            x: {
+                                value: path[i].x * 16,
+                                duration:
+                                    (16 / this._character.movementSpeed) * 1000,
+                            },
+                            y: {
+                                value: path[i].y * 16,
+                                duration:
+                                    (16 / this._character.movementSpeed) * 1000,
+                            },
+                        });
+                    }
+                    this._character._scene.tweens.timeline({ tweens });
+                }
+            }
+        );
+        this._character._scene.easystar.calculate();
+    }
+
+    /**
+     * Find potion if health too low to heal.
+     * @protected
+     */
+    _findPotion() {
+        // find potion when health too low
+        const critFactor = 0.5; // percentage
+
+        // no need to heal if dead or health still high
+        if (
+            this._character.health <= 0 ||
+            this._character.health > this._character.maxHealth * critFactor
+        ) {
+            return;
+        }
+
+        // wait for existing tweens to complete
+        if (this._character._scene.tweens.isTweening(this._character)) {
+            return;
+        }
+
+        // find the closest potion
+        /** @type {Phaser.GameObjects.GameObject | Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody | MatterJS.BodyType} */
+        let closestPotion = this._scene.physics.closest(
+            this._character,
+            this._character._scene.potionGroup
+                .getChildren()
+                .filter((potion) => potion.type === this._character.type)
+        );
+
+        closestPotion =
+            closestPotion instanceof Phaser.GameObjects.GameObject
+                ? closestPotion.body
+                : closestPotion;
+
+        if (!(closestPotion instanceof Phaser.Physics.Arcade.Body)) {
+            // no more potion
+            return;
+        }
+
+        // calculate the tile coordinates for both the character and the potion
+        const source = {
+            x: Math.floor(this._character.body.center.x / 16),
+            y: Math.floor(this._character.body.center.y / 16),
+        };
+        const destination = {
+            x: Math.floor(closestPotion.center.x / 16),
+            y: Math.floor(closestPotion.center.y / 16),
+        };
+
+        // find the path
+        this._character._scene.easystar.findPath(
+            source.x,
+            source.y,
+            destination.x,
+            destination.y,
+            (path) => {
+                if (path !== undefined && path !== null) {
+                    // move the character to pick up the potion
                     const tweens = [];
                     for (let i = 1; i < path.length; ++i) {
                         tweens.push({
