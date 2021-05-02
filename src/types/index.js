@@ -13,6 +13,7 @@
  * @typedef {import ('../scenes/PreloaderScene').PreloaderScene} PreloaderScene
  * @typedef {import ('../scenes/TitleScene').TitleScene} TitleScene
  * @typedef {import ('../scenes/GameScene').GameScene} GameScene
+ * @typedef {import ('../scenes/levels/Level01Scene').Level01Scene} Level01Scene
  * @typedef {import ('../scenes/GameUIScene').GameUIScene} GameUIScene
  * @typedef {import ('../scenes/GameEndScene').GameEndScene} GameEndScene
  * @typedef {import ('../states/HumanControlState').HumanControlState} HumanControlState

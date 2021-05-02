@@ -7,6 +7,7 @@ export default {
         TILEMAP: {
             TRIAL_1: 'map_trial-1',
             TRIAL_2: 'map_trial-2',
+            TRIAL_3: 'map_trial-3',
         },
         ATLAS: {
             ALL_IN_ONE_2: 'atlas_all-in-one-2',
@@ -18,7 +19,12 @@ export default {
     SCENE: {
         PRELOADER: 'scene_preloader',
         TITLE: 'scene_title',
-        GAME: 'scene_game',
+        // GAME: 'scene_game', // ! obsolete
+        LEVELS: [
+            'scene_game-level01',
+            'scene_game-level02',
+            'scene_game-level03',
+        ],
         GAME_UI: 'scene_game-ui',
         GAME_END: 'scene_game-end',
     },

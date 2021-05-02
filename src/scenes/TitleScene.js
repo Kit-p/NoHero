@@ -43,7 +43,7 @@ export class TitleScene extends Phaser.Scene {
             function () {
                 this.setStyle({ color: '#ffffff' });
             },
-            () => this.scene.start(Constants.SCENE.GAME)
+            () => this.scene.start(Constants.SCENE.LEVELS?.[0])
         );
 
         // center all objects horizontally in the scene

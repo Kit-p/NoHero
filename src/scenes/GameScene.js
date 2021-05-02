@@ -4,13 +4,14 @@ import EasyStar from 'easystarjs';
 import Constants from '../classes/Constants';
 import { Character } from '../classes/Character';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
-import { HumanControlState } from '../states/HumanControlState';
-import { StrongAIControlState } from '../states/StrongAIControlState';
 import { BasicProjectile } from '../projectiles/BasicProjectile';
 import { Potion } from '../items/Potion';
 import { Spike } from '../traps/Spike';
 
 export class GameScene extends Phaser.Scene {
+    /** @type {string | GameScene} The scene to the next level, undefined if is the last level. */
+    nextScene;
+
     /** @type {{tilemap: Phaser.Tilemaps.Tilemap, tileset: Phaser.Tilemaps.Tileset, layers: Phaser.Tilemaps.TilemapLayer[]}} */
     map = {
         tilemap: null,
@@ -60,8 +61,13 @@ export class GameScene extends Phaser.Scene {
     /** @protected @type {number} The number of spikes to be spawned on the map. */
     _spikeCount = 2;
 
-    constructor() {
-        super({ key: Constants.SCENE.GAME });
+    /**
+     * @param {Phaser.Types.Scenes.SettingsConfig} config The Scene specific configuration settings.
+     * @param {string | GameScene} [nextScene] The scene to the next level.
+     */
+    constructor(config, nextScene = undefined) {
+        super(config);
+        this.nextScene = nextScene;
     }
 
     init() {
@@ -105,11 +111,14 @@ export class GameScene extends Phaser.Scene {
             undefined,
             this
         );
-
-        console.log(this);
     }
 
+    /**
+     * Must override this function to create a unique level.
+     */
     create() {
+        // * The following is an example code.
+        /*
         const player = new PlayerCharacter(
             this,
             0,
@@ -218,6 +227,7 @@ export class GameScene extends Phaser.Scene {
         this.scene.launch(Constants.SCENE.GAME_UI, { gameScene: this });
 
         this._debug();
+        */
     }
 
     update() {
@@ -266,6 +276,8 @@ export class GameScene extends Phaser.Scene {
             this.time.delayedCall(2000, () => {
                 this.scene.start(Constants.SCENE.GAME_END, {
                     isVictory: count.enemy === 0,
+                    currentScene: this.scene.key,
+                    nextScene: this.nextScene,
                 });
             });
         }

@@ -7,6 +7,12 @@ export class GameEndScene extends Phaser.Scene {
     /** @protected @type {boolean} Whether the player has victory. */
     _isVictory;
 
+    /** @protected @type {string | Phaser.Scene} The scene of the current level. */
+    _currentScene;
+
+    /** @protected @type {string | Phaser.Scene} The scene to the next level, TitleScene if is last level. */
+    _nextScene;
+
     constructor() {
         super({ key: Constants.SCENE.GAME_END });
     }
@@ -14,9 +20,13 @@ export class GameEndScene extends Phaser.Scene {
     /**
      * @param {object} data The scene data object.
      * @param {boolean} data.isVictory Wether the player has victory.
+     * @param {string | Phaser.Scene} data.currentScene The scene of the current level.
+     * @param {string | Phaser.Scene} [data.nextScene] The scene to the next level.
      */
     init(data) {
         this._isVictory = data.isVictory === true ? true : false;
+        this._currentScene = data.currentScene;
+        this._nextScene = data.nextScene ?? Constants.SCENE.TITLE;
         this.scale.setGameSize(800, 600);
     }
 
@@ -61,6 +71,8 @@ export class GameEndScene extends Phaser.Scene {
             }
         );
 
+        // TODO: create the next level button or the back to title button
+
         // create the restart button
         const restartButton = Utils.createTextButton(
             this,
@@ -83,7 +95,7 @@ export class GameEndScene extends Phaser.Scene {
             function () {
                 this.setStyle({ color: '#ffffff' });
             },
-            () => this.scene.start(Constants.SCENE.GAME)
+            () => this.scene.start(this._currentScene)
         );
 
         // center all objects horizontally and vertically in the scene
