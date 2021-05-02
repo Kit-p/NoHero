@@ -142,6 +142,6 @@ export class Level01Scene extends GameScene {
         // launch the UI scene to both scenes run in parallel
         this.scene.launch(Constants.SCENE.GAME_UI, { gameScene: this });
 
-        this._debug();
+        // this._debug();
     }
 }

@@ -28,7 +28,7 @@ export default new Phaser.Game({
             gravity: {
                 y: 0,
             },
-            debug: true,
+            debug: false,
             debugBodyColor: 0x00ff00,
             debugShowBody: true,
             debugShowStaticBody: true,
