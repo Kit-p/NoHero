@@ -26,7 +26,7 @@ export class Potion extends Phaser.GameObjects.Sprite {
         this._healing = healing;
 
         if (!(this.scene instanceof GameScene)) {
-            throw new Error('Character: must be owned by a GameScene!');
+            throw new Error('Potion: must be owned by a GameScene!');
         } else {
             this._scene = this.scene;
         }

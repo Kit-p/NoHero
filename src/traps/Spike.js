@@ -41,7 +41,7 @@ export class Spike extends Phaser.GameObjects.Sprite {
         this.type = type;
 
         if (!(this.scene instanceof GameScene)) {
-            throw new Error('Character: must be owned by a GameScene!');
+            throw new Error('Spike: must be owned by a GameScene!');
         } else {
             this._scene = this.scene;
         }
