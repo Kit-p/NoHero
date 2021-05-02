@@ -84,6 +84,10 @@ export class PreloaderScene extends Phaser.Scene {
             'assets/audio/slash_1.wav'
         );
         this.load.audio(
+            Constants.RESOURCE.AUDIO.SPIKE,
+            'assets/audio/spike.mp3'
+        );
+        this.load.audio(
             Constants.RESOURCE.AUDIO.THROWABLE,
             'assets/audio/throwable_1.wav'
         );

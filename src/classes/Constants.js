@@ -25,6 +25,7 @@ export default {
             HEAL_SMALL: 'audio_heal_small',
             HEAL_LARGE: 'audio_heal_large',
             SLASH: 'audio_slash',
+            SPIKE: 'audio_spike',
             THROWABLE: 'audio_throwable',
             FIELD: 'audio_field',
             GUN_1: 'audio_gun-1',
