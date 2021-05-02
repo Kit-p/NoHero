@@ -173,12 +173,11 @@ export class Field extends Phaser.GameObjects.Graphics {
                 this._color
             );
             // slow the character by half for specific duration
-            const originalSpeed = character.movementSpeed;
             character.movementSpeed *= 0.5;
             // reset the speed after duration
             this._scene.time.delayedCall(this._collisionCooldown, () => {
                 if (character !== undefined) {
-                    character.movementSpeed = originalSpeed;
+                    character.movementSpeed = character.maxMovementSpeed;
                 }
             });
         }

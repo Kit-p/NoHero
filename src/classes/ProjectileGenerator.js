@@ -25,41 +25,41 @@ export class ProjectileGenerator {
     /** @protected @type {number} The y-coordinate of this projectile generator. */
     _y;
 
-    /** @protected @type {number} The scaling of this projectile generator. */
-    _scale;
+    /** @type {number} The scaling of this projectile generator. */
+    scale;
 
-    /** @protected @type {number} The speed of this projectile. */
-    _speed;
+    /** @type {number} The speed of this projectile. */
+    speed;
 
-    /** @protected @type {number} The damage of this projectile. */
-    _damage;
+    /** @type {number} The damage of this projectile. */
+    damage;
 
-    /** @protected @type {number} The range of this projectile (-1 for infinite). */
-    _range;
+    /** @type {number} The range of this projectile (-1 for infinite). */
+    range;
 
-    /** @protected @type {number} The maximum number of the projectile instance (-1 for infinite). */
-    _capacity;
+    /** @type {number} The maximum number of the projectile instance (-1 for infinite). */
+    capacity;
 
-    /** @protected @type {boolean} Flag indicating whether this projectile tracks enemies. */
-    _isTrack;
+    /** @type {boolean} Flag indicating whether this projectile tracks enemies. */
+    isTrack;
 
-    /** @protected @type {boolean} Flag indicating whether this projectile is a trap. */
-    _isTrap;
+    /** @type {boolean} Flag indicating whether this projectile is a trap. */
+    isTrap;
 
-    /** @protected @type {{isPoison: boolean, isSlow: boolean}} Flag indicating whether this projectile is a field and the effect. */
-    _isField;
+    /** @type {{isPoison: boolean, isSlow: boolean}} Flag indicating whether this projectile is a field and the effect. */
+    isField;
 
-    /** @protected @type {number} The cooldown (in milleseconds) of this projectile. */
-    _cooldown;
+    /** @type {number} The cooldown (in milleseconds) of this projectile. */
+    cooldown;
+
+    /** @type {Phaser.GameObjects.Sprite} The visual representation of this projectile generator. */
+    sprite;
 
     /** @protected @type {boolean} The flag indicating if this projectile is on cooldown. */
     _isOnCooldown = false;
 
     /** @protected @type {BasicProjectile[]}} The history of projectile instances spawned. */
     _history = [];
-
-    /** @type {Phaser.GameObjects.Sprite} The visual representation of this projectile generator. */
-    sprite;
 
     /**
      * @param {Phaser.Scene} scene The Scene to which this projectile belongs.
@@ -102,15 +102,15 @@ export class ProjectileGenerator {
         this._owner = owner;
         this._x = x;
         this._y = y;
-        this._scale = scale;
-        this._speed = speed;
-        this._cooldown = cooldown;
-        this._damage = damage;
-        this._range = range;
-        this._capacity = capacity;
-        this._isTrack = isTrack;
-        this._isTrap = isTrap;
-        this._isField = isField;
+        this.scale = scale;
+        this.speed = speed;
+        this.cooldown = cooldown;
+        this.damage = damage;
+        this.range = range;
+        this.capacity = capacity;
+        this.isTrack = isTrack;
+        this.isTrap = isTrap;
+        this.isField = isField;
         this.render();
     }
 
@@ -172,7 +172,7 @@ export class ProjectileGenerator {
             this.sprite.setDepth(this._owner.depth + 1);
 
             // set the scaling
-            this.sprite.setScale(this._scale);
+            this.sprite.setScale(this.scale);
 
             // set the alpha
             this.sprite.setAlpha(0.3);
@@ -191,18 +191,18 @@ export class ProjectileGenerator {
             return;
         } else {
             this._isOnCooldown = true;
-            this._scene.time.delayedCall(this._cooldown, () => {
+            this._scene.time.delayedCall(this.cooldown, () => {
                 this._isOnCooldown = false;
             });
         }
         const angle = Math.atan2(destY - srcY, destX - srcX);
         const velocity = {
-            x: this._speed * Math.cos(angle),
-            y: this._speed * Math.sin(angle),
+            x: this.speed * Math.cos(angle),
+            y: this.speed * Math.sin(angle),
         };
 
-        if (this._isField?.isPoison || this._isField?.isSlow) {
-            const color = this._isField?.isPoison
+        if (this.isField?.isPoison || this.isField?.isSlow) {
+            const color = this.isField?.isPoison
                 ? Constants.COLOR.POISON
                 : Constants.COLOR.SLOW;
             this._history.push(
@@ -212,20 +212,20 @@ export class ProjectileGenerator {
                     srcY,
                     this._texture,
                     this._frame,
-                    this._speed,
+                    this.speed,
                     velocity,
-                    this._damage,
-                    this._range,
-                    this._capacity,
-                    this._isField?.isPoison ? 32 : 128,
-                    this._isField?.isPoison ? 5000 : 10000,
+                    this.damage,
+                    this.range,
+                    this.capacity,
+                    this.isField?.isPoison ? 32 : 64,
+                    this.isField?.isPoison ? 5000 : 10000,
                     color,
-                    this._isField,
+                    this.isField,
                     this._owner.type,
-                    this._scale
+                    this.scale
                 )
             );
-        } else if (this._isTrack) {
+        } else if (this.isTrack) {
             this._history.push(
                 new TrackProjectile(
                     this._scene,
@@ -233,15 +233,15 @@ export class ProjectileGenerator {
                     srcY,
                     this._texture,
                     this._frame,
-                    this._speed,
+                    this.speed,
                     velocity,
-                    this._damage,
-                    this._range,
+                    this.damage,
+                    this.range,
                     this._owner.type,
-                    this._scale
+                    this.scale
                 )
             );
-        } else if (this._isTrap) {
+        } else if (this.isTrap) {
             this._history.push(
                 new TrapProjectile(
                     this._scene,
@@ -249,14 +249,14 @@ export class ProjectileGenerator {
                     srcY,
                     this._texture,
                     this._frame,
-                    this._speed,
+                    this.speed,
                     velocity,
-                    this._damage,
-                    this._range,
-                    this._capacity,
+                    this.damage,
+                    this.range,
+                    this.capacity,
                     8000,
                     this._owner.type,
-                    this._scale
+                    this.scale
                 )
             );
         } else {
@@ -267,12 +267,12 @@ export class ProjectileGenerator {
                     srcY,
                     this._texture,
                     this._frame,
-                    this._speed,
+                    this.speed,
                     velocity,
-                    this._damage,
-                    this._range,
+                    this.damage,
+                    this.range,
                     this._owner.type,
-                    this._scale
+                    this.scale
                 )
             );
         }
@@ -292,7 +292,7 @@ export class ProjectileGenerator {
         }
 
         // check capacity
-        while (this._history.length > this._capacity) {
+        while (this._history.length > this.capacity) {
             this._history[0].destroy();
             this._history.splice(0, 1);
         }

@@ -15,6 +15,9 @@ export class Character extends Phaser.GameObjects.Sprite {
     controlState;
 
     /** @protected @type {number} Pixels per second */
+    _maxMovementSpeed;
+
+    /** @protected @type {number} Pixels per second */
     _movementSpeed;
 
     /** @protected @type {number} Cooldown for collision with a particular physics object (in milleseconds). */
@@ -51,6 +54,7 @@ export class Character extends Phaser.GameObjects.Sprite {
             this._scene = this.scene;
         }
         this.name = name;
+        this._maxMovementSpeed = movementSpeed;
         this._movementSpeed = movementSpeed;
         this.type = type;
 
@@ -76,6 +80,10 @@ export class Character extends Phaser.GameObjects.Sprite {
 
         // creating the animations
         this._createAnimations();
+    }
+
+    get maxMovementSpeed() {
+        return this._maxMovementSpeed;
     }
 
     get movementSpeed() {
