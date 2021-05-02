@@ -126,13 +126,13 @@ export class Level01Scene extends GameScene {
         // place the enemy at the bottom left of the map
         knight.setX(this.map.tilemap.widthInPixels * 0.25);
         knight.setY(
-            this.map.tilemap.heightInPixels * 0.5 + knight.height * 0.5
+            this.map.tilemap.heightInPixels * 0.75 + knight.height * 0.5
         );
 
         // place the enemy at the bottom right of the map
         wizard.setX(this.map.tilemap.widthInPixels * 0.75);
         wizard.setY(
-            this.map.tilemap.heightInPixels * 0.5 + wizard.height * 0.5
+            this.map.tilemap.heightInPixels * 0.75 + wizard.height * 0.5
         );
 
         // spawn the spikes
