@@ -264,9 +264,6 @@ export class GameScene extends Phaser.Scene {
             // disable physics
             this.physics.shutdown();
 
-            // disable animations
-            this.anims.shutdown();
-
             // disable all tweens timeline
             for (const tween of this.tweens.getAllTweens()) {
                 if (tween instanceof Phaser.Tweens.Timeline) {
@@ -278,7 +275,7 @@ export class GameScene extends Phaser.Scene {
             this.scene.get(Constants.SCENE.GAME_UI).scene.stop();
 
             // start GameEndScene
-            this.time.delayedCall(2000, () => {
+            this.time.delayedCall(1000, () => {
                 this.scene.start(Constants.SCENE.GAME_END, {
                     isVictory: count.enemy === 0,
                     currentScene: this.scene.key,
