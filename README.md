@@ -41,3 +41,6 @@ PANG, Kit ([Kit-p](https://github.com/Kit-p)) <kpangaa@connect.ust.hk>
 
 -   source: <https://edwardcufaude.itch.io/soundfxpack1>  
     author: [edwardcufaude](https://edwardcufaude.itch.io/)
+
+-   source: <https://timbeek.itch.io/free-retro-boss-music>  
+    author: [Tim Beek](https://timbeek.itch.io/)
