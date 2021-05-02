@@ -20,6 +20,9 @@ export class PlayerCharacter extends Character {
     /** @protected @type {number} The damage applied for collide attack. */
     _collideAttackDamage;
 
+    /** @protected @type {number} The damage applied for projectile attack. */
+    _projectileAttackDamage;
+
     /** @protected @type {number} The duration of hit animation in milleseconds. */
     _hitAnimationDuration = 200;
 
@@ -52,6 +55,7 @@ export class PlayerCharacter extends Character {
             maxHealth = 18,
             health = maxHealth,
             collideAttackDamage = 2,
+            projectileDamage = 2,
             controlState = undefined,
             cooldowns = {
                 projectile: 500,
@@ -69,6 +73,7 @@ export class PlayerCharacter extends Character {
         this._maxHealth = maxHealth;
         this._health = health;
         this._collideAttackDamage = collideAttackDamage;
+        this._projectileAttackDamage = projectileDamage;
         this._cooldowns = cooldowns;
         if (this.type === 'player') {
             this.body.pushable = false;
@@ -365,7 +370,7 @@ export class PlayerCharacter extends Character {
                         y: 50,
                         scale: 1,
                         speed: 32,
-                        damage: 2,
+                        damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
                     }
                 );
@@ -379,7 +384,7 @@ export class PlayerCharacter extends Character {
                     {
                         scale: 0.2,
                         speed: 128,
-                        damage: 2,
+                        damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
                         isTrack: true,
                     }
@@ -396,7 +401,7 @@ export class PlayerCharacter extends Character {
             //         y: 50,
             //         scale: 0.3,
             //         speed: 128,
-            //         damage: 1,
+            //         damage: this._projectileAttackDamage,
             //         cooldown: this._cooldowns.projectile,
             //     }
             // );

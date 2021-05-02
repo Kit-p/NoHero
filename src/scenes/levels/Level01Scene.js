@@ -18,14 +18,14 @@ export class Level01Scene extends GameScene {
                 large: 1,
             },
             enemy: {
-                small: 6,
-                large: 2,
+                small: 9,
+                large: 3,
             },
         };
 
         this._potionHealing = {
-            small: 2,
-            large: 6,
+            small: 4,
+            large: 12,
         };
 
         this._spikeCount = 2;
@@ -45,6 +45,7 @@ export class Level01Scene extends GameScene {
                 name: 'big_demon',
                 controlState: HumanControlState,
                 maxHealth: 24,
+                projectileDamage: 8,
                 type: 'player',
                 cooldowns: {
                     projectile: 1000,
@@ -91,6 +92,7 @@ export class Level01Scene extends GameScene {
                 controlState: StrongAIControlState,
                 maxHealth: 8,
                 movementSpeed: 36,
+                projectileDamage: 4,
                 cooldowns: {
                     projectile: 3000,
                 },
@@ -121,13 +123,13 @@ export class Level01Scene extends GameScene {
             this.map.tilemap.heightInPixels * 0.25 - player.height * 0.5
         );
 
-        // place the enemy at the bottom center of the map
+        // place the enemy at the bottom left of the map
         knight.setX(this.map.tilemap.widthInPixels * 0.25);
         knight.setY(
             this.map.tilemap.heightInPixels * 0.5 + knight.height * 0.5
         );
 
-        // place the enemy at the bottom center of the map
+        // place the enemy at the bottom right of the map
         wizard.setX(this.map.tilemap.widthInPixels * 0.75);
         wizard.setY(
             this.map.tilemap.heightInPixels * 0.5 + wizard.height * 0.5
