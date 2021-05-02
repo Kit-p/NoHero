@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import Utils from '../classes/Utils';
 import { CharacterControlState } from '../classes/CharacterControlState';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
 
@@ -196,11 +197,7 @@ export class HumanControlState extends CharacterControlState {
             .scale(this._character.movementSpeed);
 
         // update facing direction
-        if (this._character.body.velocity.x > 0) {
-            this._character.setFlipX(false);
-        } else if (this._character.body.velocity.x < 0) {
-            this._character.setFlipX(true);
-        }
+        Utils.updateFacingDirection(this._character);
 
         this._handleDash();
 

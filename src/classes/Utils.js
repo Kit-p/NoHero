@@ -343,4 +343,18 @@ export default class Utils {
             return lower <= angle || angle <= upper;
         }
     }
+
+    /**
+     * A utility method to update the facing direction of a game object with physics.
+     * This method manipulates the flipX property of the object.
+     * @static
+     * @param {Phaser.Types.Physics.Arcade.GameObjectWithBody & Phaser.GameObjects.Components.Flip} object The object to handle.
+     */
+    static updateFacingDirection(object) {
+        if (object.body.velocity.x > 0) {
+            object.setFlipX(false);
+        } else if (object.body.velocity.x < 0) {
+            object.setFlipX(true);
+        }
+    }
 }
