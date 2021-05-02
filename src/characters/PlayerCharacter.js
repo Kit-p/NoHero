@@ -298,8 +298,10 @@ export class PlayerCharacter extends Character {
         // destroy projectile sprite
         this.currentProjectile?.sprite?.destroy();
 
-        // automatically switch character
-        this._scene?.switchCharacter();
+        if (this === this._scene.currentHumanControlledCharacter) {
+            // automatically switch character
+            this._scene?.switchCharacter();
+        }
 
         this._canMove = false;
         this.anims?.pause();
