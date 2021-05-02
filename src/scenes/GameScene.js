@@ -213,7 +213,7 @@ export class GameScene extends Phaser.Scene {
                 name: 'wizard_m',
                 controlState: StrongAIControlState,
                 maxHealth: 8,
-                movementSpeed: 36,
+                movementSpeed: 32,
                 projectileDamage: 4,
                 cooldowns: {
                     projectile: 3000,
@@ -258,7 +258,7 @@ export class GameScene extends Phaser.Scene {
         );
 
         // spawn the spikes
-        this._spawnSpikes();
+        this._spawnSpikes(3);
 
         // spawn the healing potions
         this._spawnPotions();
@@ -428,8 +428,9 @@ export class GameScene extends Phaser.Scene {
 
     /**
      * A utility method to create spikes.
+     * @param {number} [damage] The damage of each spike.
      */
-    _spawnSpikes() {
+    _spawnSpikes(damage = 3) {
         // get spike spawn position data if exists
         const spikeLayer = this.map.tilemap.getObjectLayer('Spike');
         if (spikeLayer !== undefined && spikeLayer !== null) {
@@ -477,7 +478,13 @@ export class GameScene extends Phaser.Scene {
                     }
                 } while (!clear);
 
-                new Spike(this, x, y, Constants.RESOURCE.ATLAS.ALL_IN_ONE_2, 3);
+                new Spike(
+                    this,
+                    x,
+                    y,
+                    Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
+                    damage
+                );
             }
         }
     }

@@ -6,28 +6,28 @@ import { StrongAIControlState } from '../../states/StrongAIControlState';
 /**
  * @extends GameScene
  */
-export class Level02Scene extends GameScene {
+export class Level03Scene extends GameScene {
     constructor() {
-        super({ key: Constants.SCENE.LEVELS[1] }, Constants.SCENE.LEVELS?.[2]);
+        super({ key: Constants.SCENE.LEVELS[2] }, Constants.SCENE.LEVELS?.[3]);
 
         // set level specific constants
         this._potionCount = {
             player: {
-                small: 6,
-                large: 2,
+                small: 9,
+                large: 3,
             },
             enemy: {
-                small: 6,
-                large: 2,
+                small: 3,
+                large: 1,
             },
         };
 
         this._potionHealing = {
-            small: 2,
-            large: 6,
+            small: 1,
+            large: 3,
         };
 
-        this._spikeCount = 4;
+        this._spikeCount = 8;
     }
 
     /**
@@ -39,15 +39,16 @@ export class Level02Scene extends GameScene {
             0,
             0,
             Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
-            'orc_shaman_idle_anim_f0',
+            'chort_idle_anim_f0',
             {
-                name: 'orc_shaman',
-                maxHealth: 12,
-                projectileDamage: 2, // * will tick for multiple times
+                name: 'chort',
+                maxHealth: 6,
+                movementSpeed: 32,
+                projectileDamage: 1,
                 type: 'player',
                 cooldowns: {
-                    projectile: 5000,
-                    dash: 2000,
+                    projectile: 500,
+                    dash: 5000,
                 },
             }
         );
@@ -66,12 +67,13 @@ export class Level02Scene extends GameScene {
             'wogol_idle_anim_f0',
             {
                 name: 'wogol',
-                maxHealth: 16,
-                projectileDamage: 6,
+                maxHealth: 8,
+                movementSpeed: 48,
+                projectileDamage: 2,
                 type: 'player',
                 cooldowns: {
                     projectile: 3000,
-                    dash: 2000,
+                    dash: 3000,
                 },
             }
         );
@@ -82,54 +84,70 @@ export class Level02Scene extends GameScene {
             player2.body.height * 0.25
         );
 
-        const wizard1 = new PlayerCharacter(
+        const player3 = new PlayerCharacter(
             this,
             0,
             0,
             Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
-            'wizard_m_idle_anim_f0',
+            'necromancer_idle_anim_f0',
             {
-                name: 'wizard_m',
-                controlState: StrongAIControlState,
+                name: 'necromancer',
                 maxHealth: 8,
-                movementSpeed: 32,
-                projectileDamage: 4,
+                projectileDamage: 0,
+                type: 'player',
                 cooldowns: {
-                    projectile: 1500,
+                    projectile: 5000,
+                    dash: 10000,
                 },
-                type: 'enemy',
             }
         );
         // manually adjust the collision body size and offset
-        wizard1.body.setSize(wizard1.width * 0.75, wizard1.height * 0.65, true);
-        wizard1.body.setOffset(
-            wizard1.body.width * 0.15,
-            wizard1.body.height * 0.5
+        player3.body.setSize(player3.width * 0.7, player3.height * 0.8, true);
+        player3.body.setOffset(
+            player3.body.width * 0.25,
+            player3.body.height * 0.25
         );
 
-        const wizard2 = new PlayerCharacter(
+        const knight1 = new PlayerCharacter(
             this,
             0,
             0,
             Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
-            'wizard_f_idle_anim_f0',
+            'knight_m_idle_anim_f0',
             {
-                name: 'wizard_f',
+                name: 'knight_m',
                 controlState: StrongAIControlState,
-                maxHealth: 8,
-                movementSpeed: 32,
-                projectileDamage: 4,
-                cooldowns: {
-                    projectile: 1500,
-                },
+                maxHealth: 12,
+                collideAttackDamage: 4,
                 type: 'enemy',
             }
         );
         // manually adjust the collision body size and offset
-        wizard2.body.setSize(wizard2.width * 0.75, wizard2.height * 0.65, true);
-        wizard2.body.setOffset(
-            wizard2.body.width * 0.15,
-            wizard2.body.height * 0.5
+        knight1.body.setSize(knight1.width * 0.75, knight1.height * 0.65, true);
+        knight1.body.setOffset(
+            knight1.body.width * 0.15,
+            knight1.body.height * 0.5
+        );
+
+        const knight2 = new PlayerCharacter(
+            this,
+            0,
+            0,
+            Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
+            'knight_f_idle_anim_f0',
+            {
+                name: 'knight_f',
+                controlState: StrongAIControlState,
+                maxHealth: 12,
+                collideAttackDamage: 4,
+                type: 'enemy',
+            }
+        );
+        // manually adjust the collision body size and offset
+        knight2.body.setSize(knight2.width * 0.75, knight2.height * 0.65, true);
+        knight2.body.setOffset(
+            knight2.body.width * 0.15,
+            knight2.body.height * 0.5
         );
 
         // set reference for GameUIScene to display health
@@ -137,38 +155,44 @@ export class Level02Scene extends GameScene {
 
         // create the map for this scene
         this._createMap(
-            Constants.RESOURCE.TILEMAP.TRIAL_2,
+            Constants.RESOURCE.TILEMAP.TRIAL_3,
             Constants.RESOURCE.IMAGE.ALL_IN_ONE_2,
             0,
             -6
         );
 
         // place the player at the top left of the map
-        player1.setX(this.map.tilemap.widthInPixels * 0.25);
+        player1.setX(this.map.tilemap.widthInPixels * 0.1);
         player1.setY(
             this.map.tilemap.heightInPixels * 0.15 - player1.height * 0.5
         );
 
-        // place the player at the top right of the map
-        player2.setX(this.map.tilemap.widthInPixels * 0.75);
+        // place the player at the top center of the map
+        player2.setX(this.map.tilemap.widthInPixels * 0.5);
         player2.setY(
             this.map.tilemap.heightInPixels * 0.15 - player2.height * 0.5
         );
 
+        // place the player at the top right of the map
+        player3.setX(this.map.tilemap.widthInPixels * 0.9);
+        player3.setY(
+            this.map.tilemap.heightInPixels * 0.15 - player3.height * 0.5
+        );
+
         // place the enemy at the bottom left of the map
-        wizard1.setX(this.map.tilemap.widthInPixels * 0.25);
-        wizard1.setY(
-            this.map.tilemap.heightInPixels * 0.75 + wizard1.height * 0.5
+        knight1.setX(this.map.tilemap.widthInPixels * 0.15);
+        knight1.setY(
+            this.map.tilemap.heightInPixels * 0.85 + knight1.height * 0.5
         );
 
         // place the enemy at the bottom right of the map
-        wizard2.setX(this.map.tilemap.widthInPixels * 0.75);
-        wizard2.setY(
-            this.map.tilemap.heightInPixels * 0.75 + wizard2.height * 0.5
+        knight2.setX(this.map.tilemap.widthInPixels * 0.85);
+        knight2.setY(
+            this.map.tilemap.heightInPixels * 0.85 + knight2.height * 0.5
         );
 
         // spawn the spikes
-        this._spawnSpikes(3);
+        this._spawnSpikes(2);
 
         // spawn the healing potions
         this._spawnPotions();

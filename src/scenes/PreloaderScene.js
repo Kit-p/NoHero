@@ -22,6 +22,10 @@ export class PreloaderScene extends Phaser.Scene {
             Constants.RESOURCE.TILEMAP.TRIAL_2,
             'assets/maps/trial-2.json'
         );
+        this.load.tilemapTiledJSON(
+            Constants.RESOURCE.TILEMAP.TRIAL_3,
+            'assets/maps/trial-3.json'
+        );
         this.load.atlas(
             Constants.RESOURCE.ATLAS.ALL_IN_ONE_2,
             'assets/tiles/all-in-one/2.png',

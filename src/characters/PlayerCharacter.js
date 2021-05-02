@@ -453,10 +453,23 @@ export class PlayerCharacter extends Character {
                     'bullet_red_anim_f1',
                     this,
                     {
-                        x: 50,
-                        y: 50,
                         scale: 1,
                         speed: 32,
+                        damage: this._projectileAttackDamage,
+                        cooldown: this._cooldowns.projectile,
+                    }
+                );
+                break;
+            case 'chort':
+                projectile = new ProjectileGenerator(
+                    this._scene,
+                    Constants.RESOURCE.ATLAS.EFFECT_ATTACK_2,
+                    'bullet_red_anim_f1',
+                    this,
+                    {
+                        scale: 0.2,
+                        speed: 64,
+                        range: 32,
                         damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
                     }
@@ -492,7 +505,7 @@ export class PlayerCharacter extends Character {
                         scale: 0.5,
                         speed: 128,
                         range: 0,
-                        capacity: 4,
+                        capacity: 1,
                         damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
                         isField: {
@@ -510,8 +523,8 @@ export class PlayerCharacter extends Character {
                     this,
                     {
                         scale: 0.6,
-                        speed: 128,
-                        range: 128,
+                        speed: 96,
+                        range: 96,
                         capacity: 2,
                         damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,

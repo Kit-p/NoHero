@@ -6,6 +6,7 @@ import { GameUIScene } from './scenes/GameUIScene';
 import { GameEndScene } from './scenes/GameEndScene';
 import { Level01Scene } from './scenes/levels/Level01Scene';
 import { Level02Scene } from './scenes/levels/Level02Scene';
+import { Level03Scene } from './scenes/levels/Level03Scene';
 
 export default new Phaser.Game({
     title: 'No Hero',
@@ -45,6 +46,7 @@ export default new Phaser.Game({
         TitleScene,
         Level01Scene,
         Level02Scene,
+        Level03Scene,
         GameUIScene,
         GameEndScene,
     ],

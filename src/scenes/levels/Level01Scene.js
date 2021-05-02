@@ -89,7 +89,7 @@ export class Level01Scene extends GameScene {
                 name: 'wizard_m',
                 controlState: StrongAIControlState,
                 maxHealth: 8,
-                movementSpeed: 36,
+                movementSpeed: 32,
                 projectileDamage: 4,
                 cooldowns: {
                     projectile: 3000,
@@ -134,7 +134,7 @@ export class Level01Scene extends GameScene {
         );
 
         // spawn the spikes
-        this._spawnSpikes();
+        this._spawnSpikes(4);
 
         // spawn the healing potions
         this._spawnPotions();

@@ -49,7 +49,7 @@ export class Field extends Phaser.GameObjects.Graphics {
         effects,
         color,
         duration = -1,
-        alpha = 0.5
+        alpha = 0.3
     ) {
         super(scene);
 

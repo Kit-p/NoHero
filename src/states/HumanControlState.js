@@ -269,7 +269,7 @@ export class HumanControlState extends CharacterControlState {
             if (dashControl.key.isDown) {
                 // dash
                 const dashDuration = 300;
-                const dashSpeed = 300;
+                const dashSpeed = 150;
                 const originalVelocity = this._character.body.velocity.clone();
 
                 // initialize direction as facing direction
