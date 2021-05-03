@@ -87,12 +87,13 @@ export class HumanControlState extends CharacterControlState {
 
     /**
      * @param {PlayerCharacter} character The character to control.
+     * @param {number} [dashCooldown] The cooldown of dash ability.
      * @param {Types.InputControl[]} [controls] An array of controls to be associated with this character.
      */
     constructor(
         character,
-        controls = HumanControlState.DefaultControls,
-        dashCooldown = 3000
+        dashCooldown = 3000,
+        controls = HumanControlState.DefaultControls
     ) {
         super(character);
 

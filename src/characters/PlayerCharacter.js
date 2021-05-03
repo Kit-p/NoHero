@@ -93,7 +93,10 @@ export class PlayerCharacter extends Character {
         });
 
         if (this.controlState === undefined) {
-            this._controlStates.human = new HumanControlState(this);
+            this._controlStates.human = new HumanControlState(
+                this,
+                cooldowns.dash
+            );
             this._controlStates.ai = new WeakAIControlState(this);
             this.isHumanControlled = false;
         }
