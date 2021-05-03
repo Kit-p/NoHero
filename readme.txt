@@ -33,6 +33,8 @@ If the game does not load properly, make sure you have turned off any form of ad
 >
 > `Q`: switch character if there are more than one available
 >
+> `R`: restart the current level
+>
 > `Mouse Primary Button`: fire projectile
 
 ## Credit
