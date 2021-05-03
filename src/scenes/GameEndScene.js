@@ -42,6 +42,25 @@ export class GameEndScene extends Phaser.Scene {
     }
 
     create() {
+        // set background image
+        let background, scale;
+        if (this._isVictory) {
+            background = Constants.RESOURCE.IMAGE.TREASURE;
+            scale = 2;
+        } else {
+            background = Constants.RESOURCE.IMAGE.SKULL;
+            scale = 4;
+        }
+        this.add
+            .image(
+                this.game.canvas.width / 2,
+                this.game.canvas.height / 2,
+                background
+            )
+            .setOrigin(0.5)
+            .setScale(scale)
+            .setAlpha(0.25);
+
         // create victory screen or lost screen
         const strings = {
             win: {

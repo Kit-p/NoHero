@@ -3,6 +3,9 @@ export default {
     RESOURCE: {
         IMAGE: {
             ALL_IN_ONE_2: 'tile_all-in-one-2',
+            BACKGROUND: 'image_background',
+            SKULL: 'image_skull',
+            TREASURE: 'image_treasure',
         },
         TILEMAP: {
             TRIAL_1: 'map_trial-1',

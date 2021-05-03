@@ -15,6 +15,18 @@ export class PreloaderScene extends Phaser.Scene {
             Constants.RESOURCE.IMAGE.ALL_IN_ONE_2,
             'assets/tiles/all-in-one/2.png'
         );
+        this.load.image(
+            Constants.RESOURCE.IMAGE.BACKGROUND,
+            'assets/images/background.png'
+        );
+        this.load.image(
+            Constants.RESOURCE.IMAGE.SKULL,
+            'assets/images/skull.jpg'
+        );
+        this.load.image(
+            Constants.RESOURCE.IMAGE.TREASURE,
+            'assets/images/treasure.png'
+        );
 
         // load tilemaps
         this.load.tilemapTiledJSON(

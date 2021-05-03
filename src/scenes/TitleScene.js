@@ -23,13 +23,33 @@ export class TitleScene extends Phaser.Scene {
     }
 
     create() {
+        // set background image
+        this.add
+            .image(
+                this.game.canvas.width / 2,
+                this.game.canvas.height / 2,
+                Constants.RESOURCE.IMAGE.BACKGROUND
+            )
+            .setOrigin(0.5)
+            .setScale(2)
+            .setAlpha(0.75);
+
         // create game title
         const title = this.add.text(0, 25, 'NO HERO', {
             fontSize: '96px',
             fontStyle: 'bold',
             fontFamily: 'Arial',
             align: 'center',
-            color: '#ffffff',
+            color: '#ff0000',
+            stroke: '#000000',
+            strokeThickness: 5,
+            shadow: {
+                offsetX: 10,
+                offsetY: -10,
+                color: '#222222',
+                blur: 5,
+                fill: true,
+            },
         });
         // create play button
         const playButton = Utils.createTextButton(
