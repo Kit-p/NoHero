@@ -18,6 +18,16 @@ PANG, Kit ([Kit-p](https://github.com/Kit-p)) <kpangaa@connect.ust.hk>
 6. Open a browser and go to `http://localhost:8080`
 7. The game should be up and running. Have fun!
 
+### How to play the game (Controls)
+
+> `WASD`: movement keys
+>
+> `Space Bar`: dashing / sprinting
+>
+> `Q`: switch character if there are more than one available
+>
+> `Mouse Primary Button`: fire projectile
+
 ## Credit
 
 ### tilesets and sprites
