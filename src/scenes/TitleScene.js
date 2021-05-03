@@ -54,10 +54,10 @@ export class TitleScene extends Phaser.Scene {
                 this.setStyle({ color: '#ffffff' });
             },
             () => {
+                this.sound.stopAll();
                 this.sound.play(Constants.RESOURCE.AUDIO.SELECT, {
                     volume: 0.2,
                 });
-                this.sound.stopByKey(Constants.RESOURCE.AUDIO.BGM);
                 this.scene.start(Constants.SCENE.LEVELS?.[0]);
             }
         );

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import Constants from '../classes/Constants';
 import Utils from '../classes/Utils';
 import { CharacterControlState } from '../classes/CharacterControlState';
 import { PlayerCharacter } from '../characters/PlayerCharacter';
@@ -288,6 +289,16 @@ export class HumanControlState extends CharacterControlState {
 
                 direction.normalize();
 
+                // play dash sound
+                this._character._scene.sound.play(
+                    Constants.RESOURCE.AUDIO.FOOTSTEP,
+                    {
+                        volume: 2,
+                        duration: dashDuration,
+                        rate: dashSpeed / 16,
+                    }
+                );
+
                 // make the player move forward is high speed for a short duration to simulate a dash
                 this._character.body.velocity = direction.scale(dashSpeed);
                 this._isDashing = true;
@@ -295,6 +306,9 @@ export class HumanControlState extends CharacterControlState {
 
                 // restore original velocity after dash ends
                 this._scene.time.delayedCall(dashDuration, () => {
+                    this._character._scene.sound.stopByKey(
+                        Constants.RESOURCE.AUDIO.FOOTSTEP
+                    );
                     this._character.body?.setVelocity(
                         originalVelocity.x,
                         originalVelocity.y

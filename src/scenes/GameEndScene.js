@@ -17,6 +17,12 @@ export class GameEndScene extends Phaser.Scene {
         super({ key: Constants.SCENE.GAME_END });
     }
 
+    preload() {
+        for (const value of Object.values(Constants.RESOURCE.AUDIO)) {
+            this.sound.add(value);
+        }
+    }
+
     /**
      * @param {object} data The scene data object.
      * @param {boolean} data.isVictory Wether the player has victory.
@@ -28,6 +34,11 @@ export class GameEndScene extends Phaser.Scene {
         this._currentScene = data.currentScene;
         this._nextScene = data.nextScene;
         this.scale.setGameSize(800, 600);
+
+        const key = this._isVictory
+            ? Constants.RESOURCE.AUDIO.WIN
+            : Constants.RESOURCE.AUDIO.LOSE;
+        this.sound.play(key, { volume: 0.3 });
     }
 
     create() {
@@ -118,7 +129,13 @@ export class GameEndScene extends Phaser.Scene {
                     function () {
                         this.setStyle({ color: '#ffffff' });
                     },
-                    () => this.scene.start(this._nextScene)
+                    () => {
+                        this.sound.stopAll();
+                        this.sound.play(Constants.RESOURCE.AUDIO.SELECT, {
+                            volume: 0.2,
+                        });
+                        this.scene.start(this._nextScene);
+                    }
                 );
                 objects.push(nextLevelButton);
             }
@@ -148,7 +165,13 @@ export class GameEndScene extends Phaser.Scene {
             function () {
                 this.setStyle({ color: '#ffffff' });
             },
-            () => this.scene.start(this._currentScene)
+            () => {
+                this.sound.stopAll();
+                this.sound.play(Constants.RESOURCE.AUDIO.SELECT, {
+                    volume: 0.2,
+                });
+                this.scene.start(this._currentScene);
+            }
         );
         objects.push(restartButton);
 
@@ -174,7 +197,13 @@ export class GameEndScene extends Phaser.Scene {
             function () {
                 this.setStyle({ color: '#ffffff' });
             },
-            () => this.scene.start(Constants.SCENE.TITLE)
+            () => {
+                this.sound.stopAll();
+                this.sound.play(Constants.RESOURCE.AUDIO.SELECT, {
+                    volume: 0.2,
+                });
+                this.scene.start(Constants.SCENE.TITLE);
+            }
         );
         objects.push(backTitleButton);
 

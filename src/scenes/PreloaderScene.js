@@ -116,6 +116,10 @@ export class PreloaderScene extends Phaser.Scene {
             Constants.RESOURCE.AUDIO.LASER_2,
             'assets/audio/laser_2.wav'
         );
+        this.load.audio(
+            Constants.RESOURCE.AUDIO.FOOTSTEP,
+            'assets/audio/footstep.wav'
+        );
     }
 
     create() {

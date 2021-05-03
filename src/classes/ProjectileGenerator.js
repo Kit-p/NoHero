@@ -25,6 +25,9 @@ export class ProjectileGenerator {
     /** @protected @type {number} The y-coordinate of this projectile generator. */
     _y;
 
+    /** @type {{key: string, extra: Phaser.Types.Sound.SoundConfig | Phaser.Types.Sound.SoundMarker}} The audio to play when spawning a projectile. */
+    audio;
+
     /** @type {number} The scaling of this projectile generator. */
     scale;
 
@@ -76,6 +79,7 @@ export class ProjectileGenerator {
         {
             x = 0,
             y = 0,
+            audio = undefined,
             scale = 1.0,
             speed = 96,
             cooldown = 500,
@@ -102,6 +106,7 @@ export class ProjectileGenerator {
         this._owner = owner;
         this._x = x;
         this._y = y;
+        this.audio = audio;
         this.scale = scale;
         this.speed = speed;
         this.cooldown = cooldown;
@@ -200,6 +205,11 @@ export class ProjectileGenerator {
             x: this.speed * Math.cos(angle),
             y: this.speed * Math.sin(angle),
         };
+
+        if (this.audio !== undefined) {
+            // play audio
+            this._scene.sound.play(this.audio.key, this.audio.extra);
+        }
 
         if (this.isField?.isPoison || this.isField?.isSlow) {
             const color = this.isField?.isPoison

@@ -3,6 +3,7 @@
  *
  * @property {number} [x] The x-coordinate of the projectile generator.
  * @property {number} [y] The y-coordinate of the projectile generator.
+ * @property {{key: string, extra: Phaser.Types.Sound.SoundConfig | Phaser.Types.Sound.SoundMarker}} [audio] The audio to play when spawning a projectile.
  * @property {number} [scale] The scaling of the projectile.
  * @property {number} [speed] The speed of the projectile.
  * @property {number} [cooldown] The cooldown (in milleseconds) of the projectile.

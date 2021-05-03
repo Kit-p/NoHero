@@ -6,6 +6,7 @@ import { Character } from '../classes/Character';
 import { ProjectileGenerator } from '../classes/ProjectileGenerator';
 import { HumanControlState } from '../states/HumanControlState';
 import { WeakAIControlState } from '../states/WeakAIControlState';
+import { Spike } from '../traps/Spike';
 
 /**
  * @extends Character
@@ -303,6 +304,13 @@ export class PlayerCharacter extends Character {
             this._scene?.switchCharacter();
         }
 
+        // play die audio
+        const key =
+            this.type === 'player'
+                ? Constants.RESOURCE.AUDIO.PLAYER_DIE
+                : Constants.RESOURCE.AUDIO.ENEMY_DIE;
+        this._scene.sound.play(key, { volume: 0.5 });
+
         this._canMove = false;
         this.anims?.pause();
         this.scene?.tweens?.killTweensOf(this);
@@ -344,6 +352,19 @@ export class PlayerCharacter extends Character {
             this?._hitAnimationDuration,
             () => (this._canMove = true)
         );
+
+        // play hurt audio
+        let key;
+        if (attacker instanceof Spike) {
+            key = Constants.RESOURCE.AUDIO.SPIKE;
+        } else if (attacker instanceof PlayerCharacter) {
+            key = Constants.RESOURCE.AUDIO.SLASH;
+        } else if (this.type === 'player') {
+            key = Constants.RESOURCE.AUDIO.PLAYER_HURT;
+        } else {
+            key = Constants.RESOURCE.AUDIO.ENEMY_HURT;
+        }
+        this._scene.sound.play(key, { volume: 0.8 });
 
         // flash the character to white
         Utils.tintFill(
@@ -393,6 +414,15 @@ export class PlayerCharacter extends Character {
         if (healing <= 0) {
             return;
         }
+
+        // play heal sound
+        let key;
+        if (healing > this._scene.potionHealing.small) {
+            key = Constants.RESOURCE.AUDIO.HEAL_LARGE;
+        } else {
+            key = Constants.RESOURCE.AUDIO.HEAL_SMALL;
+        }
+        this._scene.sound.play(key, { volume: 0.3 });
 
         // flash the character to green
         Utils.tintFill(
@@ -457,6 +487,10 @@ export class PlayerCharacter extends Character {
                         speed: 32,
                         damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
+                        audio: {
+                            key: Constants.RESOURCE.AUDIO.GUN_1,
+                            extra: { volume: 0.4 },
+                        },
                     }
                 );
                 break;
@@ -472,6 +506,10 @@ export class PlayerCharacter extends Character {
                         range: 32,
                         damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
+                        audio: {
+                            key: Constants.RESOURCE.AUDIO.GUN_2,
+                            extra: { volume: 0.3 },
+                        },
                     }
                 );
                 break;
@@ -491,6 +529,10 @@ export class PlayerCharacter extends Character {
                         isField: {
                             isPoison: true,
                             isSlow: false,
+                        },
+                        audio: {
+                            key: Constants.RESOURCE.AUDIO.LASER_2,
+                            extra: { volume: 0.4 },
                         },
                     }
                 );
@@ -512,6 +554,10 @@ export class PlayerCharacter extends Character {
                             isPoison: false,
                             isSlow: true,
                         },
+                        audio: {
+                            key: Constants.RESOURCE.AUDIO.FIELD,
+                            extra: { volume: 0.4 },
+                        },
                     }
                 );
                 break;
@@ -529,6 +575,10 @@ export class PlayerCharacter extends Character {
                         damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
                         isTrap: true,
+                        audio: {
+                            key: Constants.RESOURCE.AUDIO.THROWABLE,
+                            extra: { volume: 0.3 },
+                        },
                     }
                 );
                 break;
@@ -540,11 +590,15 @@ export class PlayerCharacter extends Character {
                     'bullet_glow_anim_f1',
                     this,
                     {
-                        scale: 0.2,
+                        scale: 0.3,
                         speed: 128,
                         damage: this._projectileAttackDamage,
                         cooldown: this._cooldowns.projectile,
                         isTrack: true,
+                        audio: {
+                            key: Constants.RESOURCE.AUDIO.LASER_1,
+                            extra: { volume: 0.3 },
+                        },
                     }
                 );
                 break;

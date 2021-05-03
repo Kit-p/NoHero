@@ -99,6 +99,10 @@ export class GameScene extends Phaser.Scene {
         this._currentHumanControlledCharacter.isHumanControlled = true;
     }
 
+    get potionHealing() {
+        return this._potionHealing;
+    }
+
     preload() {
         for (const value of Object.values(Constants.RESOURCE.AUDIO)) {
             this.sound.add(value);
@@ -326,6 +330,7 @@ export class GameScene extends Phaser.Scene {
 
             // start GameEndScene
             this.time.delayedCall(1000, () => {
+                this.sound.stopAll();
                 this.scene.start(Constants.SCENE.GAME_END, {
                     isVictory: count.enemy === 0,
                     currentScene: this.scene.key,

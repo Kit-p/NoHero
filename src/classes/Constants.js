@@ -34,6 +34,7 @@ export default {
             GUN_2: 'audio_gun-2',
             LASER_1: 'audio_laser-1',
             LASER_2: 'audio_laser-2',
+            FOOTSTEP: 'audio_footstep',
         },
     },
     SCENE: {
