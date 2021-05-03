@@ -6,6 +6,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = merge(base, {
     mode: 'production',
     output: {
+        path: path.resolve(__dirname, '../docs'),
         filename: 'no-hero.min.js',
     },
     devtool: false,
