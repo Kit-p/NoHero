@@ -6,8 +6,8 @@ settings.json
 # webpack config files
 webpack/
 
-# Dist output files
-dist/
+# docs output files
+docs
 
 # Dependency directories
 node_modules/

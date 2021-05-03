@@ -124,7 +124,7 @@ Thumbs.db
 *.sublime-workspace
 
 # output artifacts
-docs
+# docs
 
 # zip files
 *.zip
