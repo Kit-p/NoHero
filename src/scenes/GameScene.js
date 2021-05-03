@@ -166,6 +166,9 @@ export class GameScene extends Phaser.Scene {
             undefined,
             this
         );
+
+        // allow user to hit the R key and restart
+        this.input.keyboard.once('keydown-R', () => this.scene.restart());
     }
 
     /**
