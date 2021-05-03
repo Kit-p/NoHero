@@ -99,7 +99,19 @@ export class GameScene extends Phaser.Scene {
         this._currentHumanControlledCharacter.isHumanControlled = true;
     }
 
+    preload() {
+        for (const value of Object.values(Constants.RESOURCE.AUDIO)) {
+            this.sound.add(value);
+        }
+    }
+
     init() {
+        // play bgm
+        this.sound.play(Constants.RESOURCE.AUDIO.BGM, {
+            volume: 0.02,
+            loop: true,
+        });
+
         this.characterGroup = this.physics.add.group();
         this.projectileGroup = this.physics.add.group();
         this.fieldGroup = this.physics.add.group();

@@ -8,8 +8,18 @@ export class TitleScene extends Phaser.Scene {
         super({ key: Constants.SCENE.TITLE });
     }
 
+    preload() {
+        for (const value of Object.values(Constants.RESOURCE.AUDIO)) {
+            this.sound.add(value);
+        }
+    }
+
     init() {
         this.scale.setGameSize(800, 600);
+        this.sound.play(Constants.RESOURCE.AUDIO.BGM, {
+            volume: 0.2,
+            loop: true,
+        });
     }
 
     create() {
@@ -43,7 +53,13 @@ export class TitleScene extends Phaser.Scene {
             function () {
                 this.setStyle({ color: '#ffffff' });
             },
-            () => this.scene.start(Constants.SCENE.LEVELS?.[0])
+            () => {
+                this.sound.play(Constants.RESOURCE.AUDIO.SELECT, {
+                    volume: 0.2,
+                });
+                this.sound.stopByKey(Constants.RESOURCE.AUDIO.BGM);
+                this.scene.start(Constants.SCENE.LEVELS?.[0]);
+            }
         );
 
         // center all objects horizontally in the scene

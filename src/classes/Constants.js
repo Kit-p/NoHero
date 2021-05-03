@@ -17,6 +17,7 @@ export default {
         },
         AUDIO: {
             BGM: 'audio_bgm',
+            SELECT: 'audio_select',
             LOSE: 'audio_lose',
             WIN: 'audio_win',
             PLAYER_HURT: 'audio_player_hurt',

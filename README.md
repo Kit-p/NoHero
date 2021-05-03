@@ -44,3 +44,6 @@ PANG, Kit ([Kit-p](https://github.com/Kit-p)) <kpangaa@connect.ust.hk>
 
 -   source: <https://timbeek.itch.io/free-retro-boss-music>  
     author: [Tim Beek](https://timbeek.itch.io/)
+
+-   source: <https://obsydianx.itch.io/interface-sfx-pack-1>  
+    author: [ObsydianX](https://obsydianx.itch.io/)
