@@ -1,12 +1,18 @@
 # No Hero (COMP4451 Spring 2020-2021)
 
-No Hero is a 2D dungeon RPG, built with [Phaser 3](https://phaser.io/) in JavaScript.
+No Hero is a 2D dungeon RPG, built with [Phaser 3](https://phaser.io/) in JavaScript.  
+This game is being deployed at <https://kit-p.github.io/COMP4451-NoHero/index.html>. Check it out!
 
 ## Author
 
 PANG, Kit ([Kit-p](https://github.com/Kit-p)) <kpangaa@connect.ust.hk>
 
 ## Guide
+
+### Play on browser (Recommended)
+
+Visit <https://kit-p.github.io/COMP4451-NoHero/index.html> to play this game!  
+If the game does not load properly, make sure you have turned off any form of ad-blocking or tracker-blocking.
 
 ### How to run the game locally
 
